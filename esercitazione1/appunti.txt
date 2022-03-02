@@ -1,0 +1,8 @@
+gnuplot
+plot "out" u 1:2
+set logscale x
+
+e per creare il file coi dati: printf("%10.8f \t %10.8 \n",x,f)
+
+*Prima relazione:
+	esercizio 2 scheda 1
