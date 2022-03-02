@@ -3,12 +3,12 @@
 
 int main(){
 	float x0 = 1;
-	int n = 1000;
+	int n = 100;
 	float h[n];
 	float err[n];
 
 	for (int j = 0; j < n; ++j){
-		h[j] = (j+1)*(0.01/n);
+		h[j] = (j+1)*(0.001/n);
 		//printf("%d\t%d\t%f\n",j,n,h[j]);
 	}
 	
