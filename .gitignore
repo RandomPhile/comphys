@@ -1,4 +1,6 @@
+*.dat
 .DS_Store
+
 # Prerequisites
 *.d
 

@@ -1,3 +1,3 @@
 #!/bin/bash
-gcc es1.c -o es1
-./es1
+gcc es1.c -o es1.out
+./es1.out

@@ -1,7 +1,6 @@
 #include <iostream>
 
 //Per evitare di scrivere std:: ogni volta prima di cout, endl, ecc.. si può usare:
-
 using namespace std;
 
 int main() {
