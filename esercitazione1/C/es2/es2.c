@@ -6,7 +6,7 @@ int main(){
 	int n = 100;
 	double h[n];
 	double err[n];
-
+//ciao
 	for (int j = 0; j < n; ++j){
 		h[j] = (j+1)*(0.000001l/n);
 	}
