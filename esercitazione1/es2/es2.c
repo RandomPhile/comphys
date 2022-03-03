@@ -2,14 +2,13 @@
 #include <math.h>
 
 int main(){
-	float x0 = 1;
+	float x0 = 1.f;
 	int n = 100;
-	float h[n];
-	float err[n];
+	double h[n];
+	double err[n];
 
 	for (int j = 0; j < n; ++j){
-		h[j] = (j+1)*(0.001/n);
-		//printf("%d\t%d\t%f\n",j,n,h[j]);
+		h[j] = (j+1)*(0.000001l/n);
 	}
 	
 
