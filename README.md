@@ -1,8 +1,11 @@
 # comphys
 Fisica computazionale 2021/22
 
-Per compilare, eseguire e plottare il programma scrivere nel terminale `sh run.sh`
+Per risolvere un esercizio scrivere nel terminale `sh run.sh`
 
-- file.c - script non compilato
-- file   - script compilato
-- run.sh - script bash per compilare ed eseguire il programma
+| Filetype | Funzione |
+| -------- | -------- |
+| *.c/.cpp | script non compilato |
+| *.out    | script compilato |
+| *.sh     | script bash per compilare ed eseguire il programma |
+| *.dat    | file con dati per gnuplot |
