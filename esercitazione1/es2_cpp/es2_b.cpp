@@ -8,24 +8,21 @@ using namespace std;
 ed E può essere anche negativo
 */ 
 
+void lista_n(double x_min, double x_max, int n, double *x) {
+	double x_step = (x_max-x_min)*(1.0/n);
+	for (int j = 0; j <= n; ++j){x[j] = x_min + x_step*j;}
+	return;
+}
+
 int main(){
 	double x0 = 1.0, E = 0.01;
 	double E_ = 1.0 + E/2.0;
 	double h_min = 0.01, h_max = 2;
-
-	//scegliendo il numero di step:
-	int n = 10000;
-	double h_step = (h_max-h_min)*(1.0/n);
+	int n = 100;
 	
-	//scegliendo la larghezza degli step:
-	//double h_step = 0.001;
-	//int n = (h_max-h_min)/h_step;
-
 	double h[n],err1[n],err2[n],err3[n];
 	
-	for (int j = 0; j <= n; ++j){
-		h[j] = h_min + h_step*j;
-	}
+	lista_n(h_min,h_max,n,h);
 	
 	for (int i = 0; i <= n; ++i) {
 		err1[i] = fabs(exp(x0) - ((exp((x0 + h[i])*E_) - exp(x0))*(E_*E_)/h[i]));
