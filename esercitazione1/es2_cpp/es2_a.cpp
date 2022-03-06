@@ -12,7 +12,7 @@ f'(x0,h) = [f(x0+h) - f(x0-h)] / (2h)  - f'''(chi)*h^2/6
 
 int main(){
 	double x0 = 1.0;
-	double h_min = 0.01, h_max = 0.1;
+	double h_min = 0.01, h_max = 1;
 
 	//scegliendo il numero di step:
 	int n = 100;

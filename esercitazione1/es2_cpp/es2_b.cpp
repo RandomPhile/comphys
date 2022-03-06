@@ -11,10 +11,10 @@ ed E può essere anche negativo
 int main(){
 	double x0 = 1.0, E = 0.01;
 	double E_ = 1.0 + E/2.0;
-	double h_min = 0.01, h_max = 0.1;
+	double h_min = 0.01, h_max = 2;
 
 	//scegliendo il numero di step:
-	int n = 100;
+	int n = 10000;
 	double h_step = (h_max-h_min)*(1.0/n);
 	
 	//scegliendo la larghezza degli step:
