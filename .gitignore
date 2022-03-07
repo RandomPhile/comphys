@@ -1,5 +1,6 @@
 *.dat
 .DS_Store
+*.eps
 
 # Prerequisites
 *.d

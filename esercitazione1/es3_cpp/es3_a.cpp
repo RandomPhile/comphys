@@ -7,7 +7,7 @@ int main() {
     ofstream dati1, dati2;
     dati1.open("dati1.dat"); dati2.open("dati2.dat");
     //*** parametri da cambiare eventualmente:
-    const int n = 10000;
+    const int n = 1000;
     double a_ = 1.0, c_ = 1.0;
     double b_min_ = 2, b_max_ = 5;
     //***
