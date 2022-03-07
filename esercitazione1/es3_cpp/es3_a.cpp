@@ -23,19 +23,31 @@ c <= b^2/4a
 
 int main() {
     //*** parametri da cambiare eventualmente:
-    int n = 11;
-    float  a  = 1.f, b_min  = 1,   b_max  = 11;
-    double a_ = 1.0, b_min_ = 0.1, b_max_ = 10;
+    int n = 100;
+    float  a  = 1e-6, b_min  = 1e4, b_max  = 1e5;
+    double a_ = 1e-6, b_min_ = 1e4, b_max_ = 1e5;
     //***
 
     //float
-    float b[n], x1[n], x2[n];
-    float c = (b_min*b_min/(4.f*a)) / 1.1f;//divido per 1.1f così che discriminante sempre >= 0 e ho 2 soluzioni reali
+    float c, b[n], x1[n], x2[n];
+    
+    if (b_min >= 0) {//modo brutto brutto per assicurarmi che discriminante sempre >= 0 e ho 2 soluzioni reali
+        c = (b_min*b_min/(4.f*a)) - 0.1f;
+    } else {
+        c = -0.1f;
+    }
+    
     lista_n_float(b_min,b_max,n,b);
     
     //double (probabilmente sono più double di quanti servono, comunque le variabili che finiscono con trattino basso _ sono double)
-    double b_[n], x1_[n], x2_[n];
-    double c_ = (b_min_*b_min_/(4.0*a_)) / 1.1f;
+    double c_, b_[n], x1_[n], x2_[n];
+
+    if (b_min >= 0) {
+        c_ = (b_min_*b_min_/(4.0*a_)) - 0.1;
+    } else {
+        c_ = -0.1;
+    }
+    
     lista_n_double(b_min_,b_max_,n,b_);
 
     //questo serve per il programma di gnuplot (vedi run_es3_a.sh)
