@@ -4,25 +4,25 @@
 using namespace std;
 
 int main() {
-    float a=1, b, c=1, x1, x2, x1c;//definisco arbitrariamente a e c come uguali a 1 cosi da poter vedere eventualmente un grafico in funzione di b
+    float a=1, b, c=1, x1, x2, x1c;
     double ad, bd, cd, x1d, x1dc, x2d, err_rel1, err_rel2;
-    ad=a;
-    b=0;
+    ad=a;//stai assegnando il valore di un float ad un double, sarebbe meglio fare viceversa se proprio
+    b=0;//questo valore di b non viene usato
     bd=b;
     cd=c;
     
     
     
-    for(int i=3; i<100000000;i=i*1.4){//trovo i vari valori in funzione di b e li stampo a video
-        b=i;
-        bd=i;
-        x1=-b+sqrt(b*b-4*a*c)/(2*a);
-        x1c=2*c/(-b-sqrt(b*b-4*a*c)); //correzione per stabilità
-        x2=-b-sqrt(b*b-4*a*c)/(2*a);
+    for(int i=3; i<100000000;i=i*1.4){//i è un intero e gli assegni il valore di i*1.4
+        b=i;//valore di un intero assegnato ad un float
+        bd=i;//valore di un intero ad un double
+        x1=-b+sqrt(b*b-4*a*c)/(2*a);//mancano parentesi prima di -b
+        x1c=2*c/(-b-sqrt(b*b-4*a*c));
+        x2=-b-sqrt(b*b-4*a*c)/(2*a);//la soluzione x2 non viene mai usata... invece è quella interessante perchè è stabile
         
         x1d=-bd+sqrt(pow(bd,2)-4*ad*cd);
-        x1dc=2*cd/(-bd-sqrt(pow(bd,2)-4*ad*cd)); //correzione per stabilità in double
-        x2=-bd-sqrt(pow(bd,2)-4*ad*cd);
+        x1dc=2*cd/(-bd-sqrt(pow(bd,2)-4*ad*cd));
+        x2=-bd-sqrt(pow(bd,2)-4*ad*cd);//qua immagino fosse x2d
         
         
         err_rel1=fabs((x1d-x1)/x1d)/(2*ad);
