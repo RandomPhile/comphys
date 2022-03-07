@@ -19,15 +19,15 @@ int main() {
         printf("%f\n", b);
         
         x1=(-b+sqrt(b*b-4*a*c))/(2*a);//guardo la prima soluzione perche instabile e valuto l'errore per b grande
-        x1c=2*c/(-b-sqrt(b*b-4*a*c));
-        x2=(-b-sqrt(b*b-4*a*c))/(2*a);
+        x1c=2.f*c/(-b-sqrt(b*b-4.f*a*c));
+        x2=(-b-sqrt(b*b-4.f*a*c))/(2.f*a);
         
         x1d=-bd+sqrt(pow(bd,2)-4*ad*cd);//controllo la soluzione 1 con la versione stabile e controllo l'errore
         x1dc=2*cd/(-bd-sqrt(pow(bd,2)-4*ad*cd));
         x2d=(-bd-sqrt(pow(bd,2)-4*ad*cd))/(2*ad);
         
         
-        err_rel1=fabs((x1d-x1)/x1d)/(2*ad);
+        err_rel1=fabs((x1d-x1)/x1d)/(2.f*a);
         err_rel2=fabs((x1dc-x1c)/x1dc)/(2*ad);
     
         cout<<i<<"\t"<<err_rel1<<"\t"<<err_rel2<<endl;
