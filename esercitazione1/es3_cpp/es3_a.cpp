@@ -21,10 +21,10 @@ int main() {
         b = (float) b_;
 
         //check perchè ho una radice quadrata
-        if ((pow(b,2) - 4.f*a*c < 10e-8) || (pow(b_,2) - 4.0*a_*c_ < 10e-16)) {return 1;}//attento che pow prende double in ingresso e restituisce double quindi il risultato finale è un double complessivo in teoria
+        if ((powf(b,2) - 4.f*a*c < 10e-8) || (pow(b_,2) - 4.0*a_*c_ < 10e-16)) {return 1;}//attento che pow prende double in ingresso e restituisce double quindi il risultato finale è un double complessivo in teoria
 
-        x1 = (-b + sqrt(pow(b,2) - 4.f*a*c)) / (2.f*a);
-        x2 = (-b - sqrt(pow(b,2) - 4.f*a*c)) / (2.f*a);
+        x1 = (-b + sqrt(powf(b,2) - 4.f*a*c)) / (2.f*a);
+        x2 = (-b - sqrt(powf(b,2) - 4.f*a*c)) / (2.f*a);
         x1_ = (-b_ + sqrt(pow(b_,2) - 4.0*a_*c_)) / (2.0*a_);
         x2_ = (-b_ - sqrt(pow(b_,2) - 4.0*a_*c_)) / (2.0*a_);
 
@@ -32,8 +32,8 @@ int main() {
         err_rel2 = fabs((x2_ - x2) / x2_);
         
         //alternativa stabile:
-        x1s = (2.f*c) / (-b - sqrt(pow(b,2) - 4.f*a*c));
-        x2s = (2.f*c) / (-b + sqrt(pow(b,2) - 4.f*a*c));//attento che molto probabilmente è instabile
+        x1s = (2.f*c) / (-b - sqrt(powf(b,2) - 4.f*a*c));
+        x2s = (2.f*c) / (-b + sqrt(powf(b,2) - 4.f*a*c));//attento che molto probabilmente è instabile
         x1s_ = (2.0*c_) / (-b_ - sqrt(pow(b_,2) - 4.0*a_*c_));
         x2s_ = (2.0*c_) / (-b_ + sqrt(pow(b_,2) - 4.0*a_*c_)); //attento che molto probabilmente è instabile, solo la prima era instabile quindi la correzione va fatta solo su quella senno rendi instabile quella che andava bene prima
 

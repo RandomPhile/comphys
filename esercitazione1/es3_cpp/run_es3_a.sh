@@ -14,13 +14,9 @@ set term qt font "Arial"
 set grid
 set logscale x
 
-set terminal qt 0
+set multiplot layout 2,2
 plot "dati1.dat" u 1:2 w l title "x1"
-set terminal qt 1
-plot "dati2.dat" u 1:2 w l title "x1s"
-set terminal qt 2
 plot "dati1.dat" u 1:3 w l title "x2"
-set terminal qt 3
+plot "dati2.dat" u 1:2 w l title "x1s"
 plot "dati2.dat" u 1:3 w l title "x2s"
-
 EOFMarker
