@@ -6,12 +6,13 @@ ofstream dati1, dati2;
 
 double f(double x);
 double bisezione(double a, double b, double d);
+double secante(double a, double b, double d);
 
 double v;
 int contatore = 0;
 
 int main() {
-    dati1.open("dati1.dat");
+    dati1.open("dati1.dat");dati2.open("dati2.dat");
     double delta = 1e-6;
     double hc = 197.327;//MeVfm
     double R = 1.93;//fm
@@ -24,11 +25,13 @@ int main() {
     v = 2 * V0 * muc2 * pow(R, 2) / pow(hc, 2);
 
     float x_bisezione = bisezione(0, 2, delta);
+    
 
-    double E_bisezione = -x_bisezione * lam;
-
-    printf("e = %f\tE_bisezione = %f\tSteps = %d\n", x_bisezione, E_bisezione, contatore);
-    dati1.close();
+    printf("e = %f\tE = %f\tSteps = %d\n", x_bisezione, -x_bisezione * lam, contatore);
+    contatore = 0;
+    float x_secante = secante(2.99, 3, delta);
+    printf("e = %f\tE = %f\tSteps = %d\n", x_bisezione, -x_secante * lam, contatore);
+    dati1.close();dati2.close();
 }
 
 double f(double x) {
@@ -48,4 +51,16 @@ double bisezione(double a, double b, double d) {
         contatore++;
     }
     return (a + b) / 2;
+}
+
+double secante(double a, double b, double d) {
+    double c;
+    while (abs((b - a) / b) > d) {
+        c = b - f(b) * (b - a) / (f(b) - f(a));
+        a=b;
+        b=c;
+        dati2 << contatore << '\t' << c << endl;
+        contatore++;
+    }
+    return c;
 }
