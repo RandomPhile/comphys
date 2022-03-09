@@ -1,11 +1,4 @@
-#!/bin/bash
-g++ es3_a.cpp -o es3_a.out
-./es3_a.out
-pkill -x gnuplot, gnuplot_qt
-#!/usr/bin/gnuplot -persist
-gnuplot -persist <<-EOFMarker
-
-set term qt font "Helvetica"
+set term qt font "Helvetica" position 0,0
 #set term eps font "Helvetica"
 ###
 #set output "b_pos.eps"
@@ -31,5 +24,4 @@ plot "dati1.dat" u 1:3 w l title "x2"
 plot "dati2.dat" u 1:2 w l title "x1s"
 plot "dati2.dat" u 1:3 w l title "x2s"
 
-
-EOFMarker
+pause -1

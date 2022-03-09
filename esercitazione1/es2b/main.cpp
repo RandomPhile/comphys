@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cmath>
-
+#include <fstream>
 using namespace std;
+ofstream dati;
 
 /*Errore nel fare l'operazione @:
 
@@ -9,15 +10,10 @@ using namespace std;
 
 ed E può essere anche negativo
 */ 
-
-//stessa funzione per gli array (vedi es2_a)
-void lista_n_double(double x_min, double x_max, int n, double *x) {
-	double x_step = (x_max-x_min)*(1.0/n);
-	for (int i = 0; i < n; ++i){x[i] = x_min + x_step*i;}
-	return;
-}
+void lista_n_double(double x_min, double x_max, int n, double *x);
 
 int main(){
+	dati.open("dati.dat");
 	//*** parametri da cambiare eventualmente:
 	int n = 1000;
 	double x0 = 1.0, E = 5.96046e-08;//1.11022e-16
@@ -53,6 +49,14 @@ int main(){
 		*/
 		err3[i] = fabs(exp(x0) - ((exp((x0 + h[i])*E_) - exp((x0 - h[i])*E_))*E_/(2.0*h[i])));
 		
-		cout << h[i] << "\t" << err1[i] << "\t" << err2[i] << "\t" << err3[i] << endl;
+		dati << h[i] << "\t" << err1[i] << "\t" << err2[i] << "\t" << err3[i] << endl;
 	}
+	dati.close();
+}
+
+//stessa funzione per gli array (vedi es2_a)
+void lista_n_double(double x_min, double x_max, int n, double *x) {
+	double x_step = (x_max-x_min)*(1.0/n);
+	for (int i = 0; i < n; ++i){x[i] = x_min + x_step*i;}
+	return;
 }
