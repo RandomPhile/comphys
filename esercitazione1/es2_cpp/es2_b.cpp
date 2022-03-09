@@ -19,9 +19,9 @@ void lista_n_double(double x_min, double x_max, int n, double *x) {
 
 int main(){
 	//*** parametri da cambiare eventualmente:
-	int n = 100;
-	double x0 = 1.0, E = 0.1;
-	double h[n], h_min = 0.01, h_max = 2;
+	int n = 1000;
+	double x0 = 1.0, E = 5.96046e-08;//1.11022e-16
+	double h[n], h_min = 1e-7, h_max = 1e-1;
 	//***
 	
 	double E_ = 1.0 + E/2.0;//per comodità

@@ -5,12 +5,18 @@ pkill -x gnuplot, gnuplot_qt
 #!/usr/bin/gnuplot -persist
 gnuplot -persist <<-EOFMarker
 
-set termoption enhanced
+set term qt font "Helvetica"
 set title "Esercizio 2b"
 set xlabel "h"
-set ylabel "\{/Symbol D}_h"
+set ylabel "Δ_h"
 set grid
+set format x "%2.0tx10^{%L}"
+set format y "%2.0tx10^{%L}"
+set logscale y
+set logscale x
 
-plot "dati_b.dat" u 1:2 w l title "Metodo 1", "dati_b.dat" u 1:3 w l title "Metodo 2", "dati_b.dat" u 1:4 w l title "Metodo 3"
+plot "dati_b.dat" u 1:2 w l title "Differenza in avanti", \\
+"dati_b.dat" u 1:3 w l title "Differenza centrale (senza errore su 2*h)", \\
+"dati_b.dat" u 1:4 w l title "Differenza centrale (con errore su 2*h)"
 
 EOFMarker

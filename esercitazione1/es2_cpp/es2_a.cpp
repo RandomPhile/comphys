@@ -3,8 +3,10 @@
 using namespace std;
 
 /*Due metodi per calcolare la derivata:
-
+Differenza in avanti
 f'(x0,h) = [f(x0+h) - f(x0)] / h       - f''(chi)*h/2
+
+Differenza centrale
 f'(x0,h) = [f(x0+h) - f(x0-h)] / (2h)  - f'''(chi)*h^2/6
 
 */ 
