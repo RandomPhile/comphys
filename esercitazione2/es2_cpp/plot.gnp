@@ -1,3 +1,0 @@
-#!/usr/bin/gnuplot -persist
-set term qt font "Helvetica" #position 0,0
-plot x
