@@ -17,7 +17,7 @@ set term qt font "Helvetica"
 #set xtics ("-10^2" 1e2,"-10^3" 1e3,"-10^4" 1e4,"-10^5" 1e5)
 
 
-set datafile sep ','
+set datafile sep '\t'
 #set title "Esercizio 3a"
 set xlabel "b"
 set ylabel "ε_r"

@@ -40,8 +40,8 @@ int main() {
         err_rel1s = fabs((x1s_ - x1s) / x1s_);
         err_rel2s = fabs((x2s_ - x2s) / x2s_);
 
-        dati1 << fabs(b_) << "," << err_rel1 << "," << err_rel2 << endl;
-        dati2 << fabs(b_) << "," << err_rel1s << "," << err_rel2s << endl;
+        dati1 << fabs(b_) << "\t" << err_rel1 << "\t" << err_rel2 << endl;
+        dati2 << fabs(b_) << "\t" << err_rel1s << "\t" << err_rel2s << endl;
     }
     dati1.close(); dati2.close();
     return 0;
