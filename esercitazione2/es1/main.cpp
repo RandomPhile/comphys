@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
 using namespace std;
-
+//ciao
 typedef double (*lista_funzioni) (double x, double param);
 
 double trapezi(double (*f)(double, double), double a, double b, int N, double param);
