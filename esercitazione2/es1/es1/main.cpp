@@ -3,7 +3,7 @@
 #define _USE_MATH_DEFINES
 
 using namespace std;
-
+//ciao
 //definisco le funzioni per l'integrazione con overloading di funzione
 double trapezi(double (*f)(double), double a, double b, int N, double param);
 double trapezi(double (*f)(double, double), double a, double b, int N, double param);
