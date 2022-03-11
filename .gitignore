@@ -1,3 +1,4 @@
+*.xcodeproj
 *.dat
 .DS_Store
 *.eps
