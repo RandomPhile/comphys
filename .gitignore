@@ -1,7 +1,6 @@
 *.dat
 .DS_Store
 *.eps
-*.xcodeproj
 
 # Prerequisites
 *.d
