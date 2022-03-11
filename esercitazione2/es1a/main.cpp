@@ -80,6 +80,6 @@ double simpson(double (*f)(double, double), double a, double b, int N, double pa
         I += 2 * f(a + 2 * n * h, param) + 4 * f(a + (2 * n - 1) * h, param);
     }
     //tolgo l'elemento N/2 - 1 della prima sommatoria
-    I = (I - 2 * f(a + 2 * (N / 2 - 1) * h, param)) * h / 3;
+    I = (I - 2 * f(b, param)) * h / 3;
     return I;
 }
