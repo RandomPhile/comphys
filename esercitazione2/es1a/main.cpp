@@ -1,4 +1,3 @@
-//1234
 #include <iostream>
 #include <cmath>
 #include <array>
@@ -18,10 +17,7 @@ int main() {
     int N_t[4], N_s[4];
     double f2_max[4], f4_max[4];
 
-
     double delta1=1e-4, delta2=1e-6;
-
-    
 
     for (int i = 0; i < 4; ++i) {
         f2_max[i] = max_of_function(f_d[i], 2, 0, AB[i], param[i], 10);
@@ -79,7 +75,7 @@ double simpson(double (*f)(double, double), double a, double b, int N, double pa
     for (int n = 1; n < N / 2; n++) {
         I += 2 * f(a + 2 * n * h, param) + 4 * f(a + (2 * n - 1) * h, param);
     }
-    //tolgo l'elemento N/2 - 1 della prima sommatoria
+    //tolgo l'elemento N/2 della prima sommatoria
     I = (I - 2 * f(b, param)) * h / 3;
     return I;
 }
