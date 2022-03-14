@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 55;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -23,9 +23,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4901338C27DB7B2E00189D6E /* funzioni.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = funzioni.h; sourceTree = SOURCE_ROOT; };
 		496314DC27DB53E8004788B5 /* es1a */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = es1a; sourceTree = BUILT_PRODUCTS_DIR; };
 		496314DF27DB53E8004788B5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		496F814627DB5B31004F797E /* funzioni.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = funzioni.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +58,7 @@
 		496314DE27DB53E8004788B5 /* es1a */ = {
 			isa = PBXGroup;
 			children = (
-				496F814627DB5B31004F797E /* funzioni.h */,
+				4901338C27DB7B2E00189D6E /* funzioni.h */,
 				496314DF27DB53E8004788B5 /* main.cpp */,
 			);
 			path = es1a;
@@ -99,7 +99,7 @@
 				};
 			};
 			buildConfigurationList = 496314D727DB53E8004788B5 /* Build configuration list for PBXProject "es1a" */;
-			compatibilityVersion = "Xcode 12.0";
+			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
