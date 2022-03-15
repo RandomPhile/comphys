@@ -63,20 +63,25 @@ int main() {
     //pongo k,R,q variabili esterne per poter usare il programma trovato in precedenza
     k=sqrt(2*muc2*(V0-e*lam)/pow(hc,2));
     q=sqrt(2*muc2*e*lam/pow(hc,2));
-    
+    printf("k: %f\tq: %f\n",k,q);
     //trovo il valore di A per la quale io abbia psi normalizzata con la bisezione
-    double A_min=0, A_max=100, A=0;
+    double A_min=2, A_max=4, A=0;
     while (abs(2 * (A_max - A_min) / (A_max + A_min)) > delta) {
         A = (A_max + A_min) / 2;
-        if ((simpson(psi2, 0, 1000000, 10000, A_max)-1)*(simpson(psi2, 0, 1000000, 10000, A)-1) < 0){
+        double I1 = simpson(psi2, 1e-3, 1e6, 1e7, A_max);
+        double I2 = simpson(psi2, 1e-3, 1e6, 1e7, A);
+        
+        if ((I1-1)*(I2-1) < 0){
             A_min = A;
+           
         }
         else {
             A_max = A;
         }
-        cout<<A<<endl;
+        
     }
-    r_2M=simpson(r2psi2, 0, 1000000, 1000, A);
+    cout<<A<<endl;
+    r_2M=simpson(r2psi2, 1e-3, 1e5, 1e7, A);
     cout<<r_2M<<endl;
     dati.close();
 }
@@ -129,6 +134,7 @@ double NR(double a, int max) {
 }
 double simpson(double (*f)(double, double), double a, double b, int N, double param) {
     double h = (b - a) / N;
+    //cout<<h<<endl;
     double I;
     I = (f(a, param) + f(b, param));
     for (int n = 1; n <= N / 2; n++) {
