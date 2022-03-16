@@ -17,9 +17,9 @@ void lista_n_double(double x_min, double x_max, int n, double *x);
 int main() {
 	dati.open("dati.dat");
 	//*** parametri da cambiare eventualmente:
-	int n = 100;
+	int n = 117;
 	double x0 = 1.0;
-	double h[n], h_min = 0.01, h_max = 1;
+	double h[n], h_min = -18, h_max =-4;
 	//***
 
 	lista_n_double(h_min,h_max,n,h);//assegno valori all'array h[]
@@ -37,7 +37,10 @@ int main() {
 //in realtà è un void (non ritorna nulla) perchè modifica un array x dato come argomento
 //(più avanti potremo sostituirla con una libreria tipo <vectors>)
 void lista_n_double(double x_min, double x_max, int n, double *x) {
-	double x_step = (x_max-x_min)*(1.0/n);
-	for (int i = 0; i < n; ++i){x[i] = x_min + x_step*i;}
+    int i = 0;
+    for (double a = pow(10,x_min); a < pow(10,x_max); a *= pow(10,(x_max-x_min)/n)){
+        x[i] = a;
+        i++;
+    }
 	return;
 }

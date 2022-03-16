@@ -17,7 +17,7 @@ int main(){
 	//*** parametri da cambiare eventualmente:
 	int n = 1000;
 	double x0 = 1.0, E = 5.96046e-08;//1.11022e-16
-	double h[n], h_min = 1e-7, h_max = 1e-1;
+	double h[n], h_min = 1e-9, h_max = 1e-2;
 	//***
 	
 	double E_ = 1.0 + E/2.0;//per comodità
