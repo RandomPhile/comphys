@@ -5,7 +5,7 @@ using namespace std;
 
 int main() {
 
-	for (float x = 1.f; x > 0; x=x/2){
+	for (float x = 1.f; x > 0; x=x/2){ 
 		if (1.f + x == 1.f){
 			cout<<"Epsilon float  = "<<x<<endl;
 			break;
