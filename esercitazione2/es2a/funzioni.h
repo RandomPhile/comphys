@@ -1,3 +1,15 @@
+//
+//  funzioni.h
+//  es2a
+//
+//  Created by Mattia Lupi on 16/03/22.
+//
+
+#ifndef funzioni_h
+#define funzioni_h
+
+extern double v;
+
 typedef double (*lista_funzioni2) (double x, double param);
 typedef double (*lista_funzioni3) (double x, double param, int der);
 
@@ -69,3 +81,17 @@ double f4_d(double x, double b, int der) {
 }
 lista_funzioni3 f_d[] = {f1_d, f2_d, f3_d, f4_d};
 
+double max_of_function(double (*f)(double, double, int), int der, double a, double b, double param, int N_der) {
+    float temp[N_der];
+    double h_der;
+    for (int n = 0; n < N_der; n++) {
+        h_der = a + n * b / (1.0 * N_der);
+        temp[n] = fabs(f(h_der, param, der));
+    }
+    return *std::max_element(temp, temp + N_der);
+}
+double f_prime(double x) {
+    return 1 / (2 * pow(sin(sqrt(v - x)), 2) * sqrt(v - x)) + v / (2 * sqrt(x / (v - x)) * pow((x - v), 2));
+}
+
+#endif /* funzioni_h */

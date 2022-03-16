@@ -1,26 +1,25 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+
+#include "funzioni.h"
+#include "integrali.h"
+#include "zeri.h"
+
 #define _USE_MATH_DEFINES
 using namespace std;
 ofstream dati;
 
 double f1(double x);//funzione iniziale per trovare E
-double bisezione(double (*f)(double), double a, double b, double d);
-double bisezione(double (*f)(double, double), double a, double b, double d, double A);
-double secante(double (*f)(double), double a, double b, double d);
-double NR(double (*f)(double), double a, int max);//Newton-Raphson
 double psi2(double r, double A);
 double r2psi2(double r, double A);
-double max_of_function(double (*f)(double, double, int), int der, double a, double b, double param, int N_der);
-double simpson(double (*f)(double, double), double a, double b, int N, double param);
 
 
 double v;
 double R;
 double k;
 double q;
-int contatore = 0;
+int contatore=0;
 
 int main() {
     dati.open("dati.dat");
@@ -92,69 +91,11 @@ int main() {
     dati.close();
 }
 
+
+
+
 double f1(double x) {
     return 1 / tan(sqrt(v - x)) + sqrt(x / (v - x));
-}
-
-double f_prime(double x) {
-    return 1 / (2 * pow(sin(sqrt(v - x)), 2) * sqrt(v - x)) + v / (2 * sqrt(x / (v - x)) * pow((x - v), 2));
-}
-
-double bisezione(double (*f)(double), double a, double b, double d){
-    double c;
-    while (fabs(2 * (b - a) / (a + b)) > d) {
-        c = (a + b) / 2;
-        if (f(a)*f(c) < 0) {
-            b = c;
-        } else {
-            a = c;
-        }
-        dati << contatore << '\t' << c << endl;
-        contatore++;
-    }
-    return c;
-}
-
-double secante(double (*f)(double),double a, double b, double d) {
-    double c;
-    while (fabs((b - a) / b) > d) {
-        c = b - f(b) * (b - a) / (f(b) - f(a));
-        a = b;
-        b = c;
-        dati << contatore << '\t' << c << endl;
-        contatore++;
-    }
-    return c;
-}
-
-double NR(double (*f)(double), double a, int max) {
-    while (contatore <= max) {
-        a = a - f(a)/f_prime(a);
-        dati << contatore << '\t' << a << endl;
-        contatore++;
-    }
-    return a;
-}
-double simpson(double (*f)(double, double), double a, double b, int N, double param) {
-    double h = (b - a) / N;
-    //cout<<h<<endl;
-    double I;
-    I = (f(a, param) + f(b, param));
-    for (int n = 1; n <= N / 2; n++) {
-        I += 2 * f(a + 2 * n * h, param) + 4 * f(a + (2 * n - 1) * h, param);
-    }
-    //tolgo l'elemento N/2 della prima sommatoria
-    I = (I - 2 * f(b, param)) * h / 3;
-    return I;
-}
-double max_of_function(double (*f)(double, double, int), int der, double a, double b, double param, int N_der) {
-    float temp[N_der];
-    double h_der;
-    for (int n = 0; n < N_der; n++) {
-        h_der = a + n * b / (1.0 * N_der);
-        temp[n] = fabs(f(h_der, param, der));
-    }
-    return *max_element(temp, temp + N_der);
 }
 
 double psi2(double r, double A){//definisco il modulo quadro di psi che essendo reale corrisponde al quadrato
