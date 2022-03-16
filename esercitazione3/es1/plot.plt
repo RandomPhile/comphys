@@ -3,6 +3,7 @@ set datafile sep '\t'
 set grid
 
 #set multiplot layout 1,2
-plot "dati.dat" u 1:2 w l
+#plot "dati.dat" u 1:2 w l
 #plot "dati.dat" u 1:3 w l
+plot "dati.dat" u 1:4 w l
 pause -1
