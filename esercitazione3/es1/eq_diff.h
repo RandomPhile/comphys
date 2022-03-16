@@ -22,5 +22,14 @@ int eulero_exp(double t, double *x, double *y, double h,
 
     return 0;
 }
+int eulero_imp(double t, double *x, double *y, double h,
+               double (*f)(double,double,double,double*),
+               double *fargs,
+               double (*g)(double,double,double,double*),
+               double *gargs){
+    
+    
+    return 0;
+}
 
 #endif /* eq_diff_h */

@@ -13,7 +13,7 @@ double g(double t, double x, double y, double *gargs);
 int main() {
     dati.open("dati.dat");
     double t ,t0 = 0, t1 = 25, h, x=1, y=0;
-    int N = 100;
+    int N = 10000;
     h = (t1-t0)/( (double) N);
     printf("t\t\t\tx\t\t\ty\n");
 
