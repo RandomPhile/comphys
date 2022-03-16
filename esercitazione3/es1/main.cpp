@@ -1,16 +1,14 @@
 #include <iostream>
 #include <fstream>
+#include "eq_diff.h"
+
 using namespace std;
 ofstream dati;
+
 //putatore NULL
 double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 
-int eulero_exp(double t, double *x, double *y, double h,
-               double (*f)(double,double,double,double*),
-               double *fargs,
-               double (*g)(double,double,double,double*),
-               double *gargs);
 
 int main() {
     dati.open("dati.dat");
@@ -37,13 +35,3 @@ double g(double t, double x, double y, double *gargs){
     return -x;
 };
 
-int eulero_exp(double t, double *x, double *y, double h,
-               double (*f)(double,double,double,double*),
-               double *fargs,
-               double (*g)(double,double,double,double*),
-               double *gargs){
-    *x += h*f(t,*x,*y,NULL);
-    *y += h*g(t,*x,*y,NULL);
-
-    return 0;
-}
