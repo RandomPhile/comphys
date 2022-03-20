@@ -5,16 +5,13 @@
 #include "funzioni.h"
 #include "integrali.h"
 #include "zeri.h"
+#include "psi.h"
 
 #define _USE_MATH_DEFINES
 using namespace std;
 ofstream dati;
 
 double f1(double x);//funzione iniziale per trovare E
-double rpsi2(double r, double A);
-double psi2(double r, double A);
-double r2psi2(double r, double A);
-
 
 double v;
 double R;
@@ -65,15 +62,14 @@ int main() {
     
     //pongo k,R,q variabili esterne per poter usare il programma trovato in precedenza
     k=sqrt(2*muc2*(V0-e*lam)/pow(hc,2));
-    q=sqrt(2*muc2*e*lam/pow(hc,2));
+    q=-k/tan(k*R);
     
-    
-    //trovo il valore di A per la quale io abbia psi normalizzata con la bisezione
+ /*   //trovo il valore di A per la quale io abbia psi normalizzata con la bisezione
     double A_min=2, A_max=4, A=0;
     while (fabs(2 * (A_max - A_min) / (A_max + A_min)) > delta) {
         A = (A_max + A_min) / 2;
-        double I1 = simpson(psi2, 1e-3, 1e6, 1e7, A_max);
-        double I2 = simpson(psi2, 1e-3, 1e6, 1e7, A);
+        double I1 = simpson(psi2, 1e-5, 1e6, 1e7, A_max);
+        double I2 = simpson(psi2, 1e-5, 1e6, 1e7, A);
         
         if ((I1-1)*(I2-1) < 0){//uso I1-1 per avere lo zero di funzione trovato con la bisezione
             A_min = A;
@@ -83,9 +79,9 @@ int main() {
             A_max = A;
         }
         
-    }
-    
-    cout<<"Il valore di A che normalizza la funzione d'onda è: "<<A<<endl;
+    }*/
+    double A=0;
+    //cout<<"Il valore di A che normalizza la funzione d'onda è: "<<A<<endl;
     r_2M=simpson(r2psi2, 1e-3, 1e5, 1e7, A)/simpson(psi2, 1e-3, 1e5, 1e7, A);
     cout<<"Il valore del raggio quadratico medio è: "<<r_2M<<" mentre quello esatto (diversa teoria) è: 2.12799"<<endl;
     cout<<"r medio è: "<<simpson(rpsi2, 1e-3, 1e5, 1e7, A)<<endl;
@@ -99,33 +95,3 @@ double f1(double x) {
     return 1 / tan(sqrt(v - x)) + sqrt(x / (v - x));
 }
 
-double psi2(double r, double A){//definisco il modulo quadro di psi che essendo reale corrisponde al quadrato
-    if(r<=R){
-        double y=A*sin(k*r)/(r*sqrt(4*M_PI));
-        return y*y;
-    }
-    else{
-        double y=A*sin(k*R)*exp(q*(R-r))/(r*sqrt(4*M_PI));
-        return y*y;
-    }
-}
-double rpsi2(double r, double A){//definisco il modulo quadro di psi che essendo reale corrisponde al quadrato
-    if(r<=R){
-        double y=A*sin(k*r)/(r*sqrt(4*M_PI));
-        return r*y*y;
-    }
-    else{
-        double y=A*sin(k*R)*exp(q*(R-r))/(r*sqrt(4*M_PI));
-        return r*y*y;
-    }
-}
-double r2psi2(double r, double A){//come sopra ma moltiplico per r^2 per avere l'integrale di mio interesse
-    if(r<=R){
-        double y=r*A*sin(k*r)/(r*sqrt(4*M_PI));
-        return y*y;
-    }
-    else{
-        double y=r*A*sin(k*R)*exp(q*(R-r))/(r*sqrt(4*M_PI));
-        return y*y;
-    }
-}
