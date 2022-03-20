@@ -11,6 +11,7 @@ using namespace std;
 ofstream dati;
 
 double f1(double x);//funzione iniziale per trovare E
+double rpsi2(double r, double A);
 double psi2(double r, double A);
 double r2psi2(double r, double A);
 
@@ -85,9 +86,9 @@ int main() {
     }
     
     cout<<"Il valore di A che normalizza la funzione d'onda è: "<<A<<endl;
-    r_2M=simpson(r2psi2, 1e-3, 1e5, 1e7, A);
+    r_2M=simpson(r2psi2, 1e-3, 1e5, 1e7, A)/simpson(psi2, 1e-3, 1e5, 1e7, A);
     cout<<"Il valore del raggio quadratico medio è: "<<r_2M<<" mentre quello esatto (diversa teoria) è: 2.12799"<<endl;
-    
+    cout<<"r medio è: "<<simpson(rpsi2, 1e-3, 1e5, 1e7, A)<<endl;
     dati.close();
 }
 
@@ -106,6 +107,16 @@ double psi2(double r, double A){//definisco il modulo quadro di psi che essendo 
     else{
         double y=A*sin(k*R)*exp(q*(R-r))/(r*sqrt(4*M_PI));
         return y*y;
+    }
+}
+double rpsi2(double r, double A){//definisco il modulo quadro di psi che essendo reale corrisponde al quadrato
+    if(r<=R){
+        double y=A*sin(k*r)/(r*sqrt(4*M_PI));
+        return r*y*y;
+    }
+    else{
+        double y=A*sin(k*R)*exp(q*(R-r))/(r*sqrt(4*M_PI));
+        return r*y*y;
     }
 }
 double r2psi2(double r, double A){//come sopra ma moltiplico per r^2 per avere l'integrale di mio interesse
