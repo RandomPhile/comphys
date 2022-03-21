@@ -10,13 +10,17 @@ ofstream dati;
 double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 
+double lam;
 
 int main() {
     dati.open("dati.dat");
-    double t ,t0 = 0, t1 = 25, h, x=1, y=0,E;
+    double t ,t0 = 0, t1 , h, x=1, y=0, E, m=5, k=5;
+    double T=sqrt(m/k);
+    lam=T;
+    t1 = 25*T;
     int N = 10000;
     h = (t1-t0)/( (double) N);
-    printf("t\t\t\tx\t\t\ty\n");
+    printf("t\t\t\tx\t\t\ty\t\t\tE\n");
     
     for (int n = 0; n < N; n++) {
         t = t0 + n*h;
@@ -26,6 +30,7 @@ int main() {
         dati<<t<<"\t"<<x<<"\t"<<y<<"\t"<<E<<endl;
     }
     dati<<"\n\n\n";
+    cout<<"\n\n\n";
     //riporto in condizione iniziale
     t0 = 0;
     t1 = 25;
@@ -40,6 +45,7 @@ int main() {
     }
     
     dati<<"\n\n\n";
+    cout<<"\n\n\n";
     //riporto in condizione iniziale
     t0 = 0;
     t1 = 25;
