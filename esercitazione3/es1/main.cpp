@@ -14,9 +14,9 @@ double lam;
 
 int main() {
     dati.open("dati.dat");
-    double t ,t0 = 0, t1 , h, x=1, y=0, E, m=5, k=5;
+    double t ,t0 = 0, t1 , h, x=1, y=0, E, m=5, k=0.5;
     double T=sqrt(m/k);
-    lam=T;
+    lam=1/T;
     t1 = 25*T;
     int N = 10000;
     h = (t1-t0)/( (double) N);
@@ -33,7 +33,7 @@ int main() {
     cout<<"\n\n\n";
     //riporto in condizione iniziale
     t0 = 0;
-    t1 = 25;
+    t1 = 25*T;
     x=1;
     y=0;
     for (int n = 0; n < N; n++) {
@@ -48,8 +48,8 @@ int main() {
     cout<<"\n\n\n";
     //riporto in condizione iniziale
     t0 = 0;
-    t1 = 25;
-    x=1;
+    t1 = 25*T;
+    x=0.25;
     y=0;
     for (int n = 0; n < N; n++) {
         t = t0 + n*h;
