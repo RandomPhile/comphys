@@ -17,9 +17,11 @@ void lista_n_double(double x_min, double x_max, int n, double *x);
 int main() {
 	dati.open("dati.dat");
 	//*** parametri da cambiare eventualmente:
-	int n = 117;
+	int n = 120;
 	double x0 = 1.0;
-	double h[n], h_min = -18, h_max =-4;
+	// double h[n], h_min = -18, h_max =-4;
+	double h[n], h_min = -18, h_max =-2;
+
 	//***
 
 	lista_n_double(h_min,h_max,n,h);//assegno valori all'array h[]
