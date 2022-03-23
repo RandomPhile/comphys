@@ -12,10 +12,10 @@ int runge_kutta(double t, double *x, double *y, double h,
     
     double k2 = h * f(t + h/2, *x + k1/2, *y + l1/2, fargs);
     double l2 = h * g(t + h/2, *x + k1/2, *y + l1/2, gargs);
-
+    
     double k3 = h * f(t + h/2, *x + k2/2, *y + l2/2, fargs);
     double l3 = h * g(t + h/2, *x + k2/2, *y + l2/2, gargs);
-
+    
     double k4 = h * f(t + h, *x + k3, *y + l3, fargs);
     double l4 = h * g(t + h, *x + k3, *y + l3, gargs);
     
