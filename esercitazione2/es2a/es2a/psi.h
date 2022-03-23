@@ -16,7 +16,7 @@ extern double q;
 extern double R;
 
 double psi2(double r, double A){//definisco il modulo quadro di psi che essendo reale corrisponde al quadrato
-    if(r<=R){
+    if(r<=R && r>=0){
         double y=sin(k*r)/(r*sqrt(4*M_PI));
         return y*y;
     }
@@ -26,7 +26,7 @@ double psi2(double r, double A){//definisco il modulo quadro di psi che essendo 
     }
 }
 double rpsi2(double r, double A){//definisco il modulo quadro di psi che essendo reale corrisponde al quadrato
-    if(r<=R){
+    if(r<=R && r>=0){
         double y=sin(k*r)/(r*sqrt(4*M_PI));
         return r*y*y;
     }
@@ -36,7 +36,7 @@ double rpsi2(double r, double A){//definisco il modulo quadro di psi che essendo
     }
 }
 double r2psi2(double r, double A){//come sopra ma moltiplico per r^2 per avere l'integrale di mio interesse
-    if(r<=R){
+    if(r<=R && r>=0){
         double y=r*sin(k*r)/(r*sqrt(4*M_PI));
         return y*y;
     }

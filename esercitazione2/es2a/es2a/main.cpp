@@ -83,7 +83,7 @@ int main() {
     double A=0;
     //cout<<"Il valore di A che normalizza la funzione d'onda è: "<<A<<endl;
     r_2M=simpson(r2psi2, 1e-3, 1e5, 1e7, A)/simpson(psi2, 1e-3, 1e5, 1e7, A);
-    cout<<"Il valore del raggio quadratico medio è: "<<r_2M<<" mentre quello esatto (diversa teoria) è: 2.12799"<<endl;
+    cout<<"Il valore del raggio quadratico medio è: "<<r_2M<<endl;
     cout<<"r medio è: "<<simpson(rpsi2, 1e-3, 1e5, 1e7, A)<<endl;
     dati.close();
 }
