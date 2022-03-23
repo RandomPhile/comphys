@@ -196,7 +196,6 @@ double int_psi1 (double a, double b, long int N) {
    }
    
    for ( int i = 1 ; i <= N/2 ; i++) {
-   
       I_0 = I_0 + 4*psi1( a + (2*i - 1)*h );
    
    }
