@@ -10,6 +10,7 @@
 
 using namespace std;
 
+extern double lam;
 
 int eulero_exp(double t, double *x, double *y, double h,
                double (*f)(double,double,double,double*),
@@ -35,9 +36,9 @@ int eulero_imp(double t, double *x, double *y, double h,
                double *fargs,
                double (*g)(double,double,double,double*),
                double *gargs){
-    
-    *y+=h*g(t,*x,*y,NULL);
-    *x+=h*f(t,*x,*y,NULL);
+    double temp= *x;
+    *x=((*x)+h*f(t,*x,*y,NULL))/(1+pow(lam*h,2));
+    *y=((*y)+pow(lam,2)*h*g(t,temp,*y,NULL))/(1+pow(lam*h,2));
     return 0;
 }
 
