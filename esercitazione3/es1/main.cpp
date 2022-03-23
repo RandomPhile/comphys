@@ -14,15 +14,15 @@ double g(double t, double x, double y, double *gargs);
 int main() {
     dati.open("dati.dat");
     double t ,t0 = 0, t1 = 25, h, x=1, y=0,E;
-    int N = 10000;
+    int N = 1000;
     h = (t1-t0)/( (double) N);
-    printf("t\t\t\tx\t\t\ty\n");
+    //printf("t\t\t\tx\t\t\ty\n");
     
     for (int n = 0; n < N; n++) {
         t = t0 + n*h;
         if (eulero_exp(t, &x, &y, h, f, NULL, g, NULL)){printf("ERRORE");}
         E=0.5*pow(x,2)+0.5*pow(y,2);
-        printf("%f\t%f\t%f\t%f\n", t,x,y,E);
+        //printf("%f\t%f\t%f\t%f\n", t,x,y,E);
         dati<<t<<"\t"<<x<<"\t"<<y<<"\t"<<E<<endl;
     }
     dati<<"\n\n\n";
@@ -35,7 +35,7 @@ int main() {
         t = t0 + n*h;
         if (eulero_cromer(t, &x, &y, h, f, NULL, g, NULL)){printf("ERRORE");}
         E=0.5*pow(x,2)+0.5*pow(y,2);
-        printf("%f\t%f\t%f\t%f\n", t,x,y,E);
+        //printf("%f\t%f\t%f\t%f\n", t,x,y,E);
         dati<<t<<"\t"<<x<<"\t"<<y<<"\t"<<E<<endl;
     }
     
@@ -49,7 +49,7 @@ int main() {
         t = t0 + n*h;
         if (eulero_imp(t, &x, &y, h, f, NULL, g, NULL)){printf("ERRORE");}
         E=0.5*pow(x,2)+0.5*pow(y,2);
-        printf("%f\t%f\t%f\t%f\n", t,x,y,E);
+        //printf("%f\t%f\t%f\t%f\n", t,x,y,E);
         dati<<t<<"\t"<<x<<"\t"<<y<<"\t"<<E<<endl;
     }
     dati.close();
