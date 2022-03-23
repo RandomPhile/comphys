@@ -14,10 +14,11 @@ double lam;
 
 int main() {
     dati.open("dati.dat");
-    double t ,t0 = 0, t1 = 25, h, x=1, y=0,E,m=1,k=1,T;
-    T = sqrt(m/k);
+    double t ,t0 = 0, h, x=1, y=0,E,T;
+    T = 1;
+    double t1 = 25*T;
     lam = 1/T;
-    int N = 1000;
+    int N = 10000;
     h = (t1-t0)/( (double) N);
     //printf("t\t\t\tx\t\t\ty\n");
     
