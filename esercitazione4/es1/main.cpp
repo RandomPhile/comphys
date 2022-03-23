@@ -16,7 +16,7 @@ int main() {
     double args[] = {gam, K};
 
 
-    h = 0.1;
+    h = 1e-3;
     int i = 0;
     while (P > 0) {
         r = r0 + i * h;
