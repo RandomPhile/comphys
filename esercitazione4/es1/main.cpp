@@ -9,7 +9,7 @@ double g(double r, double P, double m, double *gargs);
 
 int main() {
     dati.open("dati.dat");
-    int N=30;
+    int N=10;
     double r=0,r0 = 1e-10, h, m = 1e-6, rho, P0=5;
     double M[N][3], R[N][3];
     h = 1e-5;

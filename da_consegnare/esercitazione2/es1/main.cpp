@@ -15,7 +15,7 @@ int main() {
     };// a, b, param, N_fmax, N_t, N_s
 
     //double delta1 = 1e-4, delta2 = 1e-6;
-    double delta1 = 1e-10, delta2 = 1e-20;
+    double delta1 = 1e-4, delta2 = 1e-6;
     double f_max, I_t, I_s;
     for (int i = 0; i < 4; ++i) {
         f_max = max_of_function(f[i], 2, args[i]); //massimo di f''
@@ -24,7 +24,7 @@ int main() {
         
         f_max = max_of_function(f[i], 4, args[i]); //massimo di f''''
         args[i][5] = ceil(pow(pow(args[i][1] - args[i][0], 5.0) * f_max / (180.0 * delta2), 1 / 4.0));
-        //printf("Max:%f,\t N_s:%d\n", f_max, (int) args[i][5]);
+        printf("Max:%f,\t N_s:%d\n", f_max, (int) args[i][5]);
 
         I_t = trapezi(f[i], args[i]);
         I_s = simpson(f[i], args[i]);
@@ -33,9 +33,11 @@ int main() {
             case 2:
                 I_t = 1/beta - I_t;
                 I_s = 1/beta - I_s;
+                break;
             case 3:
                 I_t = 2/pow(beta,3) - I_t;
                 I_s = 2/pow(beta,3) - I_s;
+                break;
         }
         printf("N_t%d = %3.0f\t",i+1, args[i][4]);
         printf("N_s%d = %3.0f\t\t",i+1, args[i][5]);

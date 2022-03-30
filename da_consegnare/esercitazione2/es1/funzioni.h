@@ -27,11 +27,11 @@ double simpson(double (*f)(double, double, int), double *fargs) {
     int N = (int) fargs[5];
 
     double h = (b - a) / N;
-    double I = f(a, param, 0) + f(b, param, 0);
-    for (int n = 1; n <= (N / 2 - 1); n++) {
-        I += 2.0 * f(a + 2 * n * h, param, 0);
+    double I = 0;
+    for (int n = 1; n <= (N / 2); n++) {
+        I += f(a + 2 * (n-1) * h, param, 0);
         I += 4.0 * f(a + (2 * n - 1) * h, param, 0);
+        I += f(a + 2 * n * h, param, 0);
     }
-    I += 4.0 * f(a + (N - 1) * h, param, 0);
     return I * (h / 3.0);
 }
