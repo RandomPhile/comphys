@@ -15,7 +15,7 @@ double lam;
 int main() {
     dati.open("dati.dat");
     double t ,t0 = 0, h, x=1, y=0,E,T;
-    T = 1;
+    T = 4;
     double t1 = 25*T;
     lam = 1/T;
     int N = 10000;
@@ -32,7 +32,7 @@ int main() {
     dati<<"\n\n\n";
     //riporto in condizione iniziale
     t0 = 0;
-    t1 = 25;
+    t1 = 25*T;
     x=1;
     y=0;
     for (int n = 0; n < N; n++) {
@@ -46,7 +46,7 @@ int main() {
     dati<<"\n\n\n";
     //riporto in condizione iniziale
     t0 = 0;
-    t1 = 25;
+    t1 = 25*T;
     x=1;
     y=0;
     for (int n = 0; n < N; n++) {
@@ -60,7 +60,7 @@ int main() {
     dati<<"\n\n\n";
     //riporto in condizione iniziale
     t0 = 0;
-    t1 = 25;
+    t1 = 25*T;
     x=1;
     y=0;
     for (int n = 0; n < N; n++) {
