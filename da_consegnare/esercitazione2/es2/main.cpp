@@ -45,9 +45,9 @@ int main() {
 
     double args[] = {0, R, k, 1e3};
     double I1 = simpson(f2, args);
-    double I3 = exp(2 * q * R) * pow(sin(k * R), 2) * simpson(f1, args);
+    double I3 = simpson(f1, args);
     args[2] = 2 * q;
-    double I2 = 2 / pow(2 * q, 3) - simpson(f4, args);
+    double I2 = exp(2 * q * R) * pow(sin(k * R), 2) * (2 / pow(2 * q, 3) - simpson(f4, args));
     double I4 = exp(2 * q * R) * pow(sin(k * R), 2) * (1 / (2 * q) - simpson(f3, args));
 
     double r2 = (I1 + I2) / (I3 + I4);

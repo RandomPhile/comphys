@@ -2,59 +2,53 @@
 #include <cmath>
 #include <fstream>
 #include "eq_diff.h"
-ofstream dati;
+ofstream dati, dati1;
 
 double f(double r, double P, double m, double *fargs);
 double g(double r, double P, double m, double *gargs);
 
 int main() {
-    dati.open("dati.dat");
-    int N = 5;
-    double r, r0 = 1e-5, m, rho, Pc[3] = {10,10,10};
-    double M[N][3], R[N][3];
+    dati.open("dati.dat"); dati1.open("dati1.dat");
+
     double K[] = {0.05, 0.1, 0.01};
     double gam[] = {5.0 / 3, 4.0 / 3, 2.54};
 
+    double m, P, r, rho, args[2], cost;
+    double r0 = 0.0001, h = 1e-2;
+    double Pc_min = 5, Pc_max = 30;
 
-    double h = 1e-5;
-    double args[2];
-    double P;
-    int i;
-    for (int j = 0; j < N; j++) {
-        for (int t = 0; t < 3; ++t) {
-            r = r0; m = 0;
-            Pc[t] += j*4;
-            P = Pc[t];
-            args[0] = gam[t]; args[1] = K[t];
+    int N = 10;//da scrivere anche su plot.plt
 
-            i = 0;
+    double R[3][N], M[3][N], Pc[3][N];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < N; ++j) {
+            dati << "\n\n(i,j) = (" << i << "," << j << ")" << endl;
+            //dati << "r\tP\tm\trho" << endl;
+            Pc[i][j] = Pc_min + (Pc_max - Pc_min) * j;
+            P = Pc[i][j];
+            m = 0;
+            r = r0;
+
+            args[0] = gam[i]; args[1] = K[i];
+
             while (P > 0) {
-                if (m != NAN) {
-                    M[j][t] = m;
-                    r += i * h;
-                } else {break;}
-                if (runge_kutta(r, &P, &m, h, f, args, g, args)) {printf("ERRORE");}
                 rho = pow(P / (args[1] * (args[0] - 1)), 1.0 / args[0]);
                 dati << r << "\t" << P << "\t" << m << "\t" << rho << endl;
-                i++;
-                
+                R[i][j] = r; M[i][j] = m;
+                runge_kutta(r, &P, &m, h, f, args, g, args);
+                r += h;
             }
-            R[j][t] = r;
-            //printf("R = %f\n", r);
-            dati << "\n\n";
+        }
+    }
+    for (int i = 0; i < 3; ++i) {
+        dati1 << "\n\nStella " << i << endl;
+        for (int j = 0; j < N; ++j) {
+            cost = pow(M[i][j], 2 - gam[i]) * pow(R[i][j], 3 * gam[i] - 4);
+            dati1 << Pc[i][j] << "\t" << R[i][j] << "\t" << M[i][j] << "\t" << cost << "\t" << endl;
         }
     }
 
-    for (int t = 0; t < 3; t++) {
-        for (int j = 0; j < N; j++) {
-            dati << M[j][t] << "\t" << R[j][t] << endl;
-        }
-        if (t < 2) {
-            dati << "\n\n";
-        }
-    }
-
-    dati.close();
+    dati.close(); dati1.close();
     return 0;
 }
 
