@@ -1,5 +1,4 @@
-set term qt font "Helvetica" position 0,0
-
+set term qt font "Helvetica,12" position 0,0
 
 set xlabel "h"
 set ylabel "Δ_h"

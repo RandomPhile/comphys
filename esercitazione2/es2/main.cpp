@@ -41,7 +41,7 @@ int main() {
     
     dati << "\n\nMetodo Newton-Raphson\n" << endl;
     contatore = 0;
-    e = NR(2,20);
+    e = NR(2,4);
     printf("e = %f\tE = %f\tSteps = %d\n", e, -e * lam, contatore);
     
     dati.close();
