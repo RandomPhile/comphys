@@ -14,7 +14,7 @@ int main() {
         {0, B, beta , 1e4, 0, 0}
     };// a, b, param, N_fmax, N_t, N_s
 
-    //double delta1 = 1e-4, delta2 = 1e-6;
+    
     double delta1 = 1e-4, delta2 = 1e-6;
     double f_max, I_t, I_s;
     for (int i = 0; i < 4; ++i) {
@@ -24,6 +24,9 @@ int main() {
         
         f_max = max_of_function(f[i], 4, args[i]); //massimo di f''''
         args[i][5] = ceil(pow(pow(args[i][1] - args[i][0], 5.0) * f_max / (180.0 * delta2), 1 / 4.0));
+        if((int)args[i][5]%2!=0){
+            args[i][5]++;
+        }
         printf("Max:%f,\t N_s:%d\n", f_max, (int) args[i][5]);
 
         I_t = trapezi(f[i], args[i]);
