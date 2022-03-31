@@ -21,7 +21,7 @@ int main() {
     double Pc_min[] = {6e-6, 3e-2, 4e-7};
     double Pc_max[] = {1e7, 3e3, 2e5};
 
-    int N = 20;//da scrivere anche su plot.plt
+    int N = 1000;//da scrivere anche su plot.plt
     double R[3][N], M[3][N], Pc[3][N];
 
     double R0 = 20.06145;//km
@@ -48,8 +48,10 @@ int main() {
     for (int i = 0; i < 3; ++i) {
         dati1 << "\n\nStella " << i << endl;
         for (int j = 0; j < N; ++j) {
-            cost = pow(M[i][j], 2 - gam[i]) * pow(R[i][j], 3 * gam[i] - 4);
-            dati1 << Pc[i][j] << "\t" << R[i][j]*R0 << "\t" << M[i][j] << "\t" << cost << "\t" << endl;
+            if(R[i][j]*R0<=50 && R[i][j]*R0>=3){
+                cost = pow(M[i][j], 2 - gam[i]) * pow(R[i][j], 3 * gam[i] - 4);
+                dati1 << Pc[i][j] << "\t" << R[i][j]*R0 << "\t" << M[i][j] << "\t" << cost << "\t" << endl;
+            }
         }
     }
 
