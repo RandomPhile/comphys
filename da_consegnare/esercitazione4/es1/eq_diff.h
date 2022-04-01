@@ -23,5 +23,30 @@ int runge_kutta(double t, double *x, double *y, double h,
     *y += (l1 + 2*l2 + 2*l3 + l4)/6;
     return 0;
 }
+int runge_kutta_r(double t, double *x, double *y, double h, double err,
+                double (*f)(double, double, double, double*),
+                double *fargs,
+                double (*g)(double, double, double, double*),
+                double *gargs) {
+    double delta=pow(10,8);
+    while(delta>err){
+        double x1=*x, x2=*x, y1=*y, y2=*y;
+        runge_kutta(t, x1, y1, h, f, fargs, g, gargs);
+        runge_kutta(t, x2, y2, h/2, f, fargs, g, gargs);
+        delta=fabs(x2-x1);
+        if(delta!=0){
+            h=min(0.9*(h*pow(err/delta,0.2)*4*h));
+        }
+        else{
+            h*=4;
+        }
+        if(h<pow(10,-8)){
+            break;
+        }
+    }
+    
+    
+    return 0;
+}
 
 #endif /* eq_diff_h */
