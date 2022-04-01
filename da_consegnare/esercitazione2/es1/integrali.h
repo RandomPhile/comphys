@@ -61,4 +61,20 @@ double f4(double x, double b, int der) {
     return 0;
 }
 
-lista_funzioni f[] = {f1, f2, f3, f4};
+double f_test(double x, double b, int der) {
+    switch (der) {
+    case 0:
+        return pow(x, 7) - pow(x, 6) + 2 * pow(x, 5) - 3 * pow(x, 4) + 5 * pow(x, 3) - 8 * pow(x, 2) + 13 * x - 21;
+    case 1:
+        return 7 * pow(x, 6) - 6 * pow(x, 5) + 10 * pow(x, 4) - 12 * pow(x, 3) + 15 * pow(x, 2) - 16 * x + 13;
+    case 2:
+        return 42 * pow(x, 5) - 30 * pow(x, 4) + 40 * pow(x, 3) - 36 * pow(x, 2) + 30 * x - 16;
+    case 3:
+        return 210 * pow(x, 4) - 120 * pow(x, 3) + 120 * pow(x, 2) - 72 * x + 30;
+    case 4:
+        return 840 * pow(x, 3) - 360 * pow(x, 2) + 240 * x - 72;
+    }
+    return 0;
+}
+
+lista_funzioni f[] = {f1, f2, f3, f4, f_test};
