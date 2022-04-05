@@ -43,32 +43,25 @@ int main() {
     /*
     Calcolo raggio quadratico medio usando Simpson
     */
-    double E = -e * lam;
+    double E = -e * lam;//usiamo e calcolato con NR in precedenza
     double k = sqrt(2 * muc2 * (V0 + E) / pow(hc, 2));
     double q = sqrt(2 * muc2 * fabs(E) / pow(hc, 2));
-    printf("\n\nq=%.7f\tk=%.7f\tR=%.7f\n",q,k,R);
 
 
 
 
-
-    // printf("\nkR = %f\n\n", k*R);
-    // for (int i = 0; i < 2; ++i) {
-    //     printf("%f <= kR <= %f\n", (0.5+i)*M_PI, (1+i)*M_PI);
-    // }
-
-    double args[] = {0, R, k, 38};
-    if ((int)args[3] % 2 != 0) {args[3]++;}
+    double args[] = {0, R, k, 38};//integrale da 0 a R con parametro k ed N = 38
     
     double I1 = simpson(f2, args);
     double I3 = simpson(f1, args);
-    
-    args[2] = 2 * q;
-    
-    double I2 = exp(2 * q * R) * pow(sin(k * R), 2) * (2 / pow(2 * q, 3) - simpson(f4, args));
-    double I4 = exp(2 * q * R) * pow(sin(k * R), 2) * (1 / (2 * q) - simpson(f3, args));
 
-    printf("I1=%f\tI2=%f\tI3=%f\tI4=%f\n",I1,I2,I3,I4);
+    args[2] = 2 * q;//cambiamo parametro con 2q
+    
+    //calcolo integrali indefiniti e moltiplico per coefficente B/A
+    double B_A = exp(2 * q * R) * pow(sin(k * R), 2);
+    double I2 = B_A * (2 / pow(2 * q, 3) - simpson(f4, args));
+    double I4 = B_A * (1 / (2 * q) - simpson(f3, args));
+
     double r2 = (I1 + I2) / (I3 + I4);
     printf("\n<r^2> = %f\n", r2);
     dati.close();

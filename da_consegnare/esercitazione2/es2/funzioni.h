@@ -54,6 +54,7 @@ double f4(double x, double b) {return pow(x, 2) * exp(-b * x);}
 
 double simpson(double (*f)(double, double), double *fargs) {
     double a = fargs[0], b = fargs[1], param = fargs[2];
+    if ((int)fargs[3] % 2 != 0) {fargs[3]++;}//se N è dispari aumento al prossimo pari
     int N = (int) fargs[3];
 
     double h = (b - a) / N;

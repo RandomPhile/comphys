@@ -24,6 +24,7 @@ double trapezi(double (*f)(double, double, int), double *fargs) {
 
 double simpson(double (*f)(double, double, int), double *fargs) {
     double a = fargs[0], b = fargs[1], param = fargs[2];
+    if ((int)fargs[5] % 2 != 0) {fargs[5]++;}//se N è dispari aumento al prossimo pari
     int N = (int) fargs[5];
 
     double h = (b - a) / N;

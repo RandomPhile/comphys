@@ -34,19 +34,17 @@ int main() {
         f_max = max_of_function(f[i], 4, args[i]); //massimo di f''''
         args[i][5] = ceil(pow(pow(args[i][1] - args[i][0], 5.0) * f_max / (180.0 * delta2), 1 / 4.0));
 
-        switch (i) {//le funzioni test hanno derivata quarta nulla
+        switch (i) {
+            //le funzioni test hanno derivata quarta nulla quindi N_s = 1
+            //la retta ha anche derivata seconda nulla quindi N_t = 1
             case 4: args[i][4] = args[i][5] = 1; break;
             case 5: args[i][5] = 1; break;
         }
 
-        if ((int)args[i][5] % 2 != 0) { //arrotondiamo N_s al prossimo numero pari
-            args[i][5]++;
-        }
-
-        I_t = trapezi(f[i], args[i]);
+        I_t = trapezi(f[i], args[i]);//calcolo integrali
         I_s = simpson(f[i], args[i]);
 
-        switch (i) {
+        switch (i) {//utilizzo il risultato noto per l'integrale indefinito
         case 2:
             I_t = 1 / beta - I_t;
             I_s = 1 / beta - I_s;
@@ -57,6 +55,7 @@ int main() {
             break;
         }
 
+        //stampiamo i risultati
         printf("N_t%d = %3.0f\t", i + 1, args[i][4]);
         printf("N_s%d = %3.0f\t\t", i + 1, args[i][5]);
         printf("I_t%d = %9.6f\t", i + 1, I_t);
