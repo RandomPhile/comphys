@@ -47,6 +47,9 @@ int main() {
     double k = sqrt(2 * muc2 * (V0 + E) / pow(hc, 2));
     double q = sqrt(2 * muc2 * fabs(E) / pow(hc, 2));
 
+    double k2 = sqrt(2 * muc2 * (27.4 + E) / pow(hc, 2));
+
+    cout<<k2*R<<endl;
     double args[] = {0, R, k, 38};//integrale da 0 a R con parametro k ed N = 38
 
     double I1 = simpson(f2, args);
