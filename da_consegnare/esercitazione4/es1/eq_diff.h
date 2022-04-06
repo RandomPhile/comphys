@@ -24,8 +24,4 @@ int runge_kutta(double t, double *x, double *y, double h,
     return 0;
 }
 
-    
-    return 0;
-}
-
 #endif /* eq_diff_h */
