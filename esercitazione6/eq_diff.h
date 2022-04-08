@@ -55,5 +55,12 @@ int runge_kutta(double t, double *x, double *y, double h,
     *y += (l1 + 2*l2 + 2*l3 + l4)/6;
     return 0;
 }
+int vel_verlet(double t, double *x, double *y, double h,
+               double (*f)(double, double, double, double*),
+               double *fargs,
+               double (*g)(double, double, double, double*),
+               double *gargs){
+    
+}
 
 #endif /* eq_diff_h */
