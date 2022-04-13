@@ -76,7 +76,7 @@ int main() {
             v_mod = sqrt(pow(v[i][0],2)+pow(v[i][1],2)+pow(v[i][2],2));
 
             E = 0.5 * pow(r_mod, 2) + 0.5 * pow(v_mod, 2);
-            dati << t << "\t" << r[0] << "\t" << v[0] << "\t" << E << endl;
+            //dati << t << "\t" << r[0] << "\t" << v[0] << "\t" << E << endl;
         }
     }
     
@@ -92,8 +92,8 @@ double f(double t, double x, double y, double * fargs) {
 double g(double t, double x, double y, double * gargs) {
     return -x;
 }
-double a(double * r, int indice, double * args) {
-    return -r[indice];
+double a(double * r[3], int indice, double * args) {
+    return -r[indice][1];
 }
 
 void set_vcm0(double *v[3], int N_Mol){
