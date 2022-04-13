@@ -25,17 +25,21 @@ int runge_kutta(double t, double *x, double *y, double h,
     return 0;
 }
 
-int vel_verlet(double t, double *r, double *v, double dt,
-               double *f_prev,
-               double (*f)(double*, int, double*),
+int vel_verlet(double t, double *r[3], double *v[3], double dt, int N_Mol,
+               double *f_prev[3],
+               double (*f)(double*[3], int, double*),
                double *fargs) {
     
-    for (int i = 0; i < 3; ++i) {
-        double temp = f_prev[i];
-        r[i] = r[i] + v[i] * dt + f(r,i,fargs)* pow(dt, 2) / 2;
-        f_prev[i] = -r[i];
-        v[i] += dt*(f_prev[i] + temp) / 2;
+    for (int j = 0; j < 3; ++j) {
+        double temp[N_Mol];
+        for (int i=0;i<N_Mol;i++) {
+            temp[i] = f_prev[i][j];
+            r[i][j] = r[i][j] + v[i][j] * dt + f(r,i,fargs)* pow(dt, 2) / 2;
+            f_prev[i][j] = -r[i][j];
+            v[i][j] += dt*(f_prev[i][j] + temp[i]) / 2;
+        }
     }
+    
     return 0;
 }
 
