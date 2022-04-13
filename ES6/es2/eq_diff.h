@@ -9,7 +9,7 @@ int vel_verlet(double t, double *r, double *v, double dt,
     
     for (int i = 0; i < 3; ++i) {
         double temp = a_prev[i];
-        r[i] = r[i] + v[i] * dt + a(r,i,args)* pow(dt, 2) / 2;
+        r[i] = r[i] + v[i] * dt + a(r,i,args)* pow(dt, 2) / 2;
         a_prev[i] = -r[i];
         v[i] += dt*(a_prev[i] + temp) / 2;
     }
