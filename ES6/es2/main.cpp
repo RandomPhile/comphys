@@ -15,37 +15,44 @@ double lam;
 
 int main() {
     dati.open("dati.dat");
-    double t , t0 = 0, h, x = 1, y = 0, E, T;
-    T = 1;
-    double t1 = 25 * T;
-    lam = 1 / T;
-    int N = 10000;
+    double t , h, x = 1, y = 0, E,K, T;
+    double t0 = 0, t1 = 25;
+    int N_mol = 10000;
+    int N = 1000;
     h = (t1 - t0) / ( (double) N);
-    //printf("t\t\t\tx\t\t\ty\n");
 
-    //riporto in condizione iniziale
-    t0 = 0;
-    t1 = 25 * T;
-    double r[] = {1,1,1};
-    double r_mod = sqrt(pow(r[0],2)+pow(r[1],2)+pow(r[2],2));
-    double v[] = {0,0,0};
-    double v_mod = sqrt(pow(v[0],2)+pow(v[1],2)+pow(v[2],2));
-    double a_prev[3];
-    for (int i = 0; i < 3; ++i) {
-        a_prev[i] = r[i];
+    double r[3 * N_mol], v[3 * N_mol];
+    //resetta_matr(r, 0, N_mol);
+    gauss_distr(r, 1, N_mol);
+    gauss_distr(v, 1, N_mol);
+    set_vcm0(v,N_mol);
+
+    double a_prev[3 * N_mol];
+    resetta_matr(a_prev, r, N_mol);
+    //inizializzo accelerazioni come -r
+
+    double r_mod, v_mod;
+
+    E = 0; K = 0;
+    for (int n = 0; n < N; ++n) {//passi temporali
+        E = E*(n+1);//energia totale @t
+        K = K*(n+1);//energia cinetica @t
+        T = 0;//temp @t
+        for (int j = 0; j < N_mol; ++j) {//particelle
+            t = t0 + n * h;
+            if (vel_verlet(t, r, v, h, j, a_prev, a, NULL)) {printf("ERRORE");}
+
+            r_mod = sqrt(r[j] * r[j] + r[j + 1] * r[j + 1] + r[j + 2] * r[j + 2]);
+            v_mod = sqrt(v[j] * v[j] + v[j + 1] * v[j + 1] + v[j + 2] * v[j + 2]);
+            K += 0.5 * v_mod * v_mod;
+            E += 0.5 * r_mod * r_mod + 0.5 * v_mod * v_mod;
+            //T += v_mod * v_mod * 0.5 / N_mol;
+        }
+        E = E/(n+2);
+        K = K/(n+2);
+        T = 2.0*K/(3.0*N_mol);
+        dati << t  << "\t" << E << "\t" << K << "\t" << T << endl;
     }
-    for (int n = 0; n < N; n++) {
-        t = t0 + n * h;
-
-        if (vel_verlet(t, r, v, h, a_prev, a, NULL)) {printf("ERRORE");}
-        
-        r_mod = sqrt(pow(r[0],2)+pow(r[1],2)+pow(r[2],2));
-        v_mod = sqrt(pow(v[0],2)+pow(v[1],2)+pow(v[2],2));
-
-        E = 0.5 * pow(r_mod, 2) + 0.5 * pow(v_mod, 2);
-        dati << t << "\t" << r[0] << "\t" << v[0] << "\t" << E << endl;
-    }
-    
     dati.close();
     return 0;
 }
