@@ -2,15 +2,25 @@
 #define eq_diff_h
 using namespace std;
 
-int vel_verlet(double t, double *r, double *v, double dt, int j,
+int vel_verlet(double t, double *r, double *v, double dt, int j, int dim,
                double *a_prev,
                double (*a)(double*, int, double*),
                double *args) {
-    for (int i = 3 * j; i < 3 * j + 3; ++i) {
-        double temp = a_prev[i];
-        r[i] = r[i] + v[i] * dt + a(r, i, args) * pow(dt, 2) / 2;
-        a_prev[i] = -r[i];
-        v[i] += dt * (a_prev[i] + temp) / 2;
+    if(dim==3){
+        for (int i = 3 * j; i < 3 * j + 3; ++i) {
+            double temp = a_prev[i];
+            r[i] = r[i] + v[i] * dt + a(r, i, args) * pow(dt, 2) / 2;
+            a_prev[i] = -r[i];
+            v[i] += dt * (a_prev[i] + temp) / 2;
+        }
+    }
+    else{
+        for (int i = 3 * j; i < 3 * j + 3; ++i) {
+            double temp = a_prev[i];
+            r[i] = r[i] + v[i] * dt + a(r, i, args) * pow(dt, 2) / 2;
+            a_prev[i] = -r[i];
+            v[i] += dt * (a_prev[i] + temp) / 2;
+        }
     }
     return 0;
 }
@@ -25,14 +35,21 @@ void gauss_distr(double *v, double sigma, int N_Mol) {
     }
 }
 
-void resetta_matr(double *r, int val, int N_Mol) {
+void setta_matr(double *r, int val, int N_Mol) {
     for (int j = 0; j < 3 * N_Mol; j++) {
         r[j] = val;
     }
 }
-void resetta_matr(double *r, double *val, int N_Mol) {
+void compila_matr(double *r,int N_Mol,
+                  double (*f)(double*, double*, double, double),
+                  double *fargs, double arg) {
     for (int j = 0; j < 3 * N_Mol; j++) {
-        r[j] = -val[j];
+        r[j] = f(r,fargs,arg,j);
+    }
+}
+void copia_vett(double *r, int N_Mol,double *v) {
+    for (int j = 0; j < 3 * N_Mol; j++) {
+        r[j] = v[j];
     }
 }
 void set_vcm0(double *v, int N_Mol){
