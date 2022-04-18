@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cmath>
 #include "eq_diff.h"
+#include "funzioni_utili.h"
 
 using namespace std;
 ofstream dati;
@@ -10,29 +11,32 @@ ofstream dati;
 double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
-double fLJ(double *r, double *args, double eps, double sigma, double L);
+double fLJ(double *r, double *args, double L, int indice);
 
 
 int main() {
     dati.open("dati.dat");
     double t=0, h, E, K, T;
     double t0 = 0, t1 = 25;
-    int N_mol = 10000;
+    int N_mol = pow1(20,3);
     int N = 1000;
     h = (t1 - t0) / ( (double) N);
-    double eps, sigma, L;
+    double eps, sigma, L=1;
+    
     double var_ad[]={eps,sigma};
 
     double r[3 * N_mol], v[3 * N_mol];
-    //resetta_matr(r, 0, N_mol);
+    
+    crea_reticolo(N_mol, L, r);
+    
+    
     gauss_distr(v, 1, N_mol);
     set_vcm0(v,N_mol);
-    //va settato r
 
     double a_prev[3 * N_mol];
-    compila_matr(r, N_mol, fLJ, var_ad, L/2);
-    //inizializzo accelerazioni come -r
-
+    compila_matr(r, a_prev, N_mol, fLJ, var_ad, L/cbrt(N_mol));//inizializzo accelerazioni come date dal potenziale
+    
+    
     double r_mod, v_mod;
 
     E = 0; K = 0;
@@ -68,8 +72,8 @@ double g(double t, double x, double y, double *gargs) {
 double a(double *r, int indice, double *args) {
     return -r[indice];
 }
-double fLJ(double *r, double *args, double L, int indice){//arg[0]=eps, arg[1]=sigma
-    if((r[indice])>=L/2){//manda la forza a zero se piu distante di L/2
+double fLJ(double *r, double *args, double distanza, int indice){//arg[0]=eps, arg[1]=sigma
+    if((r[indice])>=distanza/2){//manda la forza a zero se piu distante di L/2
         return 0;
     }
     else{
