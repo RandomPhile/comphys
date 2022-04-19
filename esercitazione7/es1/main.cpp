@@ -11,30 +11,31 @@ ofstream dati;
 double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
-double fLJ(double *r, double *args, double L, int indice);
+double fLJ(double *r, double *args, int indice);
 
 
 int main() {
     dati.open("dati.dat");
     double t=0, h, E, K, T;
     double t0 = 0, t1 = 25;
-    int N_mol = pow1(20,3);
+    int N_mol = pow1(10,3);
     int N = 1000;
     h = (t1 - t0) / ( (double) N);
-    double eps, sigma, L=1;
+    double rho=1e-2; //fisso la densita del campione da studiare
+    double eps, sigma, L, distanza_interaz;
+    L=rho*N_mol;
     
-    double var_ad[]={eps,sigma};
+    double var_ad[]={eps,sigma, distanza_interaz};
 
     double r[3 * N_mol], v[3 * N_mol];
     
     crea_reticolo(N_mol, L, r);
-    
-    
+
     gauss_distr(v, 1, N_mol);
     set_vcm0(v,N_mol);
 
     double a_prev[3 * N_mol];
-    compila_matr(r, a_prev, N_mol, fLJ, var_ad, L/cbrt(N_mol));//inizializzo accelerazioni come date dal potenziale
+    compila_matr(r, a_prev, N_mol, fLJ, var_ad);//inizializzo accelerazioni come date dal potenziale
     
     
     double r_mod, v_mod;
@@ -46,7 +47,7 @@ int main() {
         T = 0;//temp @t
         for (int j = 0; j < N_mol; ++j) {//particelle
             t = t0 + n * h;
-            if (vel_verlet(t, r, v, h, j, 3, a_prev, a, NULL)) {printf("ERRORE");}
+            if (vel_verlet(t, r, v, h, j, 3, a_prev, fLJ, var_ad)) {printf("ERRORE");}
 
             r_mod = sqrt(r[j] * r[j] + r[j + 1] * r[j + 1] + r[j + 2] * r[j + 2]);
             v_mod = sqrt(v[j] * v[j] + v[j + 1] * v[j + 1] + v[j + 2] * v[j + 2]);
@@ -72,8 +73,8 @@ double g(double t, double x, double y, double *gargs) {
 double a(double *r, int indice, double *args) {
     return -r[indice];
 }
-double fLJ(double *r, double *args, double distanza, int indice){//arg[0]=eps, arg[1]=sigma
-    if((r[indice])>=distanza/2){//manda la forza a zero se piu distante di L/2
+double fLJ(double *r, double *args, int indice){//arg[0]=eps, arg[1]=sigma
+    if((r[indice])>=args[2]/2){//manda la forza a zero se piu distante di L/2
         return 0;
     }
     else{

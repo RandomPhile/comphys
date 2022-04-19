@@ -10,6 +10,8 @@
 
 using namespace std;
 
+extern ofstream dati;
+
 void gauss_distr(double *v, double sigma, int N_Mol) {
     for (int i = 0; i < 3 * N_Mol; i += 2) {
         double x1, x2;
@@ -26,10 +28,10 @@ void setta_matr(double *r, int val, int N_Mol) {
     }
 }
 void compila_matr(double *r,double *a, int N_Mol,
-                  double (*f)(double*, double*, double, int),
-                  double *fargs, double arg) {
+                  double (*f)(double*, double*, int),
+                  double *fargs) {
     for (int j = 0; j < 3 * N_Mol; j++) {
-        a[j] = f(r,fargs,arg,j);
+        a[j] = f(r,fargs,j);
     }
 }
 void copia_vett(double *r, int N_Mol,double *v) {
@@ -53,7 +55,7 @@ void set_vcm0(double *v, int N_Mol){
         }
     }
 }
-double crea_reticolo(int N_mol, double L, double *r){
+void crea_reticolo(int N_mol, double L, double *r){
     double x,y,z,b;
     b=L/cbrt(N_mol);
     int k=0;//contatore della posizione
