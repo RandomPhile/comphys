@@ -65,7 +65,6 @@ void crea_reticolo(int N_mol, double L, double *r){
                 r[k]=x;
                 r[k+1]=y;
                 r[k+2]=z;
-                cout<<r[k]<<"\t"<<r[k+1]<<"\t"<<r[k+2]<<"\t"<<k<<endl;
                 dati<<r[k]<<"\t"<<r[k+1]<<"\t"<<r[k+2]<<"\t"<<k<<endl;
                 k++;
                 if(k>3*N_mol)

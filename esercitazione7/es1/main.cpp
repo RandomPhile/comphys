@@ -25,7 +25,7 @@ int main() {
     double eps, sigma, L, distanza_interaz;
     L=rho*N_mol;
     
-    double var_ad[]={eps,sigma, distanza_interaz};
+    double var_ad[]={eps, sigma, distanza_interaz};
 
     double r[3 * N_mol], v[3 * N_mol];
     
