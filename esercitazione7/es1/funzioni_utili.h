@@ -93,12 +93,6 @@ void cond_bordo(double *r, int i, double L){
         else{}
     }
 }
-void primi_vicini(double *r, double *r_prim_vic, double distanza_interaz, int N_mol, int j){
-    for(int i=0; i<3*N_mol; i+=3){
-        r_prim_vic[i]=r[i]+distanza_interaz*round(abs(r[j]-r[i])/distanza_interaz);
-        r_prim_vic[i+1]=r[i+1]+distanza_interaz*round(abs(r[j+1]-r[i+1])/distanza_interaz);
-        r_prim_vic[i+2]=r[i+2]+distanza_interaz*round(abs(r[j+2]-r[i+2])/distanza_interaz);
-    }
-}
+
 
 #endif /* funzioni_utili_h */
