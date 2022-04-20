@@ -5,7 +5,7 @@ using namespace std;
 int vel_verlet(double t, double *r, double *v, double dt, int j, int dim,
                double *a_prev,
                double (*a)(double*, int, double*),
-               double *args) {
+               double *args) {//per oscillatori
     if(dim==3){
         for (int i = 3 * j; i < 3 * j + 3; ++i) {
             double temp = a_prev[i];

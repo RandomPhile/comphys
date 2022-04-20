@@ -18,7 +18,7 @@ int main() {
     dati.open("dati.dat");
     double t=0, h, E, K, T;
     double t0 = 0, t1 = 25;
-    int N_mol = pow1(10,3);
+    int N_mol = pow1(6,3);
     int N = 1000;
     h = (t1 - t0) / ( (double) N);
     double rho=1e-2; //fisso la densita del campione da studiare
@@ -58,7 +58,7 @@ int main() {
         E = E/(n+2);
         K = K/(n+2);
         T = 2.0*K/(3.0*N_mol);
-        dati << t  << "\t" << E << "\t" << K << "\t" << T << endl;
+        //dati << t  << "\t" << E << "\t" << K << "\t" << T << endl;
     }
     dati.close();
     return 0;
