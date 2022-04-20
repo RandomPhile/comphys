@@ -1,7 +1,6 @@
 //
 //  funzioni_utili.h
 //  es1
-//
 //  Created by Mattia Lupi on 18/04/22.
 //
 
@@ -28,10 +27,20 @@ void setta_matr(double *r, int val, int N_Mol) {
     }
 }
 void compila_matr(double *r,double *a, int N_Mol,
-                  double (*f)(double*, double*, int),
+                  double (*f)(double*, double*, int, double),
                   double *fargs) {
+    double r_mod;
     for (int j = 0; j < 3 * N_Mol; j++) {
-        a[j] = f(r,fargs,j);
+        if(j%3==0){
+            r_mod=sqrt(r[j] * r[j] + r[j + 1] * r[j + 1] + r[j + 2] * r[j + 2]);
+        }
+        else if(j%3==1){
+            r_mod=sqrt(r[j] * r[j] + r[j + 1] * r[j + 1] + r[j - 1] * r[j - 1]);
+        }
+        else{
+            r_mod=sqrt(r[j] * r[j] + r[j - 1] * r[j - 1] + r[j - 2] * r[j - 2]);
+        }
+        a[j] = f(r,fargs,j, r_mod);
     }
 }
 void copia_vett(double *r, int N_Mol,double *v) {
@@ -71,6 +80,24 @@ void crea_reticolo(int N_mol, double L, double *r){
                     break;
             }
         }
+    }
+}
+void cond_bordo(double *r, int i, double L){
+    for(int j=i; j<i+3; j++){//occhio a effetti brutti di spostamenti maggiori di L in tempo dt
+        if(r[j]>L){
+            r[j]-=L;
+        }
+        else if(r[j]<0){
+            r[j]+=L;
+        }
+        else{}
+    }
+}
+void primi_vicini(double *r, double *r_prim_vic, double distanza_interaz, int N_mol, int j){
+    for(int i=0; i<3*N_mol; i+=3){
+        r_prim_vic[i]=r[i]+distanza_interaz*round(abs(r[j]-r[i])/distanza_interaz);
+        r_prim_vic[i+1]=r[i+1]+distanza_interaz*round(abs(r[j+1]-r[i+1])/distanza_interaz);
+        r_prim_vic[i+2]=r[i+2]+distanza_interaz*round(abs(r[j+2]-r[i+2])/distanza_interaz);
     }
 }
 

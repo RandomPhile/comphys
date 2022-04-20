@@ -15,12 +15,11 @@ int vel_verlet(double t, double *r, double *v, double dt, int j, int dim,
         }
     }
     else{
-        for (int i = 3 * j; i < 3 * j + 3; ++i) {
-            double temp = a_prev[i];
-            r[i] = r[i] + v[i] * dt + a(r, i, args) * pow(dt, 2) / 2;
-            a_prev[i] = -r[i];
-            v[i] += dt * (a_prev[i] + temp) / 2;
-        }
+        int i=j;
+        double temp = a_prev[i];
+        r[i] = r[i] + v[i] * dt + a(r, i, args) * pow(dt, 2) / 2;
+        a_prev[i] = -r[i];
+        v[i] += dt * (a_prev[i] + temp) / 2;
     }
     return 0;
 }
@@ -31,25 +30,24 @@ double pow1(double base, int esp){
     }
     return ris;
 }
-int vel_verlet(double t, double *r, double *v, double dt, int j, int dim,
-               double *a_prev,
-               double (*f)(double*, double*, int),
-               double *args) {//per potenziale generico
+int vel_verlet(double t, double *r, double *r_prim_vic, double *v,
+               double dt, int j, int dim, double *a_prev,
+               double (*f)(double*, double*, int, double),
+               double *args, double r_mod) {//per potenziale generico
     if(dim==3){
         for (int i = 3 * j; i < 3 * j + 3; ++i) {
             double temp = a_prev[i];
-            r[i] = r[i] + v[i] * dt + f(r, args, i) * pow(dt, 2) / 2;
-            a_prev[i] = f(r, args, i);
+            r[i] = r[i] + v[i] * dt + f(r_prim_vic, args, i, r_mod) * pow(dt, 2) / 2;
+            a_prev[i] = f(r_prim_vic, args, i, r_mod);
             v[i] += dt * (a_prev[i] + temp) / 2;
         }
     }
     else{
-        for (int i = j; i < j + 1; ++i) {
-            double temp = a_prev[i];
-            r[i] = r[i] + v[i] * dt + f(r, args, i) * pow(dt, 2) / 2;
-            a_prev[i] = f(r, args, i);
-            v[i] += dt * (a_prev[i] + temp) / 2;
-        }
+        int i=j;
+        double temp = a_prev[i];
+        r[i] = r[i] + v[i] * dt + f(r_prim_vic, args, i, r_mod) * pow(dt, 2) / 2;
+        a_prev[i] = f(r_prim_vic, args, i, r_mod);
+        v[i] += dt * (a_prev[i] + temp) / 2;
     }
     return 0;
 }

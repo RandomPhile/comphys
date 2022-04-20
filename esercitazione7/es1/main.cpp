@@ -11,23 +11,27 @@ ofstream dati;
 double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
-double fLJ(double *r, double *args, int indice);
+double fLJ(double *r, double *args, int indice, double r_mod);
 
 
 int main() {
     dati.open("dati.dat");
     double t=0, h, E, K, T;
     double t0 = 0, t1 = 25;
-    int N_mol = pow1(6,3);
+    int N_mol = pow1(10,3);
     int N = 1000;
     h = (t1 - t0) / ( (double) N);
     double rho=1e-2; //fisso la densita del campione da studiare
     double eps, sigma, L, distanza_interaz;
-    L=rho*N_mol;
+    L=cbrt(N_mol)/rho;
     
     double var_ad[]={eps, sigma, distanza_interaz};
 
-    double r[3 * N_mol], v[3 * N_mol];
+    double r[3 * N_mol], v[3 * N_mol], r_prim_vic[3*N_mol];
+    double r_mod, v_mod;
+    
+    r_mod = sqrt(r[0] * r[0] + r[0 + 1] * r[0 + 1] + r[0 + 2] * r[0 + 2]);
+    v_mod = sqrt(v[0] * v[0] + v[0 + 1] * v[0 + 1] + v[0 + 2] * v[0 + 2]);
     
     crea_reticolo(N_mol, L, r);
 
@@ -36,26 +40,33 @@ int main() {
 
     double a_prev[3 * N_mol];
     compila_matr(r, a_prev, N_mol, fLJ, var_ad);//inizializzo accelerazioni come date dal potenziale
-    
-    
-    double r_mod, v_mod;
 
     E = 0; K = 0;
     for (int n = 0; n < N; ++n) {//passi temporali
-        E = E*(n+1);//energia totale @t
+        //E = E*(n+1);//energia totale @t
         K = K*(n+1);//energia cinetica @t
         T = 0;//temp @t
+        
+        r_mod = sqrt(r[0] * r[0] + r[0 + 1] * r[0 + 1] + r[0 + 2] * r[0 + 2]);
+        v_mod = sqrt(v[0] * v[0] + v[0 + 1] * v[0 + 1] + v[0 + 2] * v[0 + 2]);
+        
         for (int j = 0; j < N_mol; ++j) {//particelle
             t = t0 + n * h;
-            if (vel_verlet(t, r, v, h, j, 3, a_prev, fLJ, var_ad)) {printf("ERRORE");}
+            
+            primi_vicini(r,r_prim_vic,var_ad[2],N_mol,j);
+            if (vel_verlet(t, r, v, h, j, 3, a_prev, fLJ, var_ad, r_mod)) {printf("ERRORE");}
 
             r_mod = sqrt(r[j] * r[j] + r[j + 1] * r[j + 1] + r[j + 2] * r[j + 2]);
             v_mod = sqrt(v[j] * v[j] + v[j + 1] * v[j + 1] + v[j + 2] * v[j + 2]);
+            
+            cond_bordo(r,j,L);
+            
+            
             K += 0.5 * v_mod * v_mod;
-            E += 0.5 * r_mod * r_mod + 0.5 * v_mod * v_mod;
-            //T += v_mod * v_mod * 0.5 / N_mol;
+            //E += 0.5 * r_mod * r_mod + 0.5 * v_mod * v_mod;
+            
         }
-        E = E/(n+2);
+       // E = E/(n+2);
         K = K/(n+2);
         T = 2.0*K/(3.0*N_mol);
         //dati << t  << "\t" << E << "\t" << K << "\t" << T << endl;
@@ -73,15 +84,16 @@ double g(double t, double x, double y, double *gargs) {
 double a(double *r, int indice, double *args) {
     return -r[indice];
 }
-double fLJ(double *r, double *args, int indice){//arg[0]=eps, arg[1]=sigma
-    if((r[indice])>=args[2]/2){//manda la forza a zero se piu distante di L/2
+double fLJ(double *r, double *args, int i, double r_mod){//arg[0]=eps, arg[1]=sigma, arg[2]= dimensione scatola per particella
+    if((r[i])>=args[2]/2){//manda la forza a zero se piu distante di dist/2
         return 0;
     }
     else{
-        double r6=r[indice]*r[indice]*r[indice]*r[indice]*r[indice]*r[indice];
-        double sigma6=args[1]*args[1]*args[1]*args[1]*args[1]*args[1];
-        double f=4*args[0]*(12*sigma6*sigma6/(r6*r6*r[indice])+6*sigma6/(r6*r[indice]));
+        double r7=pow1(r_mod,7);
+        double sigma6=pow1(args[1],6);
+        double f=24*args[0]*(2*r[i]*sigma6*sigma6/(r7*r7)-sigma6*r[i]/(r7*r_mod));
         return f;
     }
 }
+
 
