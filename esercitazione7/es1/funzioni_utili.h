@@ -74,6 +74,7 @@ void crea_reticolo(int N_mol, double L, double *r) {
                 r[k] = x;
                 r[k + 1] = y;
                 r[k + 2] = z;
+                cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k << endl;
                 dati << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k << endl;
                 k++;
                 if (k > 3 * N_mol)
@@ -81,6 +82,8 @@ void crea_reticolo(int N_mol, double L, double *r) {
             }
         }
     }
+    dati<<"\n\n";
+    cout<<"\n\n";
 }
 void stampa_reticolo(int N_mol, double L, double *r) {
     double x, y, z, b;
@@ -90,6 +93,7 @@ void stampa_reticolo(int N_mol, double L, double *r) {
         for (y = 0; y < L; y += b) {
             for (z = 0; z < L; z += b) {
                 dati << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k << endl;
+                cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k << endl;
                 k++;
                 if (k > 3 * N_mol)
                     break;
@@ -100,10 +104,10 @@ void stampa_reticolo(int N_mol, double L, double *r) {
 void cond_bordo(double *r, int i, double L) {
     for (int j = i; j < i + 3; j++) { //occhio a effetti brutti di spostamenti maggiori di L in tempo dt
         if (r[j] > L) {
-            r[j] -= L;
+            r[j] -= L*round(r[j]/L);
         }
         else if (r[j] < 0) {
-            r[j] += L;
+            r[j] += L*round(r[j]/L);
         }
         else {}
     }

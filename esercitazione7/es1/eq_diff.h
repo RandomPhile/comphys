@@ -28,9 +28,13 @@ void fLJ(double *r, double *args, double *F, int i) { //arg[0]=eps, arg[1]=sigma
     double r_pv[3 * N_mol];
     primi_vicini(r, r_pv, args[3], N_mol, i);//modifica r_pv
     double mod_r_pv[N_mol];
+    
     for (int j = 0; j < 3 * N_mol; j += 3) {
         mod_r_pv[j / 3] = sqrt(r_pv[j] * r_pv[j] + r_pv[j + 1] * r_pv[j + 1] + r_pv[j + 2] * r_pv[j + 2]);
+        cout<<"particella "<<j/3<<" modulo "<<mod_r_pv[j / 3]<<endl;
+        cout<<"rPv "<<r_pv[j]<<"\t"<<r_pv[j+1]<<"\t"<<r_pv[j+2]<<endl;
     }
+    
 
     for (int j = 0; j < 3 * N_mol; j += 3) {
         if ((r_pv[j] < args[2] / 2) && (r_pv[j + 1] < args[2] / 2) && (r_pv[j + 2] < args[2] / 2))  { //se è abbastanza vicina <L/2
@@ -79,7 +83,6 @@ int vel_verlet(double t, double *r, double *v, double dt, int j, int dim,
             temp[i - 3 * j] = a_prev[i];
             r[i] = r[i] + v[i] * dt + F[i - 3 * j] * dt * dt / 2;
         }
-
         fLJ(r, args, F, j);//aggiorna F[3]
         for (int i = 3 * j; i < 3 * j + 3; ++i) {
             a_prev[i] = F[i - 3 * j];

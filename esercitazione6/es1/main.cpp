@@ -46,7 +46,6 @@ int main() {
             v_mod = sqrt(v[j] * v[j] + v[j + 1] * v[j + 1] + v[j + 2] * v[j + 2]);
             K += 0.5 * v_mod * v_mod;
             E += 0.5 * r_mod * r_mod + 0.5 * v_mod * v_mod;
-            //T += v_mod * v_mod * 0.5 / N_mol;
         }
         E = E/(n+2);
         K = K/(n+2);
