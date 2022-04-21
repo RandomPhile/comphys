@@ -29,14 +29,23 @@ plot "dati1.dat" i 0 u 1:4 w l lt rgb "violet" title columnheader(1),\
 	 "dati1.dat" i 1 u 1:4 w l lt rgb "red" title columnheader(1), \
 	 "dati1.dat" i 2 u 1:4 w l title columnheader(1)
 
-set term qt 3 title "m(P_c)" position 0,0
+set term qt 3 title "M(P_c)" position 0,0
 set xlabel "P_c"
-set ylabel "m(P_c)"
+set ylabel "M(P_c)"
 set logscale x
 set logscale y
 plot "dati1.dat" i 0 u 1:3 w l lt rgb "violet" title columnheader(1),\
 	 "dati1.dat" i 1 u 1:3 w l lt rgb "red" title columnheader(1), \
 	 "dati1.dat" i 2 u 1:3 w l title columnheader(1)
+
+set term qt 5 title "M(R)" position 0,0
+set xlabel "R"
+set ylabel "M(R)"
+set logscale x
+set logscale y
+plot "dati1.dat" i 0 u 2:3 w l lt rgb "violet" title columnheader(1),\
+	 "dati1.dat" i 1 u 2:3 w l lt rgb "red" title columnheader(1), \
+	 "dati1.dat" i 2 u 2:3 w l title columnheader(1)
 
 set term qt 4 title "r(P_c)" position 0,0
 set xlabel "P_c"
