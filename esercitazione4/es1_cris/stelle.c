@@ -17,9 +17,12 @@ int main () {
    double r = 1e-10; 
    double h = 1e-6;
    
-   int N = 20; //numero di diverse pressioni iniziali
+   int N = 50; //numero di diverse pressioni iniziali
    
    double P_c[N][3]; //Ogni colonna è una stella, le righe sono le diverse pressioni iniziali
+   double P_min[] = {0.00001, 0.04, 0.001}; //pressioni minime per le tre stelle, adimensionali
+   double P_max[] = {404.52018, 72.32761, 524.288}; //pressioni massime. Sia P_min che P_max sono state scelte in modo da avere
+                                                   //raggi fra 3km e 50km  
    double M[N][3];
    double R[N][3];
    double control[N][3]; //matrice di controllo dove calcolo M^(2 - gamma) * R^(3gamma - 4) e verifico che sia costante
@@ -33,27 +36,29 @@ int main () {
    
    double fargs[2]; //i parametri di g e di f sono gli stessi, uso un unico array.
    
-   //Queste sono condizioni che inizializzano in modo diverso P_c in base alla stella che stiamo studiando
-    
-      for (int j = 0; j < N; j++) { //NOTA: IN GENERALE, CONTROLLIAMO L'AFFIDABILITÀ DEI RISULTATI TRAMITE IL PARAMETRO CHE 
-                                     //DOVREBBE ESSERE COSTANTE
-         if ( j == 0 ) {
-            P_c[j][0] = 0.00001;
-            P_c[j][1] = 0.04;
-            P_c[j][2] = 0.001;
+   //Inizializziamo in modo diverso P_c in base alla stella che stiamo studiando
+   
+   for (int i = 0; i <= 2; i++ ) { //con l'indice i ciclo sui diversi tipi di stelle, con j ciclo sulle condizioni iniziali
+   
+      for (int j = 0; j < N; j++) { 
+      
+         if ( j == 0 ) {     
+            P_c[j][i] = P_min[i];    
          }
-         else {
-            P_c[j][0] =  2.514*P_c[j-1][0];
-            P_c[j][1] =  1.484*P_c[j-1][1];
-            P_c[j][2] =  2*P_c[j-1][2]; //1.543
+         
+         else {           
+            P_c[j][i] = P_min[i]*pow( P_max[i]/P_min[i] , (double) j/(N-1));           
          }
+         
       }
+      
+   }
    
    /*printf("Stella 1: da %.5f a %.5f\n", P_c[0][0], P_c[N-1][0]);
    printf("Stella 2: da %.5f a %.5f\n", P_c[0][1], P_c[N-1][1]);
    printf("Stella 3: da %.5f a %.5f\n", P_c[0][2], P_c[N-1][2]);*/ //controllo gli estremi delle pressioni
    
-   for (int i = 0; i <= 2; i++) { //con l'indice i ciclo sui diversi tipi di stelle, con j ciclo sulle condizioni iniziali
+   for (int i = 0; i <= 2; i++) { 
    
       if ( i == 0) { //risolvo per la prima stella; per la prima stella stampo anche i risultati in modo da eseguire un plot di
                      //P(r) e m(r)
