@@ -5,11 +5,17 @@ using namespace std;
 extern int N_mol;
 
 
-void primi_vicini(double *r, double *r_prim_vic, double distanza_interaz, int N_mol, int j) {
+void primi_vicini(double *r, double *r_prim_vic, double dim_scatola, int N_mol, int j) {
     for (int i = 0; i < 3 * N_mol; i += 3) {
-        r_prim_vic[i] = r[i] + distanza_interaz * round((r[j] - r[i]) / distanza_interaz);
-        r_prim_vic[i + 1] = r[i + 1] + distanza_interaz * round((r[j + 1] - r[i + 1]) / distanza_interaz);
-        r_prim_vic[i + 2] = r[i + 2] + distanza_interaz * round((r[j + 2] - r[i + 2]) / distanza_interaz);
+        r_prim_vic[i]     = r[i]     + dim_scatola * rint((r[j]     - r[i])     / dim_scatola);
+        r_prim_vic[i + 1] = r[i + 1] + dim_scatola * rint((r[j + 1] - r[i + 1]) / dim_scatola);
+        r_prim_vic[i + 2] = r[i + 2] + dim_scatola * rint((r[j + 2] - r[i + 2]) / dim_scatola);
+        
+        if(r_prim_vic[i]+1e-12==1e-12 && r_prim_vic[i+1]+1e-12==1e-12 && r_prim_vic[i+2]+1e-12==1e-12){
+            r_prim_vic[i]     = r[i];
+            r_prim_vic[i + 1] = r[i + 1];
+            r_prim_vic[i + 2] = r[i + 2];
+        }
     }
 }
 
@@ -26,13 +32,14 @@ double VLJ(double r, double *args) {
 void fLJ(double *r, double *args, double *F, int i) { //arg[0]=eps, arg[1]=sigma, arg[2]= r_c dimensione interazione, arg[3]=dimensione scatola
     setta_matr(F, 0, 1);
     double r_pv[3 * N_mol];
+
     primi_vicini(r, r_pv, args[3], N_mol, i);//modifica r_pv
     double mod_r_pv[N_mol];
     
     for (int j = 0; j < 3 * N_mol; j += 3) {
         mod_r_pv[j / 3] = sqrt(r_pv[j] * r_pv[j] + r_pv[j + 1] * r_pv[j + 1] + r_pv[j + 2] * r_pv[j + 2]);
-        cout<<"particella "<<j/3<<" modulo "<<mod_r_pv[j / 3]<<endl;
-        cout<<"rPv "<<r_pv[j]<<"\t"<<r_pv[j+1]<<"\t"<<r_pv[j+2]<<endl;
+        //cout<<"particella "<<j/3<<" modulo "<<mod_r_pv[j / 3]<<endl;
+        //cout<<"rPv "<<r_pv[j]<<"\t"<<r_pv[j+1]<<"\t"<<r_pv[j+2]<<endl;
     }
     
 
