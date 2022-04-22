@@ -11,7 +11,7 @@ using namespace std;
 extern ofstream dati;
 
 double pow1(double base, int esp) {
-    double ris = 1;
+    double ris = 1.0;
     for (int i = 0; i < esp; i++) {
         ris *= base;
     }
@@ -38,6 +38,9 @@ void compila_matr(double *r, double *a_prev, int N_Mol,
     for (int j = 0; j < N_Mol; j++) {
         double F[3];
         f(r, args, F, j);//aggiorna F[3]
+        if(j==1){
+            break;
+        }
         for (int i = 3 * j; i < 3 * j + 3; ++i) {
             a_prev[i] = F[i - 3 * j];
         }
@@ -74,7 +77,7 @@ void crea_reticolo(int N_mol, double L, double *r) {
                 r[k] = x;
                 r[k + 1] = y;
                 r[k + 2] = z;
-                cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
+                //cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
                 dati << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
                 k+=3;
                 if (k > 3 * N_mol)
@@ -83,7 +86,7 @@ void crea_reticolo(int N_mol, double L, double *r) {
         }
     }
     dati<<"\n\n";
-    cout<<"\n\n";
+   // cout<<"\n\n";
 }
 void stampa_reticolo(int N_mol, double L, double *r) {
     double x, y, z, b;
