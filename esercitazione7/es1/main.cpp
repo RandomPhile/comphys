@@ -12,22 +12,22 @@ double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
 
-int N_mol = pow1(3, 3);
+int N_mol = pow1((double)3, 3);
 
 int main() {
     dati.open("dati.dat");
     double t = 0, h, E, K, T, V;
-    double t0 = 0, t1 = 10;
+    double t0 = 0, t1 = 50;
 
-    int N = 100;
+    int N = 1000;
     h = (t1 - t0) / ( (double) N);
     double rho = 1e-2; //fisso la densita del campione da studiare
     double eps, sigma, L, distanza_interaz;
     L = cbrt(N_mol / rho);
     distanza_interaz = L / 2;
-    cout<<L<<endl;
+    //cout<<L<<endl;
 
-    double var_ad[] = {eps=1, sigma=2, distanza_interaz, L};
+    double var_ad[] = {eps=1e-6, sigma=1e-6, distanza_interaz, L};
 
     double r[3 * N_mol], v[3 * N_mol];
     double r_mod, v_mod;
@@ -37,7 +37,7 @@ int main() {
 
     crea_reticolo(N_mol, L, r);
     
-    gauss_distr(v, 1, N_mol);
+    gauss_distr(v, 1.2, N_mol);
     set_vcm0(v, N_mol);
 
     double a_prev[3 * N_mol];
@@ -55,7 +55,7 @@ int main() {
 
         for (int j = 0; j < N_mol; ++j) {//particelle
             t = t0 + n * h;
-            if (vel_verlet(t, r, v, h, j, 3, a_prev, fLJ, var_ad)) {printf("ERRORE");}
+            if (vel_verlet(t, r, v, h, j, a_prev, fLJ, var_ad)) {printf("ERRORE");}
             
             v_mod = sqrt(v[j] * v[j] + v[j + 1] * v[j + 1] + v[j + 2] * v[j + 2]);
 
@@ -69,16 +69,15 @@ int main() {
             K += 0.5 * v_mod * v_mod;
 
         }
-        
         K = K / (n + 2);
         V = V / (n + 2);
 
-        E = K + V;
+        E = K - V;
         T = 2.0 * K / (3.0 * N_mol);
         dati << t  << "\t" << E << "\t" << K << "\t" << V << "\t" << T << endl;
-        cout << t  << "\t" << E << "\t" << K << "\t" << V << "\t" << T << endl;
+        //cout << t  << "\t" << E << "\t" << K << "\t" << V << "\t" << T << endl;
     }
-    
+    dati<<"\n\n";
     stampa_reticolo(N_mol, L, r);
     dati.close();
     return 0;
