@@ -37,10 +37,8 @@ void compila_matr(double *r, double *a_prev, int N_Mol,
                   double *args) {
     for (int j = 0; j < N_Mol; j++) {
         double F[3];
+        
         f(r, args, F, j);//aggiorna F[3]
-        if(j==1){
-            break;
-        }
         for (int i = 3 * j; i < 3 * j + 3; ++i) {
             a_prev[i] = F[i - 3 * j];
         }
@@ -71,13 +69,13 @@ void crea_reticolo(int N_mol, double L, double *r) {
     double x, y, z, b;
     b = L / cbrt(N_mol);
     int k = 0; //contatore della posizione
-    for (x = 0; x < L; x += b) {
-        for (y = 0; y < L; y += b) {
-            for (z = 0; z < L; z += b) {
+    for (x = 0; x < L-b; x += b) {
+        for (y = 0; y < L-b; y += b) {
+            for (z = 0; z < L-b; z += b) {
                 r[k] = x;
                 r[k + 1] = y;
                 r[k + 2] = z;
-                //cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
+                cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
                 dati << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
                 k+=3;
                 if (k > 3 * N_mol)
@@ -86,7 +84,7 @@ void crea_reticolo(int N_mol, double L, double *r) {
         }
     }
     dati<<"\n\n";
-   // cout<<"\n\n";
+    cout<<"\n\n";
 }
 void stampa_reticolo(int N_mol, double L, double *r) {
     double x, y, z, b;

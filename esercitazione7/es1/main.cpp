@@ -12,11 +12,11 @@ double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
 
-int N_mol = pow1(4, 3);
+int N_mol = pow1(3, 3);
 
 int main() {
     dati.open("dati.dat");
-    double t = 0, h, E, K, T,V;
+    double t = 0, h, E, K, T, V;
     double t0 = 0, t1 = 10;
 
     int N = 100;
@@ -25,6 +25,7 @@ int main() {
     double eps, sigma, L, distanza_interaz;
     L = cbrt(N_mol / rho);
     distanza_interaz = L / 2;
+    cout<<L<<endl;
 
     double var_ad[] = {eps=1, sigma=2, distanza_interaz, L};
 
@@ -41,7 +42,7 @@ int main() {
 
     double a_prev[3 * N_mol];
     compila_matr(r, a_prev, N_mol, fLJ, var_ad);//inizializzo accelerazioni come date dal potenziale
-    /*
+    
     E = 0; K = 0; V = 0;
     for (int n = 0; n < N; ++n) {//passi temporali
         //E = E*(n+1);//energia totale @t
@@ -78,7 +79,7 @@ int main() {
         cout << t  << "\t" << E << "\t" << K << "\t" << V << "\t" << T << endl;
     }
     
-    stampa_reticolo(N_mol, L, r);*/
+    stampa_reticolo(N_mol, L, r);
     dati.close();
     return 0;
 }
