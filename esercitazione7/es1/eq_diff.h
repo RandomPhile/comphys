@@ -29,7 +29,7 @@ void primi_vicini(double *r, double *r_prim_vic, double dim_scatola, int N_mol, 
 }
 
 double VLJ(double r, double *args) {
-    if (r<args[2]) {
+    if (r<args[2] && r!=0) {
         double Vrc = 4 * args[0] * (pow1(args[1] / args[2], 12) - pow1(args[1] / args[2], 6));
         return 4 * args[0] * (pow1(args[1] / r, 12) - pow1(args[1] / r, 6)) - Vrc;
     } else {

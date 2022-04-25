@@ -108,23 +108,12 @@ void crea_reticolo(int N_mol, double L, double *r) {
     dati<<"\n\n";
 }
 void stampa_reticolo(int N_mol, double L, double *r) {
-    double x, y, z, b;
-    b = L / cbrt(N_mol);
-    int k = 0; //contatore della posizione
-    for (x = 0; x < L; x += b) {
-        for (y = 0; y < L; y += b) {
-            for (z = 0; z < L; z += b) {
-                dati << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k << endl;
-                //cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k << endl;
-                k+=3;
-                if (k > 3 * N_mol)
-                    break;
-            }
-        }
+    for(int i=0; i<3*N_mol;i+=3){
+        dati<<r[i]<<"\t"<<r[i+1]<<"\t"<<r[i+2]<<endl;
     }
 }
-void cond_bordo(double *r, int i, double L) {
-    for (int j = i; j < i + 3; j++) {
+void cond_bordo(double *r,int N_mol, double L) {
+    for (int j = 0; j < 3*N_mol; j++) {
         r[j]=r[j]-L*rint(r[j]/L);
     }
 }
