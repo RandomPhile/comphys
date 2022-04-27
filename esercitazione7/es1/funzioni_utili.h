@@ -10,21 +10,21 @@ using namespace std;
 
 extern ofstream dati;
 
-double pow1(double base, int esp) {
+double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
     double ris = 1.0;
     for (int i = 0; i < esp; i++) {
         ris *= base;
     }
     return ris;
 }
-long double pow1(long double base, int esp) {
+long double pow1(long double base, int esp) {//funzione esponenziale creata per non usare pow versione long double
     double ris = 1.0;
     for (int i = 0; i < esp; i++) {
         ris *= base;
     }
     return ris;
 }
-void gauss_distr(double *v, double sigma, int N_Mol) {
+void gauss_distr(double *v, double sigma, int N_Mol) { //crea distribuzione gaussiana per un vettore in ingresso
     for (int i = 0; i < 3 * N_Mol; i += 2) {
         double x1, x2;
         x1 = rand() / ((double)RAND_MAX + 1.0);
@@ -34,19 +34,19 @@ void gauss_distr(double *v, double sigma, int N_Mol) {
     }
 }
 
-void setta_matr(double *r, int val, int N_Mol) {
+void setta_matr(double *r, int val, int N_Mol) {//set di un intero vettore ad un valore specificato
     for (int j = 0; j < 3 * N_Mol; j++) {
         r[j] = val;
     }
 }
-void setta_matr(long double *r, int val, int N_Mol) {
+void setta_matr(long double *r, int val, int N_Mol) {//set di un intero vettore ad un valore specificato versione long double
     for (int j = 0; j < 3 * N_Mol; j++) {
         r[j] = val;
     }
 }
 void compila_matr(double *r, double *a_prev, int N_Mol,
                   void (*f)(double*, double*, double*, int),
-                  double *args) {
+                  double *args) {//assegna alla matrice a_prev il valore di accelerazione imposto dal potenziale
     for (int j = 0; j < N_Mol; j++) {
         double F[3];
         f(r, args, F, j);//aggiorna F[3]
@@ -57,7 +57,7 @@ void compila_matr(double *r, double *a_prev, int N_Mol,
 }
 void compila_matr(double *r, double *a_prev, int N_Mol,
                    void (*f)(double*, double*, long double*, int),
-                   double *args) {
+                   double *args) {//assegna alla matrice a_prev il valore di accelerazione imposto dal potenziale versione long double
      for (int j = 0; j < N_Mol; j++) {
          long double F[3];
          f(r, args, F, j);//aggiorna F[3]
@@ -71,7 +71,7 @@ void copia_vett(double *r, int N_Mol, double *v) {
         r[j] = v[j];
     }
 }
-void set_vcm0(double *v, int N_Mol) {
+void set_vcm0(double *v, int N_Mol) {//imposta la velocita media a zero
     double v_cm[] = {0, 0, 0};
     for (int j = 0; j < 3; j++) {
         for (int i = 0; i < N_Mol; i++) {
@@ -90,18 +90,16 @@ void set_vcm0(double *v, int N_Mol) {
 void crea_reticolo(int N_mol, double L, double *r) {
     double x, y, z, b;
     b = L / cbrt(N_mol);
-    int k = 0; //contatore della posizione
-    for (x = 0; x < L-b; x += b) {
-        for (y = 0; y < L-b; y += b) {
-            for (z = 0; z < L-b; z += b) {
+    int k = 0; //contatore della particella
+    for (x = 0; x < L; x += b) {
+        for (y = 0; y < L; y += b) {
+            for (z = 0; z < L; z += b) {
                 r[k] = x;
                 r[k + 1] = y;
                 r[k + 2] = z;
                 //cout << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
                 dati << r[k] << "\t" << r[k + 1] << "\t" << r[k + 2] << "\t" << k/3 << endl;
                 k+=3;
-                if (k > 3 * N_mol)
-                    break;
             }
         }
     }
@@ -112,7 +110,7 @@ void stampa_reticolo(int N_mol, double L, double *r) {
         dati<<r[i]<<"\t"<<r[i+1]<<"\t"<<r[i+2]<<endl;
     }
 }
-void cond_bordo(double *r,int N_mol, double L) {
+void cond_bordo(double *r,int N_mol, double L) {//impone condizioni di bordo periodiche su tutte le particelle
     for (int j = 0; j < 3*N_mol; j++) {
         r[j]=r[j]-L*rint(r[j]/L);
     }
