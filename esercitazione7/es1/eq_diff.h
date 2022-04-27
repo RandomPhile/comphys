@@ -22,7 +22,18 @@ void primi_vicini(double *r, double *r_prim_vic, double dim_scatola, int N_mol, 
     }
 }
 
+<<<<<<< Updated upstream
 double VLJ(double r, double *args) {//trova il valore del potenziale che ho da una particella
+=======
+<<<<<<< HEAD
+double VLJ(double r, double *args) {
+    /*
+    ricordo {eps = 1e-6, sigma = 1e-6, distanza_interaz, L};
+    */
+=======
+double VLJ(double r, double *args) {//trova il valore del potenziale che ho da una particella
+>>>>>>> a14900cb9df682e2da9c140b85653d8582dcf285
+>>>>>>> Stashed changes
     if (r<args[2] && r!=0) {
         double Vrc = 4 * args[0] * (pow1(args[1] / args[2], 12) - pow1(args[1] / args[2], 6));
         return 4 * args[0] * (pow1(args[1] / r, 12) - pow1(args[1] / r, 6)) - Vrc;
