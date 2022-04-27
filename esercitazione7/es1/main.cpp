@@ -12,14 +12,14 @@ double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
 
-int N_mol = pow1((double)14, 3);
+int N_mol = pow1((double)6, 3);
 
 int main() {
     dati.open("dati.dat");
     double t = 0, h, E, K, T, V;
-    double t0 = 0, t1 = 50;
+    double t0 = 0, t1 = 20;
 
-    int N = 1000;
+    int N = 100;
     h = (t1 - t0) / ( (double) N);
     double rho = 1e-2; //fisso la densita del campione da studiare
     double eps, sigma, L, distanza_interaz;
