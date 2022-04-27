@@ -6,7 +6,7 @@ ofstream dati;
 
 double dP(double r, double P, double m, double *args);
 double dm(double r, double P, double m, double *args);
-bool relativ = 0;//0 o 1
+bool relativ = 1;//0 o 1
 
 int main() {
     dati.open("dati.dat");
@@ -15,10 +15,11 @@ int main() {
     double gam[] = {5.0 / 3, 4.0 / 3, 2.54};
 
     double m, P, r, args[4], cost;
-    double r0 = 1e-5, h = 1e-5, h_pc;
+    double r0 = 1e-5, h = 1e-4, h_pc;
 
     double Pc_min[] = {6e-6, 3e-2, 4e-7};
-    double Pc_max[] = {1e7, 3e3, 2e5};
+    //double Pc_max[] = {1e7, 3e3, 2e5};
+    double Pc_max[] = {2e5,2e5,2e5};
     // double Pc_min[] = {0.00001, 0.04, 0.001}; //pressioni minime per le tre stelle, adimensionali
     // double Pc_max[] = {404.52018, 72.32761, 524.288}; //pressioni massime. Sia P_min che P_max sono state scelte in modo da avere
    
