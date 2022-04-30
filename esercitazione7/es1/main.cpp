@@ -11,7 +11,7 @@ double f(double t, double x, double y, double *fargs);
 double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
 
-int M = 1;
+int M = 1;//M=1 reticolo CC, M=2 reticolo BCC, M=4 reticolo FCC
 int N_mol = M*pow1((double)4, 3);
 
 int main() {
