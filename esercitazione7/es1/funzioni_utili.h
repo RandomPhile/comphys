@@ -74,7 +74,7 @@ void set_vcm0(double *v, int N_Mol) {//imposta la velocita media a zero
     double v_cm[] = {0, 0, 0};
     for (int j = 0; j < 3; j++) {
         for (int i = 0; i < N_Mol; i++) {
-            v_cm[j] += v[i + 3 * j];
+            v_cm[j] += v[j + 3 * i];
         }
     }
     for (int j = 0; j < 3; j++) {
