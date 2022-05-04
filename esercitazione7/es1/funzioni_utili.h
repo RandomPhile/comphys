@@ -150,6 +150,57 @@ void cond_bordo(double *r, int N_mol, double L) { //impone condizioni di bordo p
         r[j] = r[j] - L * rint(r[j] / L);
     }
 }
+void plot_hist_3N(double *v, int N_mol) {
+    //usare N grande
+    double v_max = 0;
+    double v_min = 1e100;
+    double v_mod[N_mol];
+    for (int i = 0; i < 3*N_mol; i+=3) {
+        v_mod[i/3] = sqrt(v[i]*v[i]+v[i+1]*v[i+1]+v[i+2]*v[i+2]);
+        if (v_mod[i/3] < v_min) {
+            v_min = v_mod[i/3];
+        } 
+        if (v_mod[i/3] > v_max) {
+            v_max = v_mod[i/3];
+        }
+    }
+    int N_v = 1 + 3.322 * log(N_mol); //Sturge's Rule
+    double v_step = (v_max - v_min) / N_v;
+    double bins;
+    double f_v;
+    for (int j = 0; j < N_v; ++j) {
+        bins = v_min + v_step * j;
+        f_v = 0;
+        for (int i = 0; i < N_mol; ++i) {
+            if (v_mod[i] >= bins && v_mod[i] < (bins + v_step)) {
+                f_v++;
+            }
+        }
+        dati << bins << "\t" << f_v << endl;
+    }
+    dati << "\n\n";
+}
+void plot_hist(double *v, int N_mol, double L) {
+    //usare N grande
+    double v_max = L;
+    double v_min = 0;
+    int N_v = 1 + 3.322 * log(N_mol); //Sturge's Rule
+    double v_step = (v_max - v_min) / N_v;
+    double bins;
+    double f_v;
+    for (int j = 0; j < N_v; ++j) {
+        bins = v_min + v_step * j;
+        f_v = 0;
+        for (int i = 0; i < N_mol; ++i) {
+            if (v[i] >= bins && v[i] < (bins + v_step)) {
+                f_v++;
+            }
+        }
+        dati << bins << "\t" << f_v << endl;
+    }
+    dati << "\n\n";
+}
+
 
 
 #endif /* funzioni_utili_h */

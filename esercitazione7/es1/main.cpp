@@ -4,6 +4,8 @@
 #include "eq_diff.h"
 #include "funzioni_utili.h"
 
+#define _USE_MATH_DEFINES
+
 using namespace std;
 ofstream dati;
 
@@ -12,18 +14,21 @@ double g(double t, double x, double y, double *gargs);
 double a(double *r, int indice, double *args);
 
 int M = 1;//M=1 reticolo CC, M=2 reticolo BCC, M=4 reticolo FCC
-int N_mol = M*pow1((double)4, 3);
+int N_mol = M*pow1((double)6, 3);
 
 int main() {
     dati.open("dati.dat");
     double t = 0, h, E, K, T, V;
     double t0 = 0, t1 = 1;
+    int N_v=1000;
+    double g_r[N_v];
 
-    // int N = 1000;//numero passi temporali
-    // h = (t1 - t0) / ( (double) N);//larghezza temporale
+    for (int i = 0; i < N_v; ++i){
+        g_r[i]=0;
+    }
 
-    h = 0.001;
-    int N = (t1-t0)/h;
+    h = 0.001;//larghezza temporale
+    int N = (t1-t0)/h;//numero passi temporali
     cout<<N<<endl;
     double rho = 1e-2; //fisso la densita del campione da studiare
     double L = cbrt(N_mol / rho);
@@ -41,9 +46,11 @@ int main() {
     gauss_distr(v, 1.1, N_mol);//crea la distribuzione gaussiana di velocita
     set_vcm0(v, N_mol);//impone la velocita media delle particelle a 0
     
-    
+    g_r_function(r, L, rho, N_v, g_r);
 
-    double a_prev[3 * N_mol];
+    plot_hist(g_r, L, N_mol);
+
+    /*double a_prev[3 * N_mol];
     
     compila_matr(r, a_prev, N_mol, fLJ, L);//inizializzo accelerazioni come date dal potenziale al tempo 0
     
@@ -82,7 +89,7 @@ int main() {
         T = 2.0 * K / (3.0 * N_mol);
         dati << t << "\t" << E << "\t" << K << "\t" << V << "\t" << T << endl;
     }
-    dati << "\n\n";
+    dati << "\n\n";*/
 
     //stampo il reticolo in posizione finale
     stampa_reticolo(N_mol, r);

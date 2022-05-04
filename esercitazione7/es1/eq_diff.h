@@ -76,5 +76,32 @@ int vel_verlet(double t, double *r, double *v, double dt, int j,
     }
     return 0;
 }
+void g_r_function(double *r, double L, double rho, int N_v, double *g_r){
+    double dr=sqrt(2)*L/N_v;
+    double r_pv[3*N_mol];
+    for (int i = 0; i < 3*N_mol; i+=3){//ciclo sulle particelle
+        primi_vicini(r, r_pv, L, N_mol, i/3);//trovo la distanza dei primi vicini dalla particella i/3, centro il sistema di riferimento nella particella i/3
+        double r_d=0;
+        double r_pv_mod[N_mol];//creo il modulo dei primi vicini
+        for (int j = 0; j < 3*N_mol; j+=3){
+            r_pv_mod[j/3]=sqrt(r_pv[j]*r_pv[j]+r_pv[j+1]*r_pv[j+1]+r_pv[j+2]*r_pv[j+2]);
+        }
+        for (int j = 0; j < N_v; j++){
+            double V=4.0/3*M_PI*(pow1(r_d+dr/2,3)-pow1(r_d-dr/2,3));
+            double n=0;
+            for (int k = 0; k < N_mol; k++){
+                if(r_pv_mod[k]<=r_d+dr/2 && r_pv_mod[k]>=r_d-dr/2){
+                    n++;
+                }
+            }
+            r_d+=dr;
+            g_r[j]+=n/(rho*V);
+        }
+    }
+    for (int j = 0; j < N_v; j++){
+        g_r[j]/=N_mol;
+    }
+}
+
 
 #endif /* eq_diff_h */
