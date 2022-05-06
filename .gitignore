@@ -2,6 +2,9 @@
 *.dat
 .DS_Store
 *.eps
+*.xyz
+*.tmp
+
 
 # Prerequisites
 *.d
