@@ -15,18 +15,36 @@ double pow1(double base, int esp) {//funzione esponenziale creata per non usare 
     }
     return ris;
 }
-double integrale_montecarlo(double (*f)(double, double*), void (*distr)(double*, int, double, double), double inizio, double fine, double errore, double *args_f){
-    int N=rint(pow1(1/errore,2)+0.5);//double *x, int L, double a, double b
-    //cout<<"N= "<<N<<endl;
+double integrale_montecarlo(double (*f)(double, double*), void (*distr)(double*, int, double*), double errore, double *args_f, double *args_d){//versione distrib uniforme
+    //args_d: 0 inizio, 1 fine, 2 sigma, 3 mu
+    
+    int N=rint(pow1(args_d[2]/errore,2)+0.5);//
     double ris=0;
     double x[N];
-    distr(x, N, inizio, fine);
+    distr(x, N, args_d);
     for (int i = 1; i <= N; ++i){
         ris+=f(x[i],args_f);
     }
-    ris=ris*(fine-inizio)/N;
+    ris=ris*(args_d[1]-args_d[0])/N;
     return ris;
 }
+double integrale_montecarlo(double (*f)(double, double*), double *args_f,
+                            void (*distr)(double*,int, double*), double *args_d,
+                            double errore,
+                            double (*g)(double, double*), double *args_g){//versione g(x) generica
+    //args_d: 0 inizio, 1 fine, 2 sigma, 3 mu
+    
+    int N=rint(pow1(args_d[2]/errore,2)+0.5);//
+    double ris=0;
+    double x[N];
+    distr(x, N, args_d);
+    for (int i = 1; i <= N; ++i){
+        ris+=f(x[i],args_f)/g(x[i],args_g);
+    }
+    ris=ris*(args_d[1]-args_d[0])/N;
+    return ris;
+}
+
 
 double sin_n(double x, double *par){//primo parametro il coefficiente alfa interno al seno, secondo parametro l'esponente di x, terzo parametro il valore di cui è elevato il tutto
     double ris=pow1(sin(x*par[0]),2)*pow1(x, par[1]);
