@@ -8,6 +8,8 @@
 #define funzioni_utili_h
 using namespace std;
 
+extern ofstream dati;
+
 double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
     double ris = 1.0;
     for (int i = 0; i < esp; i++) {
@@ -15,6 +17,27 @@ double pow1(double base, int esp) {//funzione esponenziale creata per non usare 
     }
     return ris;
 }
+void plot_hist(double *v, int N_mol, double L) {
+    //usare N grande
+    double v_max = L;
+    double v_min = 0;
+    int N_v = 1 + 3.322 * log(N_mol); //Sturge's Rule
+    double v_step = (v_max - v_min) / N_v;
+    double bins;
+    double f_v;
+    for (int j = 0; j < N_v; ++j) {
+        bins = v_min + v_step * j;
+        f_v = 0;
+        for (int i = 0; i < N_mol; ++i) {
+            if (v[i] >= bins && v[i] < (bins + v_step)) {
+                f_v++;
+            }
+        }
+        dati << bins << "\t" << f_v << endl;
+    }
+    dati << "\n\n";
+}
+
 double integrale_montecarlo(double (*f)(double, double*), void (*distr)(double*, int, double*), double errore, double *args_f, double *args_d){//versione distrib uniforme
     //args_d: 0 inizio, 1 fine, 2 sigma, 3 mu
     
@@ -22,6 +45,7 @@ double integrale_montecarlo(double (*f)(double, double*), void (*distr)(double*,
     double ris=0;
     double x[N];
     distr(x, N, args_d);
+    plot_hist(x,N,100);
     for (int i = 1; i <= N; ++i){
         ris+=f(x[i],args_f);
     }
@@ -38,10 +62,10 @@ double integrale_montecarlo(double (*f)(double, double*), double *args_f,
     double ris=0;
     double x[N];
     distr(x, N, args_d);
-    for (int i = 1; i <= N; ++i){
+    for (int i = 0; i <  N; ++i){
         ris+=f(x[i],args_f)/g(x[i],args_g);
     }
-    ris=ris*(args_d[1]-args_d[0])/N;
+    ris=ris/N;
     return ris;
 }
 
