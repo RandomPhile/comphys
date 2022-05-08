@@ -25,6 +25,9 @@ int main() {
 
         f4_max[i] = max_of_function(f_d[i], 4, 0, AB[i], param[i], 10);
         N_s[i] = ceil(pow(pow(AB[i], 5) * f4_max[i] / (180 * delta2),0.25));
+        if(N_s[i]%2!=0){
+            N_s[i]++;
+        }
         printf("Max:%f,\t N_t:%d\n", f2_max[i],N_t[i]);
         printf("Max:%f,\t N_s:%d\n", f4_max[i],N_s[i]);
     }

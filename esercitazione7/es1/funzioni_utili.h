@@ -10,6 +10,7 @@ using namespace std;
 
 extern ofstream dati;
 extern int M;
+
 double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
     double ris = 1.0;
     for (int i = 0; i < esp; i++) {
