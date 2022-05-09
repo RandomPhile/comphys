@@ -16,14 +16,15 @@ ofstream dati, coord, gnuplot;
 
 int main() {
     srand(1);//default seed = 1
-    int caso       = 0;//tre valori di pressione diversi
+    int caso       = 2;//tre valori di pressione diversi
     double dt      = 0.01;//passo temporale
     double t1      = 10;//durata simulazione
 
-    double sigma[3][3] = {{1.038, 1.144, 1},//CC
-        {1.04, 1.4, 1.4558},//BCC
-        {1.0462, 1.43, 1.49}//FCC
+    double sigma[3][3] = {{1.04249, 1.41451, 1.45959},//CC
+        {1.04249, 1.41451, 1.45959},//BCC
+        {1.04249, 1.41451, 1.45959}//FCC
     };
+    double rho[] = {0.01, 0.8, 1.2};
 
     int animazione = 0;//0: grafici; 1: particelle
     double pausa   = 0.01;
@@ -34,7 +35,6 @@ int main() {
     int reticolo   = log2(M);
 
     double T_req = 1.1;
-    double rho[] = {0.01, 0.8, 1.2};
 
     double L = cbrt(N / rho[caso]);
     double r_c = L / 2;
@@ -80,7 +80,8 @@ int main() {
         W_c = (W_c + W) / (i + 2.0);
 
         T = 2.0 * K_c / (3.0 * N);
-        P = rho[caso] * (1 + W_c / (3.0 * T_req)); //P su T_req
+        P = (1 + W_c / (3.0 * T_req)); //P su rho*k_B*T_req
+        // P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
 
         E = K + V;
 

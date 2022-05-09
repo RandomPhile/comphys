@@ -22,26 +22,24 @@ struct coppia {
 int main() {
     srand(1);//default seed = 1
     double dt      = 0.01;//passo temporale
-    double t1      = 10;//durata simulazione
+    double t1      = 20;//durata simulazione
 
-    coppia coppie[] = {
-        {.rho = 0.01,.sigma = 1.04435},
-        {.rho = 0.1, .sigma = 0.84084},
-        {.rho = 0.2, .sigma = 0.724991},
-        {.rho = 0.3, .sigma = 0.715884},
-        {.rho = 0.4, .sigma = 0.781342},
-        {.rho = 0.5, .sigma = 0.871225},
-        {.rho = 0.6, .sigma = 1.08453},
-        {.rho = 0.7, .sigma = 1.21159},
-        {.rho = 0.8, .sigma = 1.37527},
-        {.rho = 0.9, .sigma = 1.4332},
-        {.rho = 1.0, .sigma = 1.49973},
-        {.rho = 1.1, .sigma = 1.04971},
-        {.rho = 1.2, .sigma = 1.44088}
+    coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (6+6 minuti)
+        {.rho = 0.01, .sigma = 1.04332},
+        {.rho = 0.1, .sigma = 0.828379},
+        {.rho = 0.2, .sigma = 0.670309},
+        {.rho = 0.3, .sigma = 0.656069},
+        {.rho = 0.4, .sigma = 0.762703},
+        {.rho = 0.5, .sigma = 0.925801},
+        {.rho = 0.6, .sigma = 1.12905},
+        {.rho = 0.7, .sigma = 1.28666},
+        {.rho = 0.8, .sigma = 1.41451},
+        {.rho = 0.9, .sigma = 1.45276},
+        {.rho = 1.0, .sigma = 1.38634},
+        {.rho = 1.1, .sigma = 1.39870},
+        {.rho = 1.15, .sigma = 1.41261},
+        {.rho = 1.2, .sigma = 1.45959}
     };
-
-    // double rho[]   = {0.01, 0.1, 0.8, 1.2};
-    // double sigma[] = {1.04, 0.863, 1.4, 1.4558}; //BCC
 
     int caso_min = 0;//mettere 0 per avere P(rho)
     int caso_max;
@@ -49,7 +47,7 @@ int main() {
     if (caso_min == 0) {
         caso_max = sizeof(coppie) / sizeof(*coppie);
     } else {
-        caso_max = caso_min+1;
+        caso_max = caso_min + 1;
     }
     //###################################################
     struct vec r[N], v[N], a[N];
@@ -93,7 +91,8 @@ int main() {
             W_c = (W_c + W) / (i + 2.0);
 
             T = 2.0 * K_c / (3.0 * N);
-            P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su T_req
+            P = (1 + W_c / (3.0 * T_req)); //P su rho*k_B*T_req
+            // P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
 
             E = K + V;
             if (caso_min != 0) {
@@ -101,6 +100,7 @@ int main() {
             }
             t += dt;
         }
+        LOG(P)
         if (caso_min == 0) {
             dati << coppie[caso].rho << "\t" << P << endl;
         }
