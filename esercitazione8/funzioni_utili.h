@@ -6,6 +6,7 @@
 
 #ifndef funzioni_utili_h
 #define funzioni_utili_h
+
 using namespace std;
 
 extern ofstream dati;
@@ -87,7 +88,7 @@ double exp_n(double x, double *par){//0 alfa interno all'esponenziale, 1 l'espon
     return pow1(ris, par[2]);
 }
 double gauss(double x, double *par){//primo parametro sigma, secondo parametro mu
-    double ris=exp(-(x-par[1])*(x-par[1])/(2*par[0]*par[0]));
+    double ris=1/(sqrt(2*M_PI)*par[0])*exp(-(x-par[1])*(x-par[1])/(2*par[0]*par[0]));
     return ris;
 }
 double g_prof(double x, double *par){
