@@ -66,7 +66,7 @@ double integrale_montecarlo(double (*f)(double, double*), double *args_f,
                             double (*g)(double, double*), double *args_g){//versione g(x) generica
     //args_d: 0 inizio, 1 fine, 2 sigma, 3 mu
     
-    int N=rint(pow1(args_d[2]/errore,2)+0.5);//
+    int N=rint(  pow1(args_d[2]/errore,2)   +0.5   );//
     double ris=0;
     double x[N];
     distr(x, N, args_d);

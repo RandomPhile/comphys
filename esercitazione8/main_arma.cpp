@@ -23,10 +23,10 @@ int main() {
     N*=M;
     Mat<double> v(3*N,1);
     v.randn();
-    //cout<<"v=\n"<<v.randn()<<endl;
+    cout<<"v=\n"<<v.randn()<<endl;
     plot_hist(v,3*N);
-    distr_gauss(v, 3*N, args);
-    plot_hist(v,3*N);
+    // distr_gauss(v, 3*N, args);
+    // plot_hist(v,3*N);
     dati.close();
     return 0;
 }

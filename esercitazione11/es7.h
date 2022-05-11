@@ -1,4 +1,8 @@
 #include "header.h"
+#include "distribuzioni.h"
+
+
+
 void crea_reticolo(vec *r, double L) {
     int n = cbrt(N / M);
     float L_cella = L / cbrt(N / M);
@@ -19,6 +23,7 @@ void crea_reticolo(vec *r, double L) {
             }
         }
     }
+
 }
 
 double V_LJ(double r, double L) {
@@ -125,3 +130,64 @@ void vel_verlet(vec *r, vec *v, vec *a, double dt, double r_c, double L, double 
     }
     *W /= N;
 }
+
+void MRT2(vec *r, double *V, double *W, int N_mol, double Delta,){
+    int n = rint(N_mol * rand() / (RAND_MAX + 1.0));//molecola che viene modificata da metropolis
+    struct vec r_n, dr[N_mol], dr_n[N_mol];
+    r_n.x=r[n].x+Delta*(rand() / (RAND_MAX + 1.0)-0.5);//modifico le posizioni della particella n
+    r_n.y=r[n].y+Delta*(rand() / (RAND_MAX + 1.0)-0.5);
+    r_n.z=r[n].z+Delta*(rand() / (RAND_MAX + 1.0)-0.5);
+
+    V_tot_r1=0;
+    V_tot_r0=0;
+    double dr_mod;
+    for (int i = 0; i < N; ++i) {
+        for (int j = i + 1; j < N; ++j) {
+            //calcolo la distanza tra la particella i e la particella j>i
+            dr[i][j].x = r[i].x - r[j].x;
+            dr[i][j].y = r[i].y - r[j].y;
+            dr[i][j].z = r[i].z - r[j].z;
+            dr[i][j].x -= L * rint(dr[i][j].x / L);
+            dr[i][j].y -= L * rint(dr[i][j].y / L);
+            dr[i][j].z -= L * rint(dr[i][j].z / L);
+            dr[j][i].x -= L * rint(dr[j][i].x / L);
+            dr[j][i].y -= L * rint(dr[j][i].y / L);
+            dr[j][i].z -= L * rint(dr[j][i].z / L);
+
+            if(i!=n && j!=n){
+                dr_n[i][j].x=dr[i][j].x;
+                dr_n[i][j].y=dr[i][j].y;
+                dr_n[i][j].z=dr[i][j].z;
+            }
+        }
+        for (int j = i + 1; j < N; ++j) {
+            dr_mod = dr[i][j].mod();
+            if (dr_mod < r_c) {
+                V_tot_r0+=V_LJ(dr_mod, L);
+                *V = V_tot_r0;
+
+                //dV_dr * r
+                *W -= 24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
+            }
+        }
+    }
+    
+    A=min(1,exp())
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
