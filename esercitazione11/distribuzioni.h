@@ -7,6 +7,9 @@
 
 #ifndef distribuzioni_h
 #define distribuzioni_h
+
+#include "funzioni.h"
+
 void distr_unif(double *x, int L, double* args) {
     for (int i = 0; i < L; ++i) {
         x[i] = (args[1] - args[0]) * rand() / (RAND_MAX + 1.0) + args[0];
@@ -24,6 +27,22 @@ void distr_gauss(double *x, int L, double *args) {
         if (i!= L-1){
             x[i + 1] = args[2] * sqrt(-2 * log(1 - x2)) * sin(2 * M_PI * x1) + args[3];
         }
+    }
+}
+void distr_gauss(vec *x, double sigma) {
+    //Formule di Box-Muller
+    for (int i = 0; i < N; ++i) {
+        double x1, x2;
+        x1 = rand() / ((double)RAND_MAX + 1.0);
+        x2 = rand() / ((double)RAND_MAX + 1.0);
+
+        x[i].x = sigma * sqrt(-2 * log(1 - x2)) * cos(2 * M_PI * x1);
+        x[i].y = sigma * sqrt(-2 * log(1 - x2)) * sin(2 * M_PI * x1);
+
+        x1 = rand() / ((double)RAND_MAX + 1.0);
+        x2 = rand() / ((double)RAND_MAX + 1.0);
+
+        x[i].z = sigma * sqrt(-2 * log(1 - x2)) * cos(2 * M_PI * x1);
     }
 }
 void distr_gauss_mezza(double *x, int len, double *args) {

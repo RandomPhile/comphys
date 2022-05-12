@@ -1,6 +1,10 @@
+#include <iostream>
+#include <cmath>
+#include <fstream>
+
 #include "header.h"
-#include "funzioni.h"
-#include "es7.h"
+//#include "funzioni.h"
+#include "es11.h"
 #include "distribuzioni.h"
 
 /* NOTE:
@@ -20,6 +24,11 @@ struct coppia {
     double sigma;
 };
 
+
+
+
+
+
 int main() {
     srand(1);//default seed = 1
     double dt      = 0.01;//passo temporale
@@ -27,19 +36,19 @@ int main() {
 
     coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (6+6 minuti)
         {.rho = 0.01, .sigma = 1.04332},
-        // {.rho = 0.1, .sigma = 0.828379},
-        // {.rho = 0.2, .sigma = 0.670309},
-        // {.rho = 0.3, .sigma = 0.656069},
-        // {.rho = 0.4, .sigma = 0.762703},
-        // {.rho = 0.5, .sigma = 0.925801},
-        // {.rho = 0.6, .sigma = 1.12905},
-        // {.rho = 0.7, .sigma = 1.28666},
-        // {.rho = 0.8, .sigma = 1.41451},
-        // {.rho = 0.9, .sigma = 1.45276},
-        // {.rho = 1.0, .sigma = 1.38634},
-        // {.rho = 1.1, .sigma = 1.39870},
-        // {.rho = 1.15, .sigma = 1.41261},
-        // {.rho = 1.2, .sigma = 1.45959}
+        {.rho = 0.1, .sigma = 0.828379},
+        {.rho = 0.2, .sigma = 0.670309},
+        {.rho = 0.3, .sigma = 0.656069},
+        {.rho = 0.4, .sigma = 0.762703},
+        {.rho = 0.5, .sigma = 0.925801},
+        {.rho = 0.6, .sigma = 1.12905},
+        {.rho = 0.7, .sigma = 1.28666},
+        {.rho = 0.8, .sigma = 1.41451},
+        {.rho = 0.9, .sigma = 1.45276},
+        {.rho = 1.0, .sigma = 1.38634},
+        {.rho = 1.1, .sigma = 1.39870},
+        {.rho = 1.15, .sigma = 1.41261},
+        {.rho = 1.2, .sigma = 1.45959}
     };
 
     int caso_min = 0;//mettere 0 per avere P(rho)
@@ -51,7 +60,7 @@ int main() {
         caso_max = caso_min + 1;
     }
     //###################################################
-    struct vec r[N], v[N], a[N];
+    struct vec r[N];
     int reticolo   = log2(M);
     double T_req = 1.1;
 
@@ -65,15 +74,12 @@ int main() {
         double L = cbrt(N / coppie[caso].rho);
         double r_c = L / 2;
 
+        double Delta=L/100;
+
         double t = 0;
         int N_t = (t1 - t) / dt;
 
         crea_reticolo(r, L);
-        crea_reticolo(a, 0);
-        distr_gauss(v, coppie[caso].sigma);
-
-        vec *dr[N]; vec_2D(dr, N);
-        a_LJ(r, a, dr, r_c, L);
 
 
         double E = 0, T = 0, P = 0;
@@ -81,23 +87,19 @@ int main() {
         double K_c = 0, V_c = 0, W_c = 0;
 
         for (int i = 0; i < N_t; ++i) {//tempo
-            K_c = K_c * (i + 1.0);
             V_c = V_c * (i + 1.0);
             W_c = W_c * (i + 1.0);
-
-            vel_verlet(r, v, a, dt, r_c, L, &K, &V, &W);
-            v_cm_0(v);
-            K_c = (K_c + K) / (i + 2.0);
+            
+            MRT2(r, &V, &W, N, Delta, T_req, L, r_c);
+            
             V_c = (V_c + V) / (i + 2.0);
             W_c = (W_c + W) / (i + 2.0);
 
-            T = 2.0 * K_c / (3.0 * N);
             P = (1 + W_c / (3.0 * T_req)); //P su rho*k_B*T_req
             // P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
 
-            E = K + V;
             if (caso_min != 0) {
-                dati << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << endl;
+                dati << t << "\t" << V << "\t" << P << endl;
             }
             t += dt;
         }
@@ -105,8 +107,8 @@ int main() {
         if (caso_min == 0) {
             dati << coppie[caso].rho << "\t" << P << endl;
         }
-        cout << "Rho = " << coppie[caso].rho << "\t\tT = " << T << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
-        risultati << "Rho = " << coppie[caso].rho << "\t\tT = " << T << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
+        cout << "Rho = " << coppie[caso].rho << "\t\tT = " << T_req << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
+        risultati << "Rho = " << coppie[caso].rho << "\t\tT = " << T_req << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
     }
     dati.close();
     risultati.close();

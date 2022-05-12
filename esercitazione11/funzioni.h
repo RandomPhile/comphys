@@ -1,3 +1,7 @@
+#ifndef funzioni_h
+#define funzioni_h
+
+
 #include "header.h"
 struct vec {
     double x; double y; double z;
@@ -57,36 +61,14 @@ void stampa_coord(vec *r) {
     }
     LOG("\n");
 }
-void distr_gauss(vec *x, double sigma) {
-    //Formule di Box-Muller
-    for (int i = 0; i < N; ++i) {
-        double x1, x2;
-        x1 = rand() / ((double)RAND_MAX + 1.0);
-        x2 = rand() / ((double)RAND_MAX + 1.0);
-
-        x[i].x = sigma * sqrt(-2 * log(1 - x2)) * cos(2 * M_PI * x1);
-        x[i].y = sigma * sqrt(-2 * log(1 - x2)) * sin(2 * M_PI * x1);
-
-        x1 = rand() / ((double)RAND_MAX + 1.0);
-        x2 = rand() / ((double)RAND_MAX + 1.0);
-
-        x[i].z = sigma * sqrt(-2 * log(1 - x2)) * cos(2 * M_PI * x1);
+double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
+    double ris = 1.0;
+    for (int i = 0; i < esp; i++) {
+        ris *= base;
     }
+    return ris;
 }
-void v_cm_0(vec *v) {
-    vec v_cm = {.x = 0, .y = 0, .z = 0};
-    for (int i = 0; i < N; ++i) {
-        v_cm.x += v[i].x;
-        v_cm.y += v[i].y;
-        v_cm.z += v[i].z;
-    }
-    v_cm.per(1 / N);
-    for (int i = 0; i < N; ++i) {
-        v[i].x -= v_cm.x;
-        v[i].y -= v_cm.y;
-        v[i].z -= v_cm.z;
-    }
-}
+
 void plot_v_hist(vec *v) {
     //usare N grande
     double v_min = 1e100;
@@ -115,3 +97,13 @@ void plot_v_hist(vec *v) {
         dati << bins << "\t" << f_v << endl;
     }
 }
+double min(double a, double b){
+    if(a<=b){
+        return a;
+    }
+    else{
+        return b;
+    }
+}
+
+#endif 
