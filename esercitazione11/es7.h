@@ -131,7 +131,7 @@ void vel_verlet(vec *r, vec *v, vec *a, double dt, double r_c, double L, double 
     *W /= N;
 }
 
-void MRT2(vec *r, double *V, double *W, int N_mol, double Delta,){
+void MRT2(vec *r, double *V, double *W, int N_mol, double Delta, double T){
     int n = rint(N_mol * rand() / (RAND_MAX + 1.0));//molecola che viene modificata da metropolis
     struct vec r_n, dr[N_mol], dr_n[N_mol];
     r_n.x=r[n].x+Delta*(rand() / (RAND_MAX + 1.0)-0.5);//modifico le posizioni della particella n
@@ -140,52 +140,88 @@ void MRT2(vec *r, double *V, double *W, int N_mol, double Delta,){
 
     V_tot_r1=0;
     V_tot_r0=0;
-    double dr_mod;
+    double dr_mod, dr_mod_n;
     for (int i = 0; i < N; ++i) {
         for (int j = i + 1; j < N; ++j) {
             //calcolo la distanza tra la particella i e la particella j>i
-            dr[i][j].x = r[i].x - r[j].x;
-            dr[i][j].y = r[i].y - r[j].y;
-            dr[i][j].z = r[i].z - r[j].z;
-            dr[i][j].x -= L * rint(dr[i][j].x / L);
-            dr[i][j].y -= L * rint(dr[i][j].y / L);
-            dr[i][j].z -= L * rint(dr[i][j].z / L);
-            dr[j][i].x -= L * rint(dr[j][i].x / L);
-            dr[j][i].y -= L * rint(dr[j][i].y / L);
-            dr[j][i].z -= L * rint(dr[j][i].z / L);
+            dist_ij(dr,r,r,i,j);
 
             if(i!=n && j!=n){
                 dr_n[i][j].x=dr[i][j].x;
                 dr_n[i][j].y=dr[i][j].y;
                 dr_n[i][j].z=dr[i][j].z;
             }
+            else if(i==n && j!=n){
+                dist_ij(dr_n,r_n,r,i,j);
+            }
+            else if (i!=n && j==n){
+                dist_ij(dr_n,r,r_n,i,j);
+            }
+            else{
+                dr_n[i][j].x = 0;
+                dr_n[i][j].y = 0;
+                dr_n[i][j].z = 0;
+            }
         }
         for (int j = i + 1; j < N; ++j) {
             dr_mod = dr[i][j].mod();
+            dr_mod_n = dr_n[i][j].mod();
             if (dr_mod < r_c) {
                 V_tot_r0+=V_LJ(dr_mod, L);
-                *V = V_tot_r0;
-
-                //dV_dr * r
-                *W -= 24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
+            }
+            if (dr_mod_n < r_c) {
+                V_tot_r1+=V_LJ(dr_mod_n, L);
             }
         }
     }
-    
-    A=min(1,exp())
-
-
+    A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));
+    if(A>1){
+        r[n].x=r_n.x;
+        r[n].y=r_n.y;
+        r[n].z=r_n.z;
+    }
+    else{
+        if(A>(rand()/(RAND_MAX+1))){
+            r[n].x=r_n.x;
+            r[n].y=r_n.y;
+            r[n].z=r_n.z;
+        }
+        else{
+            r[n].x=r[n].x;
+            r[n].y=r[n].y;
+            r[n].z=r[n].z;
+        }
+    }
+    for (int i = 0; i < N; ++i){
+        dr_mod=dr[i][j].mod();
+        for (int j = i + 1; j < N; ++j) {
+            
+        }
+    }
 }
 
 
 
 
+*V = V_tot_r0;
+
+ //dV_dr * r
+*W -= 24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
 
 
 
 
-
-
+void dist_ij(vec *dr, vec *r_i, vec *q_j, int i, int j){
+    dr[i][j].x = r_i[i].x - q_j[j].x;
+    dr[i][j].y = r_i[i].y - q_j[j].y;
+    dr[i][j].z = r_i[i].z - q_j[j].z;
+    dr[i][j].x -= L * rint(dr[i][j].x / L);
+    dr[i][j].y -= L * rint(dr[i][j].y / L);
+    dr[i][j].z -= L * rint(dr[i][j].z / L);
+    dr[j][i].x -= L * rint(dr[j][i].x / L);
+    dr[j][i].y -= L * rint(dr[j][i].y / L);
+    dr[j][i].z -= L * rint(dr[j][i].z / L);
+}
 
 
 
