@@ -10,15 +10,15 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 1; //1,2,4
+int M = 2; //1,2,4
 int N = M * pow(5, 3); //numero di particelle
 ofstream dati, coord, gnuplot;
 
 int main() {
     srand(1);//default seed = 1
-    int caso       = 2;//tre valori di pressione diversi
+    int caso       = 0;//tre valori di pressione diversi
     double dt      = 0.01;//passo temporale
-    double t1      = 10;//durata simulazione
+    double t1      = 5;//durata simulazione
 
     double sigma[3][3] = {{1.04249, 1.41451, 1.45959},//CC
         {1.04249, 1.41451, 1.45959},//BCC

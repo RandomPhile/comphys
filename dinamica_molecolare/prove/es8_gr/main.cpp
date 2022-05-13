@@ -5,7 +5,7 @@
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 2; //1,2,4
-int N = M * pow(4, 3); //numero di particelle
+int N = M * pow(5, 3); //numero di particelle
 ofstream dati;
 
 struct coppia {
@@ -34,7 +34,7 @@ int main() {
         {.rho = 1.15, .sigma = 1.41261},
         {.rho = 1.2, .sigma = 1.45959}
     };
-    int caso = 1;
+    int caso = 5;
 
     //###################################################
     struct vec r[N], v[N], a[N];
@@ -69,7 +69,7 @@ int main() {
     dati.open("dati.dat");
     
     cout << "L = " << L << "\t" << "L/2 = " << L / 2 << "\n" << endl;
-    int p = N/2;//particella attorno cui calcolo g(r)
+    int p = 0;//particella attorno cui calcolo g(r)
 
     vec rp; double rp_mod[N];
     for (int i = 0; i < N; ++i) {
