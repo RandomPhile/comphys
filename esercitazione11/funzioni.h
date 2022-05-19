@@ -108,5 +108,12 @@ double min(double a, double b){
         return b;
     }
 }
-
+double Fabs(double x){
+    if(x<0){
+        return -x;
+    }
+    else{
+        return x;
+    }
+}
 #endif 

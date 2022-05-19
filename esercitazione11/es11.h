@@ -9,6 +9,7 @@ using namespace std;
 extern int M;
 extern int N;
 
+
 void crea_reticolo(vec *r, double L) {
     int n = cbrt(N / M);
     float L_cella = L / cbrt(N / M);
@@ -112,7 +113,7 @@ void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L,
     vec_2D(dr, N);
     vec_2D(dr_n,N);//creo le matrici di struct
 
-    int n = fabs(rint(N * rand() / (RAND_MAX + 1.0)));//trovo la molecola che viene modificata da MTR2
+    int n = Fabs(rint(N * rand() / (RAND_MAX + 1.0)));//trovo la molecola che viene modificata da MTR2
 
     r_n.x=r[n].x+Delta*(rand() / (RAND_MAX + 1.0)-0.5);//modifico le posizioni della particella n
     r_n.y=r[n].y+Delta*(rand() / (RAND_MAX + 1.0)-0.5);
@@ -124,36 +125,34 @@ void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L,
     double dr_mod, dr_mod_n;
 
     for (int i = 0; i < N; ++i) {
-        //if(i!=N-1){
-            posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
-            for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
-                dr_mod = dr[i][j].mod();
-                //cout<<dr_mod<<endl;
-                dr_mod_n = dr_n[i][j].mod();
-                if (dr_mod < r_c) {
-                    V_tot_r0+=V_LJ(dr_mod, L);
-                }
-                if (dr_mod_n < r_c) {
-                    V_tot_r1+=V_LJ(dr_mod_n, L);
-                }
-            }
 
-        //}
+        posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
+
+        for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
+            
+            dr_mod = dr[i][j].mod();
+            dr_mod_n = dr_n[i][j].mod();
+            
+            if (dr_mod < r_c) {
+                V_tot_r0+=V_LJ(dr_mod, L);
+            }
+            if (dr_mod_n < r_c) {
+                V_tot_r1+=V_LJ(dr_mod_n, L);
+            }
+        }
     }
     
     accetto_spostamento(r, r_n, V_tot_r0, V_tot_r1, n, T);//verifico se accettare lo spostamento con MTR2
     
     *V = 0; *W = 0;
     for (int i = 0; i < N; ++i){//poco efficiente ma trovo e sparo fuori i valori di potenziale e pressione
-        if(i!=N-1){
-            for (int j = i + 1; j < N; ++j) {
-                dr_mod=dr[i][j].mod();
-                if (dr_mod < r_c) {
-                    *V+=V_LJ(dr_mod, L);
-                    
-                    //dV_dr * r
-                    *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
-                }
+        for (int j = i + 1; j < N; ++j) {
+            dr_mod=dr[i][j].mod();
+            if (dr_mod < r_c) {
+                *V+=V_LJ(dr_mod, L);
+                
+                //dV_dr * r
+                *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
             }
         }
     }
