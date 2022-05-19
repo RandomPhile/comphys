@@ -6,6 +6,9 @@
 
 using namespace std;
 
+extern int M;
+extern int N;
+
 void crea_reticolo(vec *r, double L) {
     int n = cbrt(N / M);
     float L_cella = L / cbrt(N / M);
@@ -26,7 +29,6 @@ void crea_reticolo(vec *r, double L) {
             }
         }
     }
-
 }
 
 double V_LJ(double r, double L) {
@@ -60,90 +62,98 @@ void accetto_spostamento(vec *r, vec r_n, double V_tot_r0, double V_tot_r1, int 
         }
     }
 }
+void posiz_MRT2(vec *dr[], vec *dr_n[], vec r_n, vec *r, int i, double L, int n){
+    for (int j = i + 1; j < N; ++j) {
+        //calcolo la distanza tra la particella i e la particella j>i
+        dr[i][j].x = r[i].x - r[j].x;
+        dr[i][j].y = r[i].y - r[j].y;
+        dr[i][j].z = r[i].z - r[j].z;
+        dr[i][j].x -= L * rint(dr[i][j].x / L);//sposto in [-L/2,+L/2]
+        dr[i][j].y -= L * rint(dr[i][j].y / L);
+        dr[i][j].z -= L * rint(dr[i][j].z / L);
+        dr[j][i].x -= L * rint(dr[j][i].x / L);
+        dr[j][i].y -= L * rint(dr[j][i].y / L);
+        dr[j][i].z -= L * rint(dr[j][i].z / L);
+        if(i!=n && j!=n){//calcolo le distanze nuove e impongo che siano le stesse se sono distanze tra particelle non modificate
+            dr_n[i][j].x=dr[i][j].x;
+            dr_n[i][j].y=dr[i][j].y;
+            dr_n[i][j].z=dr[i][j].z;
+        }
+        else if(i==n && j!=n){//modifico le distanze per una particella modificata
+            dr_n[i][j].x = r_n.x - r[j].x;
+            dr_n[i][j].y = r_n.y - r[j].y;
+            dr_n[i][j].z = r_n.z - r[j].z;
+            dr_n[i][j].x -= L * rint(dr_n[i][j].x / L);//sposto in [-L/2,+L/2]
+            dr_n[i][j].y -= L * rint(dr_n[i][j].y / L);
+            dr_n[i][j].z -= L * rint(dr_n[i][j].z / L);
+            dr_n[j][i].x -= L * rint(dr_n[j][i].x / L);
+            dr_n[j][i].y -= L * rint(dr_n[j][i].y / L);
+            dr_n[j][i].z -= L * rint(dr_n[j][i].z / L);
+        }
+        else if (i!=n && j==n){//modifico le distanze per una particella modificata
+            dr_n[i][j].x = r[i].x - r_n.x;
+            dr_n[i][j].y = r[i].y - r_n.y;
+            dr_n[i][j].z = r[i].z - r_n.z;
+            dr_n[i][j].x -= L * rint(dr_n[i][j].x / L);//sposto in [-L/2,+L/2]
+            dr_n[i][j].y -= L * rint(dr_n[i][j].y / L);
+            dr_n[i][j].z -= L * rint(dr_n[i][j].z / L);
+            dr_n[j][i].x -= L * rint(dr_n[j][i].x / L);
+            dr_n[j][i].y -= L * rint(dr_n[j][i].y / L);
+            dr_n[j][i].z -= L * rint(dr_n[j][i].z / L);
+        }
+        else{//impongo distanza tra particella modificata e se stessa uguale a zero
+            dr_n[i][j].uguale(0);
+        }
+    }
+}
 
 void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L, double r_c){//N=N_mol
     vec *dr_n[N], *dr[N], r_n; 
     vec_2D(dr, N);
     vec_2D(dr_n,N);//creo le matrici di struct
 
-    int n = rint(N * rand() / (RAND_MAX + 1.0));//trovo la molecola che viene modificata da MTR2
+    int n = fabs(rint(N * rand() / (RAND_MAX + 1.0)));//trovo la molecola che viene modificata da MTR2
 
     r_n.x=r[n].x+Delta*(rand() / (RAND_MAX + 1.0)-0.5);//modifico le posizioni della particella n
     r_n.y=r[n].y+Delta*(rand() / (RAND_MAX + 1.0)-0.5);
     r_n.z=r[n].z+Delta*(rand() / (RAND_MAX + 1.0)-0.5);
-
+    
     double V_tot_r1=0;//potenziale in posizione nuova
     double V_tot_r0=0;//potenziale in posizione vecchia
 
     double dr_mod, dr_mod_n;
 
     for (int i = 0; i < N; ++i) {
-        for (int j = i + 1; j < N; ++j) {
-            //calcolo la distanza tra la particella i e la particella j>i
-            dr[i][j].x = r[i].x - r[j].x;
-            dr[i][j].y = r[i].y - r[j].y;
-            dr[i][j].z = r[i].z - r[j].z;
-            dr[i][j].x -= L * rint(dr[i][j].x / L);//sposto in [-L/2,+L/2]
-            dr[i][j].y -= L * rint(dr[i][j].y / L);
-            dr[i][j].z -= L * rint(dr[i][j].z / L);
-            dr[j][i].x -= L * rint(dr[j][i].x / L);
-            dr[j][i].y -= L * rint(dr[j][i].y / L);
-            dr[j][i].z -= L * rint(dr[j][i].z / L);
+        //if(i!=N-1){
+            posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
+            for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
+                dr_mod = dr[i][j].mod();
+                //cout<<dr_mod<<endl;
+                dr_mod_n = dr_n[i][j].mod();
+                if (dr_mod < r_c) {
+                    V_tot_r0+=V_LJ(dr_mod, L);
+                }
+                if (dr_mod_n < r_c) {
+                    V_tot_r1+=V_LJ(dr_mod_n, L);
+                }
+            }
 
-            if(i!=n && j!=n){//calcolo le distanze nuove e impongo che siano le stesse se sono distanze tra particelle non modificate
-                dr_n[i][j].x=dr[i][j].x;
-                dr_n[i][j].y=dr[i][j].y;
-                dr_n[i][j].z=dr[i][j].z;
-            }
-            else if(i==n && j!=n){//modifico le distanze per una particella modificata
-                dr_n[i][j].x = r_n.x - r[j].x;
-                dr_n[i][j].y = r_n.y - r[j].y;
-                dr_n[i][j].z = r_n.z - r[j].z;
-                dr_n[i][j].x -= L * rint(dr_n[i][j].x / L);//sposto in [-L/2,+L/2]
-                dr_n[i][j].y -= L * rint(dr_n[i][j].y / L);
-                dr_n[i][j].z -= L * rint(dr_n[i][j].z / L);
-                dr_n[j][i].x -= L * rint(dr_n[j][i].x / L);
-                dr_n[j][i].y -= L * rint(dr_n[j][i].y / L);
-                dr_n[j][i].z -= L * rint(dr_n[j][i].z / L);
-            }
-            else if (i!=n && j==n){//modifico le distanze per una particella modificata
-                dr_n[i][j].x = r[i].x - r_n.x;
-                dr_n[i][j].y = r[i].y - r_n.y;
-                dr_n[i][j].z = r[i].z - r_n.z;
-                dr_n[i][j].x -= L * rint(dr_n[i][j].x / L);//sposto in [-L/2,+L/2]
-                dr_n[i][j].y -= L * rint(dr_n[i][j].y / L);
-                dr_n[i][j].z -= L * rint(dr_n[i][j].z / L);
-                dr_n[j][i].x -= L * rint(dr_n[j][i].x / L);
-                dr_n[j][i].y -= L * rint(dr_n[j][i].y / L);
-                dr_n[j][i].z -= L * rint(dr_n[j][i].z / L);
-            }
-            else{//impongo distanza tra particella modificata e se stessa uguale a zero
-                dr_n[i][j].uguale(0);
-            }
-        }
-        for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
-            dr_mod = dr[i][j].mod();
-            dr_mod_n = dr_n[i][j].mod();
-            if (dr_mod < r_c) {
-                V_tot_r0+=V_LJ(dr_mod, L);
-            }
-            if (dr_mod_n < r_c) {
-                V_tot_r1+=V_LJ(dr_mod_n, L);
-            }
-        }
+        //}
     }
-
+    
     accetto_spostamento(r, r_n, V_tot_r0, V_tot_r1, n, T);//verifico se accettare lo spostamento con MTR2
     
     *V = 0; *W = 0;
     for (int i = 0; i < N; ++i){//poco efficiente ma trovo e sparo fuori i valori di potenziale e pressione
-        for (int j = i + 1; j < N; ++j) {
-            dr_mod=dr[i][j].mod();
-            if (dr_mod < r_c) {
-                *V+=V_LJ(dr_mod, L);
-                
-                //dV_dr * r
-                *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
+        if(i!=N-1){
+            for (int j = i + 1; j < N; ++j) {
+                dr_mod=dr[i][j].mod();
+                if (dr_mod < r_c) {
+                    *V+=V_LJ(dr_mod, L);
+                    
+                    //dV_dr * r
+                    *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
+                }
             }
         }
     }

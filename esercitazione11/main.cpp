@@ -15,7 +15,7 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 2; //1,2,4
+int M = 4; //1,2,4
 int N = M * pow(4, 3); //numero di particelle
 ofstream dati, gnuplot, risultati;
 
@@ -109,6 +109,7 @@ int main() {
         }
         cout << "Rho = " << coppie[caso].rho << "\t\tT = " << T_req << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
         risultati << "Rho = " << coppie[caso].rho << "\t\tT = " << T_req << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
+    
     }
     dati.close();
     risultati.close();

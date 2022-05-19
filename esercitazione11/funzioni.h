@@ -18,6 +18,9 @@ struct vec {
     void per(double val) {
         x *= val; y *= val; z *= val;
     }
+    void print(){
+        cout << "x=" <<x << ", y=" << y << ", z=" << z << endl;
+    }
 };
 void vec_2D (vec *dr[], int dim) {
     for (int i = 0; i < dim; ++i)
