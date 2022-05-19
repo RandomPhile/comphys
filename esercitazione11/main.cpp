@@ -107,8 +107,8 @@ int main() {
         if (caso_min == 0) {
             dati << coppie[caso].rho << "\t" << P << endl;
         }
-        cout << "Rho = " << coppie[caso].rho << "\t\tT = " << T_req << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
-        risultati << "Rho = " << coppie[caso].rho << "\t\tT = " << T_req << "\nSigma = " << coppie[caso].sigma << "\t->\t" << coppie[caso].sigma*sqrt(T_req / T) << "\n" << endl;
+        cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
+        risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
     
     }
     dati.close();
