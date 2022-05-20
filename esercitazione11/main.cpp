@@ -15,8 +15,12 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 4; //1,2,4
-int N = M * pow(4, 3); //numero di particelle
+int M = 1; //1,2,4
+int N = M * pow(6, 3); //numero di particelle
+
+int numero_accettati=0;
+int numero_proposti=0;
+
 ofstream dati, gnuplot, risultati;
 
 struct coppia {
@@ -71,10 +75,35 @@ int main() {
 
     dati.open("dati.dat");
     for (int caso = caso_min; caso < caso_max; ++caso) {
+        numero_accettati=0;
+        numero_proposti=0;
         double L = cbrt(N / coppie[caso].rho);
         double r_c = L / 2;
 
-        double Delta=L/100;
+        double Delta=L/(50*coppie[caso].rho);
+        switch (caso) {
+            case 0:
+                Delta=L/3; 
+                break;
+            case 6:
+                Delta*=1.2;
+                break;
+            case 10:
+                Delta/=1.2; 
+                break;
+            case 11:
+                Delta/=1.3; 
+                break;
+            case 12:
+                Delta/=1.5; 
+                break;
+            case 13:
+                Delta/=1.8; 
+                break;
+            default:
+                break;
+
+        }
 
         double t = 0;
         int N_t = (t1 - t) / dt;
@@ -107,9 +136,9 @@ int main() {
         if (caso_min == 0) {
             dati << coppie[caso].rho << "\t" << P << endl;
         }
+        cout << (double)numero_accettati/(double)numero_proposti*100.0 << "%"<<endl;
         cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
         risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
-    
     }
     dati.close();
     risultati.close();

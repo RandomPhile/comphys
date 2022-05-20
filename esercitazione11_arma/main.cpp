@@ -24,6 +24,9 @@
 //CC, BCC, FCC
 int M = 4; //1,2,4
 int N = M * pow(4, 3); //numero di particelle
+
+int numero_proposti=0;
+int numero_accettati=0;
 ofstream dati, gnuplot, risultati;
 
 struct coppia {
@@ -116,7 +119,7 @@ int main() {
         }
         cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
         risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
-    
+        cout << numero_accettati/numero_proposti*100 << "%"<<endl;
     }
     dati.close();
     risultati.close();

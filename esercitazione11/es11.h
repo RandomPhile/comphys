@@ -9,6 +9,8 @@ using namespace std;
 extern int M;
 extern int N;
 
+extern int numero_accettati;
+extern int numero_proposti;
 
 void crea_reticolo(vec *r, double L) {
     int n = cbrt(N / M);
@@ -45,22 +47,25 @@ double V_LJ(double r, double L) {
 
 void accetto_spostamento(vec *r, vec r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
     double A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));//trovo A
+    numero_proposti++;
     if(A>1){//se l'energia diminuisce accetto sempre lo spostamento
         r[n].x=r_n.x;
         r[n].y=r_n.y;
         r[n].z=r_n.z;
+        numero_accettati++;
     }
     else{//se l'energia aumenta accetto con probabilita uniforme come termostato di anderson
         if(A>(rand()/((double)RAND_MAX+1.0))){
             r[n].x=r_n.x;
             r[n].y=r_n.y;
             r[n].z=r_n.z;
+            numero_accettati++;
         }
-        else{
-            r[n].x=r[n].x;
-            r[n].y=r[n].y;
-            r[n].z=r[n].z;
-        }
+        // else{
+        //     r[n].x=r[n].x;
+        //     r[n].y=r[n].y;
+        //     r[n].z=r[n].z;
+        // }
     }
 }
 void posiz_MRT2(vec *dr[], vec *dr_n[], vec r_n, vec *r, int i, double L, int n){

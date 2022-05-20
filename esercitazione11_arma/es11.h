@@ -9,6 +9,8 @@ using namespace arma;
 
 extern int M;
 extern int N;
+extern int numero_accettati;
+extern int numero_proposti;
 
 
 double mod(cube r, double riga, double colonna){
@@ -55,16 +57,19 @@ double V_LJ(double r, double L) {
 
 void accetto_spostamento(mat r, rowvec r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
     double A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));//trovo A
+    numero_proposti++;
     if(A>1){//se l'energia diminuisce accetto sempre lo spostamento
         r.row(n)=r_n;
+        numero_accettati++;
     }
     else{//se l'energia aumenta accetto con probabilita uniforme come termostato di anderson
         if(A>(rand()/((double)RAND_MAX+1.0))){
             r.row(n)=r_n;
+            numero_accettati++;
         }
-        else{//se non accetto lascio invariato
-            r.row(n)=r.row(n);
-        }
+        // else{//se non accetto lascio invariato
+        //     r.row(n)=r.row(n);
+        // }
     }
 }
 void posiz_MRT2(cube dr, cube dr_n, rowvec r_n, mat r, int i, double L, int n){
