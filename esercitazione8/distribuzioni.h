@@ -13,7 +13,7 @@ void distr_unif(double *x, int L, double* args) {
     }
 }
 
-void distr_gauss(double *x, int L, double *args) {
+void distr_gauss(double *x, int L, double *args) {//par[2]=sigma, par[3]=mu
     //Formule di Box-Muller
     double x1, x2;
     for (int i = 0; i < L; i += 2) {

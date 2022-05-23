@@ -2,10 +2,7 @@
 #include <cmath>
 #include <fstream>
 
-#include "header.h"
-//#include "funzioni.h"
 #include "es11.h"
-#include "distribuzioni.h"
 
 /* NOTE:
 -se K o V esplodono molto probabilmente dt è troppo grande
@@ -16,7 +13,7 @@
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 1; //1,2,4
-int N = M * pow(6, 3); //numero di particelle
+int N = M * pow(7, 3); //numero di particelle
 
 int numero_accettati=0;
 int numero_proposti=0;
@@ -56,6 +53,7 @@ int main() {
     };
 
     int caso_min = 0;//mettere 0 per avere P(rho)
+
     int caso_max;
 
     if (caso_min == 0) {
@@ -65,6 +63,9 @@ int main() {
     }
     //###################################################
     struct vec r[N];
+    vec *dr[N];
+    vec_2D(dr, N);
+
     int reticolo   = log2(M);
     double T_req = 1.1;
 
@@ -109,7 +110,18 @@ int main() {
         int N_t = (t1 - t) / dt;
 
         crea_reticolo(r, L);
-
+        for (int i = 0; i < N; ++i){
+            for (int j = i + 1; j < N; ++j) {
+                //calcolo la distanza tra la particella i e la particella j>i
+                dr[i][j].x = r[i].x - r[j].x;
+                dr[i][j].y = r[i].y - r[j].y;
+                dr[i][j].z = r[i].z - r[j].z;
+        
+                dr[i][j].x -= L * rint(dr[i][j].x / L);//sposto in [-L/2,+L/2]
+                dr[i][j].y -= L * rint(dr[i][j].y / L);
+                dr[i][j].z -= L * rint(dr[i][j].z / L);
+            }
+        }
 
         double E = 0, T = 0, P = 0;
         double K = 0, V = 0, W = 0;
@@ -119,7 +131,7 @@ int main() {
             V_c = V_c * (i + 1.0);
             W_c = W_c * (i + 1.0);
             
-            MRT2(r, &V, &W, N, Delta, T_req, L, r_c);
+            MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
             
             V_c = (V_c + V) / (i + 2.0);
             W_c = (W_c + W) / (i + 2.0);
@@ -128,7 +140,7 @@ int main() {
             // P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
 
             if (caso_min != 0) {
-                dati << t << "\t" << V << "\t" << P << endl;
+                dati << t << "\t" << V_c << "\t" << P << endl;
             }
             t += dt;
         }
@@ -138,7 +150,7 @@ int main() {
         }
         cout << (double)numero_accettati/(double)numero_proposti*100.0 << "%"<<endl;
         cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
-        risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
+        
     }
     dati.close();
     risultati.close();

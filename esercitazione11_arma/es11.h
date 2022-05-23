@@ -21,7 +21,6 @@ double mod(mat r, double riga){
     double mod= sqrt(pow1(r(riga, 0),2)+pow1(r(riga, 1),2)+pow1(r(riga, 2),2));
     return mod;
 }
-
 void crea_reticolo(mat r, double L) {
     int n = cbrt(N / M);
     double L_cella = L / cbrt(N / M);

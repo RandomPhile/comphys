@@ -8,11 +8,7 @@
 #include <iomanip>
 #include <algorithm>
 
-
-#include "header.h"
-//#include "funzioni.h"
 #include "es11.h"
-#include "distribuzioni.h"
 
 /* NOTE:
 -se K o V esplodono molto probabilmente dt è troppo grande

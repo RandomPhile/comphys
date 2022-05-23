@@ -63,7 +63,7 @@ double integrale_montecarlo(double (*f)(double, double*), void (*distr)(double*,
 double integrale_montecarlo(double (*f)(double, double*), double *args_f,
                             void (*distr)(double*,int, double*), double *args_d,
                             double errore,
-                            double (*g)(double, double*), double *args_g){//versione g(x) generica
+                            double (*g)(double, double*), double *args_g){//versione g(x) generica, richiede g(x) gia normalizzata
     //args_d: 0 inizio, 1 fine, 2 sigma, 3 mu
     
     int N=rint(  pow1(args_d[2]/errore,2)   +0.5   );//
@@ -87,16 +87,24 @@ double exp_n(double x, double *par){//0 alfa interno all'esponenziale, 1 l'espon
     double ris=exp(x*par[0])*pow1(x, par[1]);
     return pow1(ris, par[2]);
 }
-double gauss(double x, double *par){//primo parametro sigma, secondo parametro mu
+double gauss(double x, double *par){//par[0]=sigma, par[1]=mu
     double ris=1/(sqrt(2*M_PI)*par[0])*exp(-(x-par[1])*(x-par[1])/(2*par[0]*par[0]));
     return ris;
 }
-double g_prof(double x, double *par){
-    if(x>=3){
-        return 1;
+double g_unif(double x, double *par){//par[0]=inizio, par[1]=fine
+    if(x>=par[0] && x<=par[1]){
+        return 1/(par[1]-par[0]);//gia normalizzata
     }
     else{
         return 0;
+    }
+}
+double mod_ex(double x, double *par){
+    if(x>=0){
+        return exp(-x);
+    }
+    else{
+        return exp(x);
     }
 }
 
