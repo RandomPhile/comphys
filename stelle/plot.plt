@@ -11,7 +11,7 @@ set style line 4 lt 1 lw 1 pt 7 ps 0.7 lc rgb "orange"
 set style line 5 lt 1 lw 1 pt 7 ps 0.7 lc rgb "cyan"
 set style line 6 lt 1 lw 1 pt 7 ps 0.7 lc rgb "dark-grey"
 
-if (errore == 0) {
+### MASSA - RAGGIO
 set term qt 0 title "massa - raggio" position 0,0 font "Helvetica, 14"
 set xlabel "R [km]"
 set ylabel "M [masse solari]"
@@ -21,17 +21,31 @@ if (relativ == 1) {
 	unset logscale x
 	unset logscale y
 } else {
-	set logscale y#relativ
-	set logscale x#relativ
-	set xrange [3:50]#relativ
+	set logscale y
+	set logscale x
+	set xrange [3:50]
 }
+if (errore == 0) {
 plot "dati.dat" i 0 u 5:6 w linespoint ls 1 title columnheader(1),\
 	 "dati.dat" i 1 u 5:6 w linespoint ls 2 title columnheader(1),\
 	 "dati.dat" i 2 u 5:6 w linespoint ls 3 title columnheader(1)
+} else {
+plot "dati.dat" i 0 u 5:6 w linespoint ls 1 title columnheader(1),\
+	 "dati.dat" i 1 u 5:6 w linespoint ls 2 title columnheader(1),\
+	 "dati.dat" i 2 u 5:6 w linespoint ls 3 title columnheader(1),\
+	 "dati.dat" i 3 u 5:6 w linespoint ls 4 title "",\
+	 "dati.dat" i 4 u 5:6 w linespoint ls 5 title "",\
+	 "dati.dat" i 5 u 5:6 w linespoint ls 6 title ""
+}
 unset xrange
 set xtics auto
+###
+
+
+if (errore == 0) {
 
 if (relativ == 0) {
+### RAGGIO - PRESSIONE CENTRALE
 set term qt 1 title "raggio - pressione centrale" position 0,400 font "Helvetica, 14"
 set xlabel "P_c [unità adimensionali]"
 set ylabel "R [km]"
@@ -44,30 +58,23 @@ plot "dati.dat" i 0 u 1:5 w linespoint ls 1 title columnheader(1),\
 	 "dati.dat" i 1 u 1:5 w linespoint ls 2 title columnheader(1),\
 	 "dati.dat" i 2 u 1:5 w linespoint ls 3 title columnheader(1)
 set ytics auto
-}
-}
-if (relativ == 0) {
+###
+
+### CONTROLLO - PRESSIONE CENTRALE
 set term qt 2 title "fattore di controllo - pressione centrale" position 640,0 font "Helvetica, 14"
 set xlabel "P_c [unità adimensionali]"
 set ylabel "Q [unità adimensionali]"
 set key left bottom
 set logscale x
 unset logscale y
-if (errore == 0) {
 plot "dati.dat" i 0 u 1:4 w linespoint ls 1 title columnheader(1),\
 	 "dati.dat" i 1 u 1:4 w linespoint ls 2 title columnheader(1),\
 	 "dati.dat" i 2 u 1:4 w linespoint ls 3 title columnheader(1)
-} else {
-plot "dati.dat" i 0 u 1:4 w linespoint ls 1 title columnheader(1),\
-	 "dati.dat" i 1 u 1:4 w linespoint ls 2 title columnheader(1),\
-	 "dati.dat" i 2 u 1:4 w linespoint ls 3 title columnheader(1),\
-	 "dati.dat" i 3 u 1:4 w linespoint ls 4 title "",\
-	 "dati.dat" i 4 u 1:4 w linespoint ls 5 title "",\
-	 "dati.dat" i 5 u 1:4 w linespoint ls 6 title ""
-}
+###
 }
 
-if (relativ == 1 && errore == 0) {
+if (relativ == 1) {
+### MASSA PRESSIONE CENTRALE
 set term qt 3 title "massa - pressione centrale" position 0,400 font "Helvetica, 14"
 set xlabel "P_c [unità adimensionali]"
 set ylabel "M [unità adimensionali]"
@@ -78,5 +85,6 @@ plot "dati.dat" i 0 u 1:3 w linespoint ls 1 title columnheader(1),\
 	 "dati.dat" i 1 u 1:3 w linespoint ls 2 title columnheader(1),\
 	 "dati.dat" i 2 u 1:3 w linespoint ls 3 title columnheader(1)
 }
-
+###
+}
 pause -1

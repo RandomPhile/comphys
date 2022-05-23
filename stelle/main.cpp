@@ -5,13 +5,13 @@
 
 //variabili globali
 ofstream dati, rect, gnuplot;
-bool relativ = 1;//0 o 1 per la correzione relativistica
-bool errore = 0;//0 o 1 per la parte dell'errore (solo non relativistica)
+bool relativ = 0;//0 o 1 per la correzione relativistica
+bool errore = 1;//0 o 1 per la parte dell'errore (solo non relativistica)
 int N = 20;
 
 //giocare col valore di h (0.001) e modificare la funzione runge-kutta o eulero_exp
 int main() {
-    double h = 0.0001, r0 = 1e-5;
+    double h = 0.1, r0 = 1e-5;
     bool funzione = 0;//0: runge-kutta, 1: eulero_exp
 
     double K[] = {0.05, 0.1, 0.01};
