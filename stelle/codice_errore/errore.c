@@ -7,11 +7,11 @@
 double f (double, double, double, double*); //identifico P con x, m con y e r con t
 double g (double, double, double, double*);
 
-bool RK = 0; //mettere 1 se voglio la convergenza dell'errore con RK, viceversa mettere 0 se voglio la convergenza con Eulero
+bool RK = 1; //mettere 1 se voglio la convergenza dell'errore con RK, viceversa mettere 0 se voglio la convergenza con Eulero
 
 int main() {
 
-   int N_E = 10; //numero di iterazioni, con RK bastano 5 e avanzano, con EULERO mettere almeno 12
+   int N_E = 5; //numero di iterazioni, con RK bastano pochi punti (tre, quattro), con EULERO mettere almeno una decina
    double r, h_0, h; 
    int counter = 0; //contatore per le iterazioni
    int check, indice; //fattori che mi serve come condizione in un if
