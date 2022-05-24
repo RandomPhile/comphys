@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gcc errore.c -lm -o errore.out #lo salvo come stelle.out
+gcc errore.c -lm -o errore.out #lo salvo come errore.out
 ./errore.out #lo eseguo
 
 pkill -x gnuplot_qt,gnuplot
