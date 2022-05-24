@@ -11,7 +11,7 @@ bool RK = 0; //mettere 1 se voglio la convergenza dell'errore con RK, viceversa 
 
 int main() {
 
-   int N_E = 12; //numero di iterazioni, con RK bastano 5 e avanzano, con EULERO mettere almeno 12
+   int N_E = 10; //numero di iterazioni, con RK bastano 5 e avanzano, con EULERO mettere almeno 12
    double r, h_0, h; 
    int counter = 0; //contatore per le iterazioni
    int check, indice; //fattori che mi serve come condizione in un if
@@ -23,7 +23,15 @@ int main() {
    h_0 = 1e-3; //step di partenza
    h = h_0;
    
-   int dim0 = 506; //so già che sarà la dimensione dell'array di dati all'iterazione zero
+   int dim0;                //so già quale sarà la dimensione dell'array di dati all'iterazione zero, chiaramente questo vale per h0 = 1e-3
+   
+   if (RK) {
+      dim0 = 510;
+   }
+   else {
+      dim0 = 505;
+   }
+   
    double vec_P_E[dim0][N_E + 1]; //matrice in cui salvo tutti i dati
      
    double P_var_E, m_var_E;
@@ -49,8 +57,6 @@ int main() {
          
       sprintf(filename, "iterazione%d.txt", n);   
       st = fopen(filename, "w");
-      fprintf(st, "%.5f\t%.5f\n", r, P_var_E);
-      vec_P_E[0][n] = P_var_E;
       
       counter = 0;
       
@@ -59,8 +65,10 @@ int main() {
          
             while (P_var_E > 0) {
    
-      
+               fprintf(st, "%.5f\t%.5f\n", r, P_var_E);
+               vec_P_E[counter][n] = P_var_E;
                counter++;  
+               
                if (RK) {
                   runge_kutta(r, h, P_E, m_E, f, fargs, g, fargs);
                }
@@ -68,10 +76,7 @@ int main() {
                   eulero_exp(r, h, P_E, m_E, f, fargs, g, fargs);
                }
                r += h;
-               fprintf(st, "%.5f\t%.5f\n", r, P_var_E);
-               vec_P_E[counter][n] = P_var_E;
-               
-                         
+                                        
             }
                
          }
@@ -81,6 +86,16 @@ int main() {
             check = pow(2,n);
             
             while (P_var_E > 0) {
+            
+               if ( (counter % check ) == 0 && (counter/ (double) check ) < dim0 ) { //la prima volta non entra, poi dimezza l'indice
+                                                                                     //per avere array della stessa dimensione nonstante dimezzo 
+                                                                                     //il passo
+      
+                  fprintf(st, "%.5f\t%.5f\n", r, P_var_E);
+                  indice = counter / (double) check;
+                  vec_P_E[indice][n] = P_var_E;
+     
+               }
    
       
                counter++;       
@@ -92,15 +107,7 @@ int main() {
                }
                r += h;
              
-               if ( (counter % check ) == 0 && (counter/ (double) check ) < dim0 ) { //la prima volta non entra, poi dimezza l'indice
-                                                                                     //per avere array della stessa dimensione nonstante dimezzo 
-                                                                                     //il passo
-      
-                  fprintf(st, "%.5f\t%.5f\n", r, P_var_E);
-                  indice = counter / (double) check;
-                  vec_P_E[indice][n] = P_var_E;
-     
-               }   
+                  
             }
     
                    
