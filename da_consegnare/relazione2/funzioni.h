@@ -3,13 +3,10 @@
 
 #include <iostream>
 #include <fstream>
-// #include <cmath>
-// #include <string>
-// #define _USE_MATH_DEFINES
 #define LOG(x) cout<<x<<endl;
 using namespace std;
 extern const int N;
-extern const bool relativ, errore;
+extern const bool relativ;
 
 int eulero_exp(double t, double *x, double *y, double h,
                double (*f)(double, double, double, double*),
@@ -140,8 +137,6 @@ void stampa_valori_rel(double **M, double **Pc, double **R, double R0, double M0
 void plot() {
 	string comando = "gnuplot -e relativ=";
 	comando += to_string(relativ);
-	comando += " -e errore=";
-	comando += to_string(errore);
 	comando += " plot.plt";
 	LOG(comando);
 	system(comando.c_str());
