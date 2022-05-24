@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #define LOG(x) cout<<x<<endl;
 using namespace std;
 extern const int N;

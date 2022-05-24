@@ -5,7 +5,7 @@ const int N = 20;//numero valori di pressioni centrali
 
 int main() {
     /*** costanti simulazione ***/
-    const double h = 0.001, r0 = 1e-5;
+    const double h = 0.001, r0 = 1e-7;
     double Pc_min[] = {6e-6, 3e-2, 4e-7};
     double Pc_max[] = {1e7, 3e3, 2e5};
 
