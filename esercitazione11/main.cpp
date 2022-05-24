@@ -63,9 +63,8 @@ int main() {
     }
     //###################################################
     struct vec r[N];
-    vec *dr[N];
-    vec_2D(dr, N);
-
+    vec dr[N*N];
+    
     int reticolo   = log2(M);
     double T_req = 1.1;
 
@@ -82,29 +81,29 @@ int main() {
         double r_c = L / 2;
 
         double Delta=L/(50*coppie[caso].rho);
-        switch (caso) {
-            case 0:
-                Delta=L/3; 
-                break;
-            case 6:
-                Delta*=1.2;
-                break;
-            case 10:
-                Delta/=1.2; 
-                break;
-            case 11:
-                Delta/=1.3; 
-                break;
-            case 12:
-                Delta/=1.5; 
-                break;
-            case 13:
-                Delta/=1.8; 
-                break;
-            default:
-                break;
+        // switch (caso) {
+        //     case 0:
+        //         Delta=L/3; 
+        //         break;
+        //     case 6:
+        //         Delta*=1.2;
+        //         break;
+        //     case 10:
+        //         Delta/=1.2; 
+        //         break;
+        //     case 11:
+        //         Delta/=1.3; 
+        //         break;
+        //     case 12:
+        //         Delta/=1.5; 
+        //         break;
+        //     case 13:
+        //         Delta/=1.8; 
+        //         break;
+        //     default:
+        //         break;
 
-        }
+        // }
 
         double t = 0;
         int N_t = (t1 - t) / dt;
@@ -113,13 +112,13 @@ int main() {
         for (int i = 0; i < N; ++i){
             for (int j = i + 1; j < N; ++j) {
                 //calcolo la distanza tra la particella i e la particella j>i
-                dr[i][j].x = r[i].x - r[j].x;
-                dr[i][j].y = r[i].y - r[j].y;
-                dr[i][j].z = r[i].z - r[j].z;
+                dr[i * N +j].x = r[i].x - r[j].x;
+                dr[i * N +j].y = r[i].y - r[j].y;
+                dr[i * N +j].z = r[i].z - r[j].z;
         
-                dr[i][j].x -= L * rint(dr[i][j].x / L);//sposto in [-L/2,+L/2]
-                dr[i][j].y -= L * rint(dr[i][j].y / L);
-                dr[i][j].z -= L * rint(dr[i][j].z / L);
+                dr[i * N +j].x -= L * rint(dr[i * N +j].x / L);//sposto in [-L/2,+L/2]
+                dr[i * N +j].y -= L * rint(dr[i * N +j].y / L);
+                dr[i * N +j].z -= L * rint(dr[i * N +j].z / L);
             }
         }
 
@@ -152,6 +151,7 @@ int main() {
         cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
         
     }
+    //delete ...
     dati.close();
     risultati.close();
 

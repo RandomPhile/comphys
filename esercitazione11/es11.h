@@ -71,7 +71,7 @@ bool accetto_spostamento(vec *r, vec r_n, double V_tot_r0, double V_tot_r1, int 
         }
     }
 }
-void posiz_MRT2(vec *dr[], vec *dr_n[], vec r_n, vec *r, int i, double L, int n){
+void posiz_MRT2(vec *dr, vec *dr_n, vec r_n, vec *r, int i, double L, int n){
     for (int j = i + 1; j < N; ++j) {
         // //calcolo la distanza tra la particella i e la particella j>i
         // dr[i][j].x = r[i].x - r[j].x;
@@ -86,43 +86,42 @@ void posiz_MRT2(vec *dr[], vec *dr_n[], vec r_n, vec *r, int i, double L, int n)
         // // dr[j][i].z -= L * rint(dr[j][i].z / L);
 
         if(i!=n && j!=n){//calcolo le distanze nuove e impongo che siano le stesse se sono distanze tra particelle non modificate
-            dr_n[i][j].x=dr[i][j].x;
-            dr_n[i][j].y=dr[i][j].y;
-            dr_n[i][j].z=dr[i][j].z;
+            dr_n[i * N + j].x=dr[i * N + j].x;
+            dr_n[i * N + j].y=dr[i * N + j].y;
+            dr_n[i * N + j].z=dr[i * N + j].z;
         }
         else if(i==n && j!=n){//modifico le distanze per una particella modificata
-            dr_n[i][j].x = r_n.x - r[j].x;
-            dr_n[i][j].y = r_n.y - r[j].y;
-            dr_n[i][j].z = r_n.z - r[j].z;
+            dr_n[i * N + j].x = r_n.x - r[j].x;
+            dr_n[i * N + j].y = r_n.y - r[j].y;
+            dr_n[i * N + j].z = r_n.z - r[j].z;
 
-            dr_n[i][j].x -= L * rint(dr_n[i][j].x / L);//sposto in [-L/2,+L/2]
-            dr_n[i][j].y -= L * rint(dr_n[i][j].y / L);
-            dr_n[i][j].z -= L * rint(dr_n[i][j].z / L);
+            dr_n[i * N + j].x -= L * rint(dr_n[i * N + j].x / L);//sposto in [-L/2,+L/2]
+            dr_n[i * N + j].y -= L * rint(dr_n[i * N + j].y / L);
+            dr_n[i * N + j].z -= L * rint(dr_n[i * N + j].z / L);
             // dr_n[j][i].x -= L * rint(dr_n[j][i].x / L);
             // dr_n[j][i].y -= L * rint(dr_n[j][i].y / L);
             // dr_n[j][i].z -= L * rint(dr_n[j][i].z / L);
         }
         else if (i!=n && j==n){//modifico le distanze per una particella modificata
-            dr_n[i][j].x = r[i].x - r_n.x;
-            dr_n[i][j].y = r[i].y - r_n.y;
-            dr_n[i][j].z = r[i].z - r_n.z;
+            dr_n[i * N + j].x = r[i].x - r_n.x;
+            dr_n[i * N + j].y = r[i].y - r_n.y;
+            dr_n[i * N + j].z = r[i].z - r_n.z;
 
-            dr_n[i][j].x -= L * rint(dr_n[i][j].x / L);//sposto in [-L/2,+L/2]
-            dr_n[i][j].y -= L * rint(dr_n[i][j].y / L);
-            dr_n[i][j].z -= L * rint(dr_n[i][j].z / L);
+            dr_n[i * N + j].x -= L * rint(dr_n[i * N + j].x / L);//sposto in [-L/2,+L/2]
+            dr_n[i * N + j].y -= L * rint(dr_n[i * N + j].y / L);
+            dr_n[i * N + j].z -= L * rint(dr_n[i * N + j].z / L);
             // dr_n[j][i].x -= L * rint(dr_n[j][i].x / L);
             // dr_n[j][i].y -= L * rint(dr_n[j][i].y / L);
             // dr_n[j][i].z -= L * rint(dr_n[j][i].z / L);
         }
         else{//impongo distanza tra particella modificata e se stessa uguale a zero
-            dr_n[i][j].uguale(0);
+            dr_n[i * N + j].uguale(0);
         }
     }
 }
 
-void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L, double r_c, vec *dr[]){//N=N_mol
-    vec *dr_n[N], r_n; 
-    vec_2D(dr_n,N);//creo le matrici di struct
+void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L, double r_c, vec *dr){//N=N_mol
+    vec dr_n[N*N], r_n; 
 
     int n = Fabs(rint(N * rand() / (RAND_MAX + 1.0)));//trovo la molecola che viene modificata da MTR2
 
@@ -133,7 +132,7 @@ void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L,
     double V_tot_r1=0;//potenziale in posizione nuova
     double V_tot_r0=*V;//potenziale in posizione vecchia
 
-    double dr_mod[N][N], dr_mod_n[N][N];
+    double dr_mod[N*N], dr_mod_n[N*N];
 
     for (int i = 0; i < N; ++i) {
 
@@ -141,11 +140,11 @@ void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L,
 
         for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
             
-            dr_mod[i][j] = dr[i][j].mod();
-            dr_mod_n[i][j] = dr_n[i][j].mod();
+            dr_mod[i * N + j] = dr[i * N + j].mod();
+            dr_mod_n[i * N + j] = dr_n[i * N + j].mod();
             
-            if (dr_mod_n[i][j] < r_c) {
-                V_tot_r1+=V_LJ(dr_mod_n[i][j], L);
+            if (dr_mod_n[i * N + j] < r_c) {
+                V_tot_r1+=V_LJ(dr_mod_n[i * N + j], L);
             }
         }
     }
@@ -155,10 +154,10 @@ void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L,
         *W = 0;
         for (int i = 0; i < N; ++i){
             for (int j = i + 1; j < N; ++j) {
-                if (dr_mod[i][j] < r_c) {
+                if (dr_mod[i * N + j] < r_c) {
                     
                     //dV_dr * r
-                    *W -= 24 * (pow1(1 / dr_mod[i][j], 6) - 2 * pow1(1 / dr_mod[i][j], 12));
+                    *W -= 24 * (pow1(1 / dr_mod[i * N + j], 6) - 2 * pow1(1 / dr_mod[i * N + j], 12));
                 }
             }
         }
@@ -168,13 +167,13 @@ void MRT2(vec *r, double *V, double *W, int N, double Delta, double T, double L,
         *V = V_tot_r1; *W = 0;
         for (int i = 0; i < N; ++i){
             for (int j = i + 1; j < N; ++j) {
-                dr[i][j].x=dr_n[i][j].x;
-                dr[i][j].y=dr_n[i][j].y;
-                dr[i][j].z=dr_n[i][j].z;
-                if (dr_mod[i][j] < r_c) {
+                dr[i * N + j].x=dr_n[i * N + j].x;
+                dr[i * N + j].y=dr_n[i * N + j].y;
+                dr[i * N + j].z=dr_n[i * N + j].z;
+                if (dr_mod[i * N + j] < r_c) {
                     
                     //dV_dr * r
-                    *W -= 24 * (pow1(1 / dr_mod[i][j], 6) - 2 * pow1(1 / dr_mod[i][j], 12));
+                    *W -= 24 * (pow1(1 / dr_mod[i * N + j], 6) - 2 * pow1(1 / dr_mod[i * N + j], 12));
                 }
             }
         }
