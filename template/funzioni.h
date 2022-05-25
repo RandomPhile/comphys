@@ -4,7 +4,7 @@
 #include "costanti.h"
 #include <iostream>
 // #include <fstream>
-// #include <cmath>
+#include <cmath>
 // #include <string>
 // #define _USE_MATH_DEFINES
 #define LOG(x) cout<<x<<endl;
