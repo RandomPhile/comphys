@@ -242,7 +242,7 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path) {
 
     obs.open(obs_path);
     double t = 0;
-    double K_avg = 0, W_avg = 0, P, T;
+    double K_avg = 0, V_avg = 0, W_avg = 0, P, T;
     double K, V, E, W;
     for (int i_t = 0; i_t < N_t; ++i_t) {
 
@@ -283,12 +283,13 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path) {
         W /= N;
         K_avg = K_avg + (K - K_avg) / (i_t + 1);//forse è +2
         W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
+        V_avg = V_avg + (V - V_avg) / (i_t + 1);//forse è +2
 
         T = 2.0 * K_avg / (3.0 * N);
         P = (1 + W_avg / (3.0 * T_req));
 
         E = K + V;
-        obs << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
+        obs << t << "\t" << K << "\t" << V_avg << "\t" << E << "\t" << T << "\t" << P << "\n";
         t += dt;
     }
     cout << "Rho = " << rho << "\t\tT = " << T << "\nSigma = " << sigma << "\t->\t" << sigma*sqrt(T_req / T) << "\n" << endl;
@@ -347,6 +348,7 @@ void calcolo_pressioni(string p_path, coppia *coppie, double dt, double t1, int 
     ofstream press;
     press.open(p_path);
     for (int caso = c_min; caso <= c_max; ++caso) {
+        cout << coppie[caso].rho << "\t" << pressione(coppie[caso].rho, coppie[caso].sigma, dt, t1) << "\n";
         press << coppie[caso].rho << "\t" << pressione(coppie[caso].rho, coppie[caso].sigma, dt, t1) << "\n";
     }
     press.close();
@@ -377,16 +379,19 @@ void calcolo_coordinate_per_gdr(string coord_g_path, double rho, double sigma, d
     for (int i_t = 0; i_t < N_t; ++i_t) {
         vel_verlet(r, v, a, dt, L);
     }
-    for (int i = 0; i < N; ++i) {
-        rp.x = r[p].x - r[i].x;
-        rp.y = r[p].y - r[i].y;
-        rp.z = r[p].z - r[i].z;
 
-        rp.x -= L * rint(rp.x / L);
-        rp.y -= L * rint(rp.y / L);
-        rp.z -= L * rint(rp.z / L);
+    for (int p = 0; p < N; ++p) {
+        for (int i = 0; i < N; ++i) {
+            rp.x = r[p].x - r[i].x;
+            rp.y = r[p].y - r[i].y;
+            rp.z = r[p].z - r[i].z;
 
-        coord_gdr << rp.mod() << "\n";
+            rp.x -= L * rint(rp.x / L);
+            rp.y -= L * rint(rp.y / L);
+            rp.z -= L * rint(rp.z / L);
+
+            coord_gdr << rp.mod() << "\n";
+        }
     }
     coord_gdr.close();
 }
@@ -406,13 +411,16 @@ void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_b
         freq[k] = 0;
     }
     double g, rp_mod, r_k;
-    for (int i = 0; i < N; ++i) {
-        coord_gdr >> rp_mod;
-        for (int k = 0; k < N_bins; ++k) {
-            r_k = (2 * k + 1) * de_r / 2;
-            if (rp_mod > r_k - de_r / 2 && rp_mod <= r_k + de_r / 2) {
-                freq[k]++;
-                break;
+
+    for (int p = 0; p < N; ++p) {
+        for (int i = 0; i < N; ++i) {
+            coord_gdr >> rp_mod;
+            for (int k = 0; k < N_bins; ++k) {
+                r_k = (2 * k + 1) * de_r / 2;
+                if (rp_mod > r_k - de_r / 2 && rp_mod <= r_k + de_r / 2) {
+                    freq[k]++;
+                    break;
+                }
             }
         }
     }
@@ -420,6 +428,7 @@ void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_b
     gdr.open(g_path);
     for (int k = 0; k < N_bins; ++k) {
         r_k = (2 * k + 1) * de_r / 2;
+        freq[k] /= N;
         g = freq[k] / ((pow(r_k + de_r / 2, 3) - pow(r_k - de_r / 2, 3)) * M_PI * 4.0 / 3.0);
         g /= rho;
         gdr << r_k << "\t" << freq[k] << "\t" << g << "\n";

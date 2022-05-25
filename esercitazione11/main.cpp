@@ -12,8 +12,8 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 1; //1,2,4
-int N = M * pow(4, 3); //numero di particelle
+int M = 2; //1,2,4
+int N = M * pow(5, 3); //numero di particelle
 
 int numero_accettati = 0;
 int numero_proposti = 0;
@@ -25,15 +25,10 @@ struct coppia {
     double sigma;
 };
 
-
-
-
-
-
 int main() {
     srand(1);//default seed = 1
     double dt      = 0.01;//passo temporale
-    double t1      = 10;//durata simulazione
+    double t1      = 20;//durata simulazione
 
     coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (6+6 minuti)
         {.rho = 0.01, .sigma = 1.04332},

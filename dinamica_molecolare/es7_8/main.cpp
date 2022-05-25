@@ -5,7 +5,7 @@ int main() {
 	/*** costanti simulazione ***/
 	srand(2); //default seed = 1
 	const double dt = 0.01; //passo temporale
-	const double t1 = 10; //durata simulazione
+	const double t1 = 100; //durata simulazione
 
 	/*** costanti problema ***/
 	coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (12 minuti)
@@ -33,8 +33,11 @@ int main() {
 
 	int caso = 0;//valore densità (e relativa sigma)
 
-	calcolo_coordinate(coord_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
-	calcolo_osservabili_da_file(coord_path, obs_path);
+	// for (int i = 0; i < 13; i += 2) {
+	// calcolo_coordinate(coord_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
+	// calcolo_osservabili_da_file(coord_path, obs_path);
+
+	// }
 
 	int N_step    = 100;
 	double pausa  = 0.01;
@@ -45,11 +48,11 @@ int main() {
 	// plot_pressioni();
 
 
-	// calcolo_coordinate_per_gdr(coord_g_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
+	int N_bins = 70;
 
-	int N_bins = 30;
-	// calcolo_gdr_da_file(coord_g_path, g_path, coppie[caso].rho, N_bins);
-	// plot_gdr();
+	// calcolo_coordinate_per_gdr(coord_g_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
+	calcolo_gdr_da_file(coord_g_path, g_path, coppie[caso].rho, N_bins);
+	plot_gdr();
 
 	return 0;
 }
