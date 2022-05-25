@@ -24,8 +24,8 @@ auto start = high_resolution_clock::now();
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 1; //1,2,4
-int N = M * pow(8, 3); //numero di particelle
+int M = 4; //1,2,4
+int N = M * pow(5, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -42,7 +42,7 @@ struct coppia {
 int main() {
     srand(1);//default seed = 1
     double dt      = 0.01;//passo temporale
-    double t1      = 20;//durata simulazione
+    double t1      = 100;//durata simulazione
 
     coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (6+6 minuti)
         {.rho = 0.01, .sigma = 1.04332},
@@ -61,7 +61,7 @@ int main() {
         {.rho = 1.2, .sigma = 1.45959}
     };
 
-    int caso_min = 0;//mettere 0 per avere P(rho)
+    int caso_min = 5;//mettere 0 per avere P(rho)
     int caso_max;
 
     if (caso_min == 0) {
