@@ -1,6 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <chrono>
+
+using namespace std::chrono;
+auto start = high_resolution_clock::now();
 
 //#define ARMA_NO_DEBUG
 
@@ -10,6 +14,8 @@
 
 #include "es11.h"
 
+
+
 /* NOTE:
 -se K o V esplodono molto probabilmente dt è troppo grande
 -per stimare sigma t.c. T=1.1, uso N grande ()
@@ -18,8 +24,8 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 1; //1,2,4
-int N = M * pow(2, 3); //numero di particelle
+int M = 4; //1,2,4
+int N = M * pow(7, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -29,8 +35,6 @@ struct coppia {
     double rho;
     double sigma;
 };
-
-
 
 
 
@@ -82,20 +86,41 @@ int main() {
         double L = cbrt(N / coppie[caso].rho);
         double r_c = L / 2;
 
-        double Delta=L/100;
+        double Delta=L/(50*coppie[caso].rho);//scelgo un delta che mi dia circa 50% di accettazione
+        switch (caso) {
+            case 0:
+                Delta=L/3; 
+                break;
+            case 6:
+                Delta*=1.2;
+                break;
+            case 10:
+                Delta/=1.2; 
+                break;
+            case 11:
+                Delta/=1.3; 
+                break;
+            case 12:
+                Delta/=1.5; 
+                break;
+            case 13:
+                Delta/=1.8; 
+                break;
+            default:
+                break;
+
+        }
 
         double t = 0;
         int N_t = (t1 - t) / dt;
 
-        crea_reticolo(r, L);
-
-        for (int i = 0; i < N; ++i){
+        crea_reticolo(r, L);//creo il reticolo iniziale
+        
+        for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
             for (int j = i + 1; j < N; ++j){
                 for (int k = 0; k < 3; ++k){
                     dr(i,j,k) = r(i,k) - r(j,k);
-                    cout<<dr(i,j,k)<<endl;
                     dr(i,j,k) -= L * rint(dr(i,j,k)/L);//sposto in [-L/2,+L/2]
-                    //cout <<"i,j,k posiz main "<<i<<"\t"<<j<<"\t"<<k<<endl;
                 }
             }
         }
@@ -125,12 +150,22 @@ int main() {
         if (caso_min == 0) {
             dati << coppie[caso].rho << "\t" << P << endl;
         }
+        cout << (double)numero_accettati/(double)numero_proposti*100 << "%"<<endl;
         cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
         risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
-        cout << numero_accettati/numero_proposti*100 << "%"<<endl;
     }
+    
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    int tempo=duration.count();
+    int minuti = tempo/(1e6*60);
+    int secondi = (tempo- minuti*1e6*60)/1e6;
+    cout<<"tempo= "<<minuti<<"min "<<secondi<<"s"<<endl;
+
     dati.close();
     risultati.close();
+
 
     return 0;
 }

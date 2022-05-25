@@ -7,17 +7,18 @@
 using namespace std;
 using namespace arma;
 
+
 extern int M;
 extern int N;
 extern int numero_accettati;
 extern int numero_proposti;
 
 
-double mod(cube r, double riga, double colonna){
+double mod(cube &r, double riga, double colonna){//calcolo il modulo della posizione relativa delle particelle i e j
     double mod= sqrt(pow1(r(riga,colonna,0),2)+pow1(r(riga,colonna,1),2)+pow1(r(riga,colonna,2),2));
     return mod;
 }
-void crea_reticolo(mat r, double L) {
+void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento 
     int n = cbrt(N / M);
     double L_cella = L / cbrt(N / M);
     int cont = 0;//contatore particella
@@ -49,18 +50,21 @@ double V_LJ(double r, double L) {
     }
 }
 
-bool accetto_spostamento(mat r, rowvec r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
+bool accetto_spostamento(mat &r, rowvec &r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
     double A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));//trovo A
     numero_proposti++;
+    
     if(A>1){//se l'energia diminuisce accetto sempre lo spostamento
         r.row(n)=r_n;
         numero_accettati++;
+        
         return 1;
     }
     else{//se l'energia aumenta accetto con probabilita uniforme come termostato di anderson
         if(A>(rand()/((double)RAND_MAX+1.0))){
             r.row(n)=r_n;
             numero_accettati++;
+            
             return 1;
         }
         else{//se non accetto lascio invariato
@@ -69,7 +73,7 @@ bool accetto_spostamento(mat r, rowvec r_n, double V_tot_r0, double V_tot_r1, in
         }
     }
 }
-void posiz_MRT2(cube dr, cube dr_n, rowvec r_n, mat r, int i, double L, int n){
+void posiz_MRT2(cube &dr, cube &dr_n, rowvec &r_n, mat &r, int i, double L, int n){
     for (int j = i + 1; j < N; ++j) {
         //calcolo la distanza tra la particella i e la particella j>i
         for(int k=0; k<3; ++k){//ciclo sulle coordinate per creare le posizioni nuove
@@ -91,7 +95,7 @@ void posiz_MRT2(cube dr, cube dr_n, rowvec r_n, mat r, int i, double L, int n){
     }
 }
 
-void MRT2(mat r, double *V, double *W, int N, double Delta, double T, double L, double r_c, cube dr){//N=N_mol
+void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L, double r_c, cube &dr){//N=N_mol
     cube dr_n(N, N, 3);
     rowvec r_n(3); 
     
@@ -131,7 +135,7 @@ void MRT2(mat r, double *V, double *W, int N, double Delta, double T, double L, 
                     
                     //dV_dr * r
                     *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
-                    cout<<*V<<endl;
+                    
                 }
             }
         }
@@ -149,7 +153,7 @@ void MRT2(mat r, double *V, double *W, int N, double Delta, double T, double L, 
                     
                     //dV_dr * r
                     *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
-                    cout<<*V<<endl;
+                    
                 }
             }
         }
