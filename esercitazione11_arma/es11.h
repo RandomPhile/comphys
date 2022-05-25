@@ -50,27 +50,19 @@ double V_LJ(double r, double L) {
     }
 }
 
-bool accetto_spostamento(mat &r, rowvec &r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
+int accetto_spostamento(mat &r, rowvec &r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
     double A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));//trovo A
     numero_proposti++;
     
-    if(A>1){//se l'energia diminuisce accetto sempre lo spostamento
-        r.row(n)=r_n;
-        numero_accettati++;
-        
-        return 1;
-    }
-    else{//se l'energia aumenta accetto con probabilita uniforme come termostato di anderson
-        if(A>(rand()/((double)RAND_MAX+1.0))){
+    if(A>(rand()/((double)RAND_MAX+1.0))){
             r.row(n)=r_n;
             numero_accettati++;
-            
             return 1;
         }
-        else{//se non accetto lascio invariato
-            //r.row(n)=r.row(n);
-            return 0;
-        }
+        // else{//se non accetto lascio invariato
+        //     //r.row(n)=r.row(n);
+        //     return 0;
+        // }
     }
 }
 void posiz_MRT2(cube &dr, cube &dr_n, rowvec &r_n, mat &r, int i, double L, int n){
@@ -124,33 +116,18 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         }
     }
 
-    bool accetto=accetto_spostamento(r, r_n, V_tot_r0, V_tot_r1, n, T);//verifico se accettare lo spostamento con MTR2
+    int accetto=accetto_spostamento(r, r_n, V_tot_r0, V_tot_r1, n, T);//verifico se accettare lo spostamento con MTR2
     
-    if(accetto==0){
-        *W = 0;
-        for (int i = 0; i < N; ++i){
-            for (int j = i + 1; j < N; ++j) {
-                dr_mod=mod(dr,i,j);
-                if (dr_mod < r_c) {
-                    
-                    //dV_dr * r
-                    *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
-                    
-                }
-            }
-        }
-        *W/=N;
-    }
-    else{
+    if(accetto==1){
         *V = V_tot_r1; *W = 0;
         for (int i = 0; i < N; ++i){
             for (int j = i + 1; j < N; ++j) {
-                dr_mod=mod(dr,i,j);
+                dr_mod=mod(dr_n,i,j);
                 dr(i,j,0)=dr_n(i,j,0);
                 dr(i,j,1)=dr_n(i,j,1);
                 dr(i,j,2)=dr_n(i,j,2);
-                if (dr_mod < r_c) {
-                    
+                
+                if (dr_mod < r_c) {    
                     //dV_dr * r
                     *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
                     

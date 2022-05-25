@@ -1,10 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-// #include <chrono>
-
-// using namespace std::chrono;
-// auto start = high_resolution_clock::now();
 
 //#define ARMA_NO_DEBUG
 
@@ -25,7 +21,7 @@
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 2; //1,2,4
-int N = M * pow(4, 3); //numero di particelle
+int N = M * pow(6, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -41,7 +37,7 @@ struct coppia {
 
 int main() {
     srand(1);//default seed = 1
-    double dt      = 0.01;//passo temporale
+    double dt      = 0.001;//passo temporale
     double t1      = 20;//durata simulazione
 
     coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (6+6 minuti)
@@ -127,22 +123,23 @@ int main() {
 
         double E = 0, T = 0, P = 0;
         double K = 0, V = 0, W = 0;
-        double K_c = 0, V_c = 0, W_c = 0;
+        double K_c = 0, V_m = 0, W_m = 0, P_m = 0;
 
         for (int i = 0; i < N_t; ++i) {//tempo
-            V_c = V_c * (i + 1.0);
-            W_c = W_c * (i + 1.0);
+            V_m = V_m * (i + 1.0);
+            W_m = W_m * (i + 1.0);
             
             MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
             
-            V_c = (V_c + V) / (i + 2.0);
-            W_c = (W_c + W) / (i + 2.0);
+            V_m = (V_m + V) / (i + 2.0);
+            W_m = (W_m + W) / (i + 2.0);
 
-            P = (1 + W_c / (3.0 * T_req)); //P su rho*k_B*T_req
+            P = (1 + W / (3.0 * T_req));
+            P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
             // P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
 
             if (caso_min != 0) {
-                dati << t << "\t" << V_c << "\t" << P << endl;
+                dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << endl;
             }
             t += dt;
         }
@@ -155,14 +152,6 @@ int main() {
         risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
     }
     
-    // auto stop = high_resolution_clock::now();
-    // auto duration = duration_cast<microseconds>(stop - start);
-
-    // int tempo=duration.count();
-    // int minuti = tempo/(1e6*60);
-    // int secondi = (tempo- minuti*1e6*60)/1e6;
-    // cout<<"tempo= "<<minuti<<"min "<<secondi<<"s"<<endl;
-
     dati.close();
     risultati.close();
 
