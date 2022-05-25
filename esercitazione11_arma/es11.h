@@ -2,7 +2,7 @@
 #define es11_h
 
 #include "header.h"
-#include "distribuzioni.h"
+#include "funzioni.h"
 
 using namespace std;
 using namespace arma;
