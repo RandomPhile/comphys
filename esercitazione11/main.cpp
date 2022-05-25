@@ -13,10 +13,10 @@
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 1; //1,2,4
-int N = M * pow(7, 3); //numero di particelle
+int N = M * pow(4, 3); //numero di particelle
 
-int numero_accettati=0;
-int numero_proposti=0;
+int numero_accettati = 0;
+int numero_proposti = 0;
 
 ofstream dati, gnuplot, risultati;
 
@@ -33,7 +33,7 @@ struct coppia {
 int main() {
     srand(1);//default seed = 1
     double dt      = 0.01;//passo temporale
-    double t1      = 20;//durata simulazione
+    double t1      = 10;//durata simulazione
 
     coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (6+6 minuti)
         {.rho = 0.01, .sigma = 1.04332},
@@ -63,8 +63,11 @@ int main() {
     }
     //###################################################
     struct vec r[N];
-    vec dr[N*N];
-    
+    vec **dr = new vec*[N];
+    for (int i = 0; i < N; ++i)
+        dr[i] = new vec[N];
+
+
     int reticolo   = log2(M);
     double T_req = 1.1;
 
@@ -75,50 +78,50 @@ int main() {
 
     dati.open("dati.dat");
     for (int caso = caso_min; caso < caso_max; ++caso) {
-        numero_accettati=0;
-        numero_proposti=0;
+        numero_accettati = 0;
+        numero_proposti = 0;
         double L = cbrt(N / coppie[caso].rho);
         double r_c = L / 2;
 
-        double Delta=L/(50*coppie[caso].rho);
-        // switch (caso) {
-        //     case 0:
-        //         Delta=L/3; 
-        //         break;
-        //     case 6:
-        //         Delta*=1.2;
-        //         break;
-        //     case 10:
-        //         Delta/=1.2; 
-        //         break;
-        //     case 11:
-        //         Delta/=1.3; 
-        //         break;
-        //     case 12:
-        //         Delta/=1.5; 
-        //         break;
-        //     case 13:
-        //         Delta/=1.8; 
-        //         break;
-        //     default:
-        //         break;
+        double Delta = L / (50 * coppie[caso].rho);
+        switch (caso) {
+        case 0:
+            Delta = L / 3;
+            break;
+        case 6:
+            Delta *= 1.2;
+            break;
+        case 10:
+            Delta /= 1.2;
+            break;
+        case 11:
+            Delta /= 1.3;
+            break;
+        case 12:
+            Delta /= 1.5;
+            break;
+        case 13:
+            Delta /= 1.8;
+            break;
+        default:
+            break;
 
-        // }
+        }
 
         double t = 0;
         int N_t = (t1 - t) / dt;
 
         crea_reticolo(r, L);
-        for (int i = 0; i < N; ++i){
+        for (int i = 0; i < N; ++i) {
             for (int j = i + 1; j < N; ++j) {
                 //calcolo la distanza tra la particella i e la particella j>i
-                dr[i * N +j].x = r[i].x - r[j].x;
-                dr[i * N +j].y = r[i].y - r[j].y;
-                dr[i * N +j].z = r[i].z - r[j].z;
-        
-                dr[i * N +j].x -= L * rint(dr[i * N +j].x / L);//sposto in [-L/2,+L/2]
-                dr[i * N +j].y -= L * rint(dr[i * N +j].y / L);
-                dr[i * N +j].z -= L * rint(dr[i * N +j].z / L);
+                dr[i][j].x = r[i].x - r[j].x;
+                dr[i][j].y = r[i].y - r[j].y;
+                dr[i][j].z = r[i].z - r[j].z;
+
+                dr[i][j].x -= L * rint(dr[i][j].x / L);//sposto in [-L/2,+L/2]
+                dr[i][j].y -= L * rint(dr[i][j].y / L);
+                dr[i][j].z -= L * rint(dr[i][j].z / L);
             }
         }
 
@@ -129,9 +132,9 @@ int main() {
         for (int i = 0; i < N_t; ++i) {//tempo
             V_c = V_c * (i + 1.0);
             W_c = W_c * (i + 1.0);
-            
+
             MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
-            
+
             V_c = (V_c + V) / (i + 2.0);
             W_c = (W_c + W) / (i + 2.0);
 
@@ -147,11 +150,15 @@ int main() {
         if (caso_min == 0) {
             dati << coppie[caso].rho << "\t" << P << endl;
         }
-        cout << (double)numero_accettati/(double)numero_proposti*100.0 << "%"<<endl;
+        cout << (double)numero_accettati / (double)numero_proposti * 100.0 << "%" << endl;
         cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
-        
+
     }
-    //delete ...
+
+    for (int i = 0; i < N; ++i)
+        delete [] dr[i];
+    delete [] dr;
+    
     dati.close();
     risultati.close();
 

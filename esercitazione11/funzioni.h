@@ -22,10 +22,6 @@ struct vec {
         cout << "x=" <<x << ", y=" << y << ", z=" << z << endl;
     }
 };
-void vec_2D (vec *dr[], int dim) {
-    for (int i = 0; i < dim; ++i)
-        dr[i] = new vec[dim];
-}
 void stampa_stato(vec *r, vec *v, vec *a) {
     for (int i = 0; i < N; ++i) {
         cout << "i = " << i << endl;
