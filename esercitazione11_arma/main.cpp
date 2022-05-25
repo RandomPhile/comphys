@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include <chrono>
+// #include <chrono>
 
-using namespace std::chrono;
-auto start = high_resolution_clock::now();
+// using namespace std::chrono;
+// auto start = high_resolution_clock::now();
 
 //#define ARMA_NO_DEBUG
 
@@ -24,8 +24,8 @@ auto start = high_resolution_clock::now();
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 4; //1,2,4
-int N = M * pow(7, 3); //numero di particelle
+int M = 2; //1,2,4
+int N = M * pow(4, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -61,7 +61,7 @@ int main() {
         {.rho = 1.2, .sigma = 1.45959}
     };
 
-    int caso_min = 0;//mettere 0 per avere P(rho)
+    int caso_min = 5;//mettere 0 per avere P(rho)
     int caso_max;
 
     if (caso_min == 0) {
@@ -142,7 +142,7 @@ int main() {
             // P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
 
             if (caso_min != 0) {
-                dati << t << "\t" << V << "\t" << P << endl;
+                dati << t << "\t" << V_c << "\t" << P << endl;
             }
             t += dt;
         }
@@ -155,13 +155,13 @@ int main() {
         risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
     }
     
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
+    // auto stop = high_resolution_clock::now();
+    // auto duration = duration_cast<microseconds>(stop - start);
 
-    int tempo=duration.count();
-    int minuti = tempo/(1e6*60);
-    int secondi = (tempo- minuti*1e6*60)/1e6;
-    cout<<"tempo= "<<minuti<<"min "<<secondi<<"s"<<endl;
+    // int tempo=duration.count();
+    // int minuti = tempo/(1e6*60);
+    // int secondi = (tempo- minuti*1e6*60)/1e6;
+    // cout<<"tempo= "<<minuti<<"min "<<secondi<<"s"<<endl;
 
     dati.close();
     risultati.close();
