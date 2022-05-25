@@ -1,5 +1,4 @@
 #!/bin/bash
-g++ main.cpp -o main.out
-./main.out
 pkill -x gnuplot, gnuplot_qt
-gnuplot 'plot.plt'
+g++ main.cpp -o out/main.out
+time out/main.out
