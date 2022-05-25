@@ -25,7 +25,7 @@ auto start = high_resolution_clock::now();
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 1; //1,2,4
-int N = M * pow(6, 3); //numero di particelle
+int N = M * pow(8, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
