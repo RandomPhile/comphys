@@ -12,7 +12,7 @@ using namespace std;
 using namespace arma;
 
 int M=1;
-int N=M*500;
+int N=M*1e3;
 
 ofstream dati;
 
@@ -26,7 +26,7 @@ int main() {
 
 	int N_b=20;
 	mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale
-	crea_reticolo(r, L);
+	crea_reticolo_unif(r, L);
 
 	gdr_funz(r, L, rho, gdr, N_b);
 	for (int i = 0; i < N_b; ++i){

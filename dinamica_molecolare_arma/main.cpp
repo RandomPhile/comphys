@@ -5,7 +5,7 @@ int main() {
 	/*** costanti simulazione ***/
 	srand(2); //default seed = 1
 	const double dt = 0.01; //passo temporale
-	const double t1 = 40; //durata simulazione
+	const double t1 = 20; //durata simulazione
 
 	/*** costanti problema ***/
 	coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (12 minuti)

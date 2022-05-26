@@ -44,9 +44,18 @@ void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento
         }
     }
 }
+void crea_reticolo_unif(mat &r, double L) {// passo la matrice per riferimento 
+    double L_cella = L / cbrt(N / M);
+
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            r(i,j)=L_cella*rand()/((double)RAND_MAX+1.0);
+        }
+    }
+}
 void posiz_rel(cube &dr, mat &r, double L, mat &dr_mod){
     for (int i = 0; i < N; ++i){
-        for (int j = 0; j < N; ++j){
+        for (int j = i+1; j < N; ++j){
             for (int k = 0; k < 3; ++k){
                 dr(i,j,k) = r(i,k) - r(j,k);
             }
@@ -67,7 +76,7 @@ void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){
             double dV=4/3*M_PI*(pow1(R+delta_r/2,3)-pow1(R-delta_r/2,3));//definisco il volumetto sferico
             double freq=0;//numero di particelle in un volumetto
 
-            for (int k = 0; k < N; ++k){//ciclo sulle particelle non centrali
+            for (int k = i+1; k < N; ++k){//ciclo sulle particelle non centrali
                 if(dr_mod(i,k)<=R+delta_r/2 && dr_mod(i,k)>R-delta_r/2){//se nel volumetto allora aumento la freq 
                     freq++;
                 }
