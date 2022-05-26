@@ -19,26 +19,6 @@ using namespace arma;
 struct coppia {
     double sigma; double rho; double t_eq;
 };
-class vec {
-public:
-    double x; double y; double z;
-
-    double mod() {
-        return sqrt(x * x + y * y + z * z);
-    }
-    void uguale(double val) {
-        x = val; y = val; z = val;
-    }
-    void piu(double val) {
-        x += val; y += val; z += val;
-    }
-    void per(double val) {
-        x *= val; y *= val; z *= val;
-    }
-    void stampa() {
-        cout << "x: " << x << "y: " << y << "z: " << z << "\n";
-    }
-};
 
 double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
     double ris = 1.0;
