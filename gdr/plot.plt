@@ -1,7 +1,7 @@
 set datafile sep '\t'
 set grid
 
-set term qt 0 title "g(r)" font "Helvetica" position 0,350
+set term qt 0 title "g(r)" font "Helvetica" position 350,350
 plot "dati.dat" i 1 u 1:2 w lp title "" lc "red"
 
 set term qt 1 title "reticolo" font "Helvetica" position 0,0

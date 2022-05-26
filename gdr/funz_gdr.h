@@ -58,16 +58,18 @@ void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){
     double delta_r=L/((double)N_b*2);
     rowvec dr(3);
     double dr_mod;
-
-    for (int k = 0; k < N_b; ++k){//ciclo sui bin
-        for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
+    for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
+        for (int k = 0; k < N_b; ++k){//ciclo sui bin
+    
             double R=delta_r*k+delta_r/2;//definisco il raggio medio del volumetto sferico
-            double dV=4/3*M_PI*(pow1(R+delta_r/2,3)-pow1(R-delta_r/2,3));//definisco il volumetto sferico
+            double dV=4*M_PI*R*R*delta_r+M_PI/3*pow1(delta_r,3);//definisco il volumetto sferico
             double freq=0;//numero di particelle in un volumetto
-
-            for (int j = i+1; j < N; ++j){//ciclo sulle particelle non centrali
+    
+            for (int j = 0; j < N; ++j){//ciclo sulle particelle non centrali
+                
                 for (int k1 = 0; k1 < 3; ++k1){
-                    dr(k1) = r(i,k1) - r(j,k1);
+                    dr(k1) = r(i,k1) - r(j,k1);//trovo distanza relativa part i,j
+                    dr(k1) -= L * rint(dr(k1)/L);//sposto in [-L/2,+L/2]
                 }
                 dr_mod=mod(dr);
                 if(dr_mod<=R+delta_r/2 && dr_mod>R-delta_r/2){//se nel volumetto allora aumento la freq 
@@ -78,6 +80,7 @@ void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){
             gdr(k,1)=R;
         }
     }
+    
     gdr.col(0)/=N;//medio sulle part
 }
 
