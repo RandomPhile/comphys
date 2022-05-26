@@ -106,16 +106,17 @@ int input() {
 //         dr[i] = new vec[dim];
 // }
 void aggiorna_a(mat &r, mat &a, double L) {
-    rowvec dr;
+    rowvec dr(3);
     for (int i = 0; i < N; ++i) {
         for (int k = 0; k < 3; ++k){
             a(i,k)=0;
         }
+
         for (int j = 0; j < N; ++j) {
             if (j != i) {
                 for (int k = 0; k < 3; ++k){
                     dr(k) = r(i,k) - r(j,k);
-
+                
                     dr(k) -= L * rint(dr(k) / L);
                 }
 
@@ -142,10 +143,10 @@ void stampa_coord(mat &r, mat &v, ofstream &file) {
     atomoN x y z
     */
     for (int i = 0; i < N; ++i) {
-        file << "P" << i << "\t" << r(i, 0) << "\t" << r(i, 1) << "\t" << r(i, 2) << "\t" << v(i, 0) << "\t" << v(i, 1) << "\t" << v(i, 2) << "\n";
+        file << "P" << i << "\t" << r.row(i) << "\t" << v.row(i) << "\n";
     }
 }
-void v_cm_0(mat v) {
+void v_cm_0(mat &v) {
     rowvec v_cm = {0, 0, 0};
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < 3; ++j){
@@ -194,6 +195,7 @@ void calcolo_coordinate(string coord_path, double rho, double sigma, double dt, 
     crea_reticolo(r, L);
     distr_gauss(v, sigma, N, 3);
     aggiorna_a(r, a, L);
+    
 
     coord.open(coord_path);
     coord << N << "\t" << N_t << "\t" << dt << "\t" << rho << "\t" << sigma << "\n";
