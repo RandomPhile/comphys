@@ -49,40 +49,33 @@ void crea_reticolo_unif(mat &r, double L) {// passo la matrice per riferimento
 
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < 3; ++j) {
-            r(i,j)=L_cella*rand()/((double)RAND_MAX+1.0);
+            r(i,j)=L*rand()/((double)RAND_MAX+1.0);
         }
-    }
-}
-void posiz_rel(cube &dr, mat &r, double L, mat &dr_mod){
-    for (int i = 0; i < N; ++i){
-        for (int j = i+1; j < N; ++j){
-            for (int k = 0; k < 3; ++k){
-                dr(i,j,k) = r(i,k) - r(j,k);
-            }
-            dr_mod(i,j) = mod(dr,i,j);//trovo modulo dist rel part i,j
-        }
+        //cout<<i<<endl;
     }
 }
 void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){
     double delta_r=L/((double)N_b*2);
-    cube dr(N,N,3);
-    mat dr_mod(N,N);
+    rowvec dr(3);
+    double dr_mod;
 
-    posiz_rel(dr, r, L, dr_mod);//trovo le posizioni relative e i moduli
-
-    for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
-        for (int j = 0; j < N_b; ++j){//ciclo sui bin
-            double R=delta_r*j+delta_r/2;//definisco il raggio medio del volumetto sferico
+    for (int k = 0; k < N_b; ++k){//ciclo sui bin
+        for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
+            double R=delta_r*k+delta_r/2;//definisco il raggio medio del volumetto sferico
             double dV=4/3*M_PI*(pow1(R+delta_r/2,3)-pow1(R-delta_r/2,3));//definisco il volumetto sferico
             double freq=0;//numero di particelle in un volumetto
 
-            for (int k = i+1; k < N; ++k){//ciclo sulle particelle non centrali
-                if(dr_mod(i,k)<=R+delta_r/2 && dr_mod(i,k)>R-delta_r/2){//se nel volumetto allora aumento la freq 
+            for (int j = i+1; j < N; ++j){//ciclo sulle particelle non centrali
+                for (int k1 = 0; k1 < 3; ++k1){
+                    dr(k1) = r(i,k1) - r(j,k1);
+                }
+                dr_mod=mod(dr);
+                if(dr_mod<=R+delta_r/2 && dr_mod>R-delta_r/2){//se nel volumetto allora aumento la freq 
                     freq++;
                 }
             }
-            gdr(j,0)+=1/rho*(freq/dV);//def gdr
-            gdr(j,1)=R;
+            gdr(k,0)+=1/rho*(freq/dV);//def gdr
+            gdr(k,1)=R;
         }
     }
     gdr.col(0)/=N;//medio sulle part
