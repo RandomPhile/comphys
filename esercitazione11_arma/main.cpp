@@ -10,8 +10,6 @@
 
 #include "es11.h"
 
-
-
 /* NOTE:
 -se K o V esplodono molto probabilmente dt è troppo grande
 -per stimare sigma t.c. T=1.1, uso N grande ()
@@ -27,23 +25,15 @@ int numero_proposti=0;
 int numero_accettati=0;
 ofstream dati, gnuplot, risultati;
 
-struct coppia {
-    double rho;
-    double sigma;
-};
-
-
-
-
 int main() {
     srand(1);//default seed = 1
-    int N_t = 1e4;//numero passi simulazione
+    int N_t = 1e5;//numero passi simulazione
     int N_b=30;//numero bin
     double T_req = 1.1;//temperatura adimensionale
 
-    rowvec rho={0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.15, 1.2, 1.4};
+    rowvec rho={0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4};
 
-    int caso_min = -1;//mettere -1 per avere P(rho)
+    int caso_min = 0;//mettere -1 per avere P(rho)
     int caso_max;
 
     if (caso_min == -1) {
@@ -76,29 +66,6 @@ int main() {
         double r_c = L / 2;
 
         double Delta=L/(40*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-        // switch (caso) {
-        //     case 0:
-        //         Delta=L/3; 
-        //         break;
-        //     case 6:
-        //         Delta*=1.2;
-        //         break;
-        //     case 10:
-        //         Delta/=1.2; 
-        //         break;
-        //     case 11:
-        //         Delta/=1.3; 
-        //         break;
-        //     case 12:
-        //         Delta/=1.5; 
-        //         break;
-        //     case 13:
-        //         Delta/=1.8; 
-        //         break;
-        //     default:
-        //         break;
-
-        // }
         
         crea_reticolo(r, L);//creo il reticolo iniziale
         
@@ -145,9 +112,10 @@ int main() {
             mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale
             
             dati<<"\n\n";
+            double L_cella= L / cbrt(N / M);
             gdr_funz(r, L, rho(caso), gdr, N_b);
             for (int i = 0; i < N_b; ++i){
-                dati << gdr(i,1) << "\t" << gdr(i,0) << endl;
+                dati << gdr(i,1)<< "\t" << gdr(i,0) << endl;
             }
             dati<<"\n\n";
             for (int i = 0; i < N; ++i){
