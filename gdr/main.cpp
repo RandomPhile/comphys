@@ -12,9 +12,11 @@ using namespace std;
 using namespace arma;
 
 int M=1;
-int N=M*pow1(50,3);
+int N=M*pow1(4,3);
 
 ofstream dati;
+
+void modifica_ret(mat &r,int righe, int colonne);
 
 int main() {
 	dati.open("dati.dat");
@@ -24,9 +26,11 @@ int main() {
 	cout<<L<<endl;
 	mat r(N,3);
 
-	int N_b=100;
+	int N_b=30;
 	mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale
-	crea_reticolo_unif(r, L);
+	crea_reticolo(r, L);
+	//modifica_ret(r,N,3);
+	cout<<r<<endl;
 	for (int i = 0; i < N; ++i){
 		dati<<r(i,0)<<"\t"<<r(i,1)<<"\t"<<r(i,2)<<"\t"<<endl;
 	}
@@ -41,3 +45,10 @@ int main() {
 	dati.close();
 }
 
+void modifica_ret(mat &r,int righe, int colonne){
+	for (int i = 0; i < righe; ++i){
+		for (int j = 0; j < colonne; ++j){
+				r(i,j)=0;
+			}	
+	}
+}

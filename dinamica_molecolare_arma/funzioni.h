@@ -376,42 +376,72 @@ void plot_pressioni() {
 //     }
 //     coord_gdr.close();
 // }
-// void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_bins) {
-//     ifstream coord_gdr;
-//     coord_gdr.open(coord_g_path);
-//     ofstream gdr;
+void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){//penso funzionante
+    double delta_r=L/((double)N_b*2);
+    rowvec dr(3);
+    double dr_mod;
+    for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
+        for (int k = 0; k < N_b; ++k){//ciclo sui bin
+    
+            double R=delta_r*k+delta_r/2;//definisco il raggio medio del volumetto sferico
+            double dV=4*M_PI*R*R*delta_r+M_PI/3*pow1(delta_r,3);//definisco il volumetto sferico
+            double freq=0;//numero di particelle in un volumetto
+    
+            for (int j = 0; j < N; ++j){//ciclo sulle particelle non centrali
+                
+                for (int k1 = 0; k1 < 3; ++k1){
+                    dr(k1) = r(i,k1) - r(j,k1);//trovo distanza relativa part i,j
+                    dr(k1) -= L * rint(dr(k1)/L);//sposto in [-L/2,+L/2]
+                }
+                dr_mod=mod(dr);
+                if(dr_mod<=R+delta_r/2 && dr_mod>R-delta_r/2){//se nel volumetto allora aumento la freq 
+                    freq++;
+                }
+            }
+            gdr(k,0)+=1/rho*(freq/dV);//def gdr
+            gdr(k,1)=R;
+        }
+    }
+    
+    gdr.col(0)/=N;//medio sulle part
+}
+void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_bins) {
+    ifstream coord_gdr;
+    coord_gdr.open(coord_g_path);
+    ofstream gdr;
 
-//     double L = cbrt(N / rho);
+    double L = cbrt(N / rho);
 
-//     double de_r = 0.5 * L / N_bins;
-//     cout << "de_r = " << de_r << endl;
-//     cout << "L/2 = " << L / 2 << endl;
+    double delta_r = 0.5 * L / N_bins;
+    cout << "delta_r = " << delta_r << endl;
+    cout << "L/2 = " << L / 2 << endl;
 
-//     int freq[N_bins];
-//     for (int k = 0; k < N_bins; ++k) {
-//         freq[k] = 0;
-//     }
-//     double g, rp_mod, r_k;
-//     for (int i = 0; i < N; ++i) {
-//         coord_gdr >> rp_mod;
-//         for (int k = 0; k < N_bins; ++k) {
-//             r_k = (2 * k + 1) * de_r / 2;
-//             if (rp_mod > r_k - de_r / 2 && rp_mod <= r_k + de_r / 2) {
-//                 freq[k]++;
-//                 break;
-//             }
-//         }
-//     }
-//     coord_gdr.close();
-//     gdr.open(g_path);
-//     for (int k = 0; k < N_bins; ++k) {
-//         r_k = (2 * k + 1) * de_r / 2;
-//         g = freq[k] / ((pow(r_k + de_r / 2, 3) - pow(r_k - de_r / 2, 3)) * M_PI * 4.0 / 3.0);
-//         g /= rho;
-//         gdr << r_k << "\t" << freq[k] << "\t" << g << "\n";
-//     }
-//     gdr.close();
-// }
+    int freq[N_bins];
+    for (int k = 0; k < N_bins; ++k) {
+        freq[k] = 0;
+    }
+    double g, rp_mod, r_k;
+    for (int i = 0; i < N; ++i) {
+        coord_gdr >> rp_mod;
+        for (int k = 0; k < N_bins; ++k) {
+            r_k = (2 * k + 1) * delta_r / 2;
+            if (rp_mod > r_k - delta_r / 2 && rp_mod <= r_k + delta_r / 2) {
+                freq[k]++;
+                break;
+            }
+        }
+    }
+    coord_gdr.close();
+    gdr.open(g_path);
+    for (int k = 0; k < N_bins; ++k) {
+        r_k = (2 * k + 1) * delta_r / 2;
+        double dV=4*M_PI*R*R*delta_r+M_PI/3*pow1(delta_r,3);//definisco il volumetto sferico
+        g = freq[k] / dV;
+        g /= rho;
+        gdr << r_k << "\t" << freq[k] << "\t" << g << "\n";
+    }
+    gdr.close();
+}
 // void plot_gdr() {
 //     string comando;
 

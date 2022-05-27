@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cmath>
 
-//#define ARMA_NO_DEBUG
+#define ARMA_NO_DEBUG
 
 #include <armadillo>
 #include <iomanip>
@@ -20,7 +20,7 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 1; //1,2,4
+int M = 2; //1,2,4
 int N = M * pow(6, 3); //numero di particelle
 
 int numero_proposti=0;
@@ -37,40 +37,26 @@ struct coppia {
 
 int main() {
     srand(1);//default seed = 1
-    double dt      = 0.01;//passo temporale
-    double t1      = 20;//durata simulazione
+    int N_t = 1e4;//numero passi simulazione
+    int N_b=30;//numero bin
+    double T_req = 1.1;//temperatura adimensionale
 
-    coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (6+6 minuti)
-        {.rho = 0.01, .sigma = 1.04332},
-        {.rho = 0.1, .sigma = 0.828379},
-        {.rho = 0.2, .sigma = 0.670309},
-        {.rho = 0.3, .sigma = 0.656069},
-        {.rho = 0.4, .sigma = 0.762703},
-        {.rho = 0.5, .sigma = 0.925801},
-        {.rho = 0.6, .sigma = 1.12905},
-        {.rho = 0.7, .sigma = 1.28666},
-        {.rho = 0.8, .sigma = 1.41451},
-        {.rho = 0.9, .sigma = 1.45276},
-        {.rho = 1.0, .sigma = 1.38634},
-        {.rho = 1.1, .sigma = 1.39870},
-        {.rho = 1.15, .sigma = 1.41261},
-        {.rho = 1.2, .sigma = 1.45959}
-    };
+    rowvec rho={0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.15, 1.2, 1.4};
 
-    int caso_min = 0;//mettere 0 per avere P(rho)
+    int caso_min = -1;//mettere -1 per avere P(rho)
     int caso_max;
 
-    if (caso_min == 0) {
-        caso_max = sizeof(coppie) / sizeof(*coppie);
+    if (caso_min == -1) {
+        caso_max = rho.size();
     } else {
         caso_max = caso_min + 1;
     }
+    
     //###################################################
     mat r(N,3);
     cube dr(N,N,3);
 
     int reticolo   = log2(M);
-    double T_req = 1.1;
 
     risultati.open("risultati.dat");
     gnuplot.open("gnuplot.dat");
@@ -78,38 +64,42 @@ int main() {
     gnuplot.close();
 
     dati.open("dati.dat");
-    for (int caso = caso_min; caso < caso_max; ++caso) {
-        double L = cbrt(N / coppie[caso].rho);
+    int start;
+    if(caso_min==-1){
+        start=caso_min+1;
+    }
+    else{
+        start=caso_min;
+    }
+    for (int caso = start; caso < caso_max; ++caso) {
+        double L = cbrt(N / rho(caso));
         double r_c = L / 2;
 
-        double Delta=L/(50*coppie[caso].rho);//scelgo un delta che mi dia circa 50% di accettazione
-        switch (caso) {
-            case 0:
-                Delta=L/3; 
-                break;
-            case 6:
-                Delta*=1.2;
-                break;
-            case 10:
-                Delta/=1.2; 
-                break;
-            case 11:
-                Delta/=1.3; 
-                break;
-            case 12:
-                Delta/=1.5; 
-                break;
-            case 13:
-                Delta/=1.8; 
-                break;
-            default:
-                break;
+        double Delta=L/(40*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        // switch (caso) {
+        //     case 0:
+        //         Delta=L/3; 
+        //         break;
+        //     case 6:
+        //         Delta*=1.2;
+        //         break;
+        //     case 10:
+        //         Delta/=1.2; 
+        //         break;
+        //     case 11:
+        //         Delta/=1.3; 
+        //         break;
+        //     case 12:
+        //         Delta/=1.5; 
+        //         break;
+        //     case 13:
+        //         Delta/=1.8; 
+        //         break;
+        //     default:
+        //         break;
 
-        }
-
-        double t = 0;
-        int N_t = (t1 - t) / dt;
-
+        // }
+        
         crea_reticolo(r, L);//creo il reticolo iniziale
         
         for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
@@ -136,20 +126,37 @@ int main() {
 
             P = (1 + W / (3.0 * T_req));
             P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
-            // P = coppie[caso].rho * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
+            // P = rho(caso) * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
 
-            if (caso_min != 0) {
+            if (caso_min != -1) {
                 dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << endl;
             }
-            t += dt;
+            if(i==(int)(N_t/2) && caso_min!=-1){
+                cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
+            }
         }
-        LOG(P)
-        if (caso_min == 0) {
-            dati << coppie[caso].rho << "\t" << P << endl;
+        
+        if (caso_min == -1) {
+            dati << rho(caso) << "\t" << P << endl;
+            cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
         }
-        cout << (double)numero_accettati/(double)numero_proposti*100 << "%"<<endl;
-        cout << "Rho = " << coppie[caso].rho << "\nSigma = " << coppie[caso].sigma << "\n" <<  endl;
-        risultati << "Rho = " << coppie[caso].rho  << "\nSigma = " << coppie[caso].sigma << "\n" << endl;
+        else{//calcolo della gdr
+            cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
+            mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale
+            
+            dati<<"\n\n";
+            gdr_funz(r, L, rho(caso), gdr, N_b);
+            for (int i = 0; i < N_b; ++i){
+                dati << gdr(i,1) << "\t" << gdr(i,0) << endl;
+            }
+            dati<<"\n\n";
+            for (int i = 0; i < N; ++i){
+                dati<<r(i,0)/L<<"\t"<<r(i,1)/L<<"\t"<<r(i,2)/L<<endl;//normalizzo sulla scatola per presentare il risultato
+            }
+        }
+        
+
+        cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%\n\n";
     }
     
     dati.close();

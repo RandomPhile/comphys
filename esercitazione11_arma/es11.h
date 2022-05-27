@@ -18,6 +18,10 @@ double mod(cube &r, double riga, double colonna){//calcolo il modulo della posiz
     double mod= sqrt(pow1(r(riga,colonna,0),2)+pow1(r(riga,colonna,1),2)+pow1(r(riga,colonna,2),2));
     return mod;
 }
+double mod(rowvec &r){//calcolo il modulo della posizione relativa delle particelle i e j
+    double mod= sqrt(pow1(r(0),2)+pow1(r(1),2)+pow1(r(2),2));
+    return mod;
+}
 void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento 
     int n = cbrt(N / M);
     double L_cella = L / cbrt(N / M);
@@ -89,9 +93,10 @@ void posiz_MRT2(cube &dr, cube &dr_n, rowvec &r_n, mat &r, int i, double L, int 
 void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L, double r_c, cube &dr){//N=N_mol
     cube dr_n(N, N, 3);
     rowvec r_n(3); 
-    
-    int n = Fabs(rint(N * rand() / (RAND_MAX + 1.0)));//trovo la molecola che viene modificata da MTR2
-    
+
+    double s= rand() / (RAND_MAX + 1.0);//eseguo prima il rand perche da problemi senno
+    int n = Fabs((int)rint((N-1) *s));//trovo la molecola che viene modificata da MTR2
+
     r_n(0) = r(n,0) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);//modifico le posizioni della particella n
     r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     r_n(2) = r(n,2) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
@@ -135,6 +140,35 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         }
         *W/=N;
     }
+}
+void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){//penso funzionante
+    double delta_r=L/((double)N_b*2);
+    rowvec dr(3);
+    double dr_mod;
+    for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
+        for (int k = 0; k < N_b; ++k){//ciclo sui bin
+    
+            double R=delta_r*k+delta_r/2;//definisco il raggio medio del volumetto sferico
+            double dV=4*M_PI*R*R*delta_r+M_PI/3*pow1(delta_r,3);//definisco il volumetto sferico
+            double freq=0;//numero di particelle in un volumetto
+    
+            for (int j = 0; j < N; ++j){//ciclo sulle particelle non centrali
+                
+                for (int k1 = 0; k1 < 3; ++k1){
+                    dr(k1) = r(i,k1) - r(j,k1);//trovo distanza relativa part i,j
+                    dr(k1) -= L * rint(dr(k1)/L);//sposto in [-L/2,+L/2]
+                }
+                dr_mod=mod(dr);
+                if(dr_mod<=R+delta_r/2 && dr_mod>R-delta_r/2){//se nel volumetto allora aumento la freq 
+                    freq++;
+                }
+            }
+            gdr(k,0)+=1/rho*(freq/dV);//def gdr
+            gdr(k,1)=R;
+        }
+    }
+    
+    gdr.col(0)/=N;//medio sulle part
 }
 #endif 
 
