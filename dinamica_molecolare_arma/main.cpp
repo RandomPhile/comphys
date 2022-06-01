@@ -31,7 +31,7 @@ int main() {
 	string coord_g_path = "out/coordinate_gdr.xyz";
 	string g_path = "out/gdr.dat";
 
-	int caso = 0;//valore densità (e relativa sigma)
+	int caso = 12;//valore densità (e relativa sigma)
 
 	// calcolo_coordinate(coord_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
 	// calcolo_osservabili_da_file(coord_path, obs_path);
@@ -45,9 +45,9 @@ int main() {
 	// plot_pressioni();
 
 
-	calcolo_coordinate_per_gdr(coord_g_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
+	// calcolo_coordinate_per_gdr(coord_g_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
 
-	int N_bins = 30;
+	int N_bins = 70;
 	calcolo_gdr_da_file(coord_g_path, g_path, coppie[caso].rho, N_bins);
 	plot_gdr();
 

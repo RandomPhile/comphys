@@ -1,0 +1,449 @@
+#ifndef FUNZIONI_H
+#define FUNZIONI_H
+
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <string>
+
+#include <armadillo>
+#include <iomanip>
+#include <algorithm>
+
+// #define _USE_MATH_DEFINES
+#define LOG(x) cout<<x<<endl;
+using namespace std;
+using namespace arma;
+
+double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
+    double ris = 1.0;
+    for (int i = 0; i < esp; i++) {
+        ris *= base;
+    }
+    return ris;
+}
+double def_delta(rowvec &rho, int caso){
+    if(caso>=8){
+        Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
+            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        }
+        return Delta;
+    }
+    else if(caso<8 && caso>4){
+        Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
+            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        }
+        return Delta;
+    }
+    else{
+        Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
+            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        }
+        return Delta;
+    }
+}
+double mod(cube r, double riga, double colonna){//calcolo il modulo della posizione relativa delle particelle i e j
+    double mod= sqrt(pow1(r(riga,colonna,0),2)+pow1(r(riga,colonna,1),2)+pow1(r(riga,colonna,2),2));
+    return mod;
+}
+double mod(rowvec r){//calcolo il modulo della posizione relativa delle particelle i e j
+    double mod= sqrt(pow1(r(0),2)+pow1(r(1),2)+pow1(r(2),2));
+    return mod;
+}
+void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento 
+    int n = cbrt(N / M);
+    double L_cella = L / cbrt(N / M);
+    int cont = 0;//contatore particella
+
+    mat b = {{0, 0, 0}, {0.5, 0.5, 0}, {0.5, 0, 0.5}, {0, 0.5, 0.5}};
+    if (M == 2) {b(1,2) = 0.5;}
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            for (int k = 0; k < n; ++k) {
+                rowvec R = {L_cella*(double)i, L_cella*(double)j, L_cella*(double)k};
+
+                for (int l = 0; l < M; ++l) {
+                    r.row(cont) = R + b.row(l) * L_cella;
+                    cont++;
+                }
+            }
+        }
+    }
+}
+
+int input() {
+    int input;
+    cout << "\n"
+         "1. calcola coordinate per un valore di densità\n"
+         "2. plotta coordinate da file\n"
+         "3. calcola osservabili per un valore di densità\n"
+         "4. plotta osservabili da file\n";
+    cout << "step: "; cin >> input;
+    return input;
+}
+void stampa_coord(mat &r, ofstream &file) {
+    /* struttura file .xyz per VMD
+    N
+    nome molecola
+    atomo1 x y z
+    atomo2 x y z
+    ...
+    atomoN x y z
+    */
+    for (int i = 0; i < N; ++i) {
+        file << "P" << i << "\t" << r(i,0) << "\t" << r(i,1) << "\t" << r(i,2)  << "\n";
+    }
+}
+int accetto_spostamento(mat &r, rowvec &r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
+    double A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));//trovo A
+    numero_proposti++;
+    
+    if(A>(rand()/((double)RAND_MAX+1.0))){
+        r.row(n)=r_n;
+        numero_accettati++;
+        return 1;
+    }
+    else{//se non accetto lascio invariato
+        //r.row(n)=r.row(n);
+        return 0;
+    }
+}
+void posiz_MRT2(cube &dr, cube &dr_n, rowvec &r_n, mat &r, int i, double L, int n){
+    for (int j = i + 1; j < N; ++j) {
+        //calcolo la distanza tra la particella i e la particella j>i
+        for(int k=0; k<3; ++k){//ciclo sulle coordinate per creare le posizioni nuove
+            if(i!=n && j!=n){//calcolo le distanze nuove e impongo che siano le stesse se sono distanze tra particelle non modificate
+                dr_n(i,j,k)=dr(i,j,k);
+            }
+            else if(i==n && j!=n){//modifico le distanze per una particella modificata
+                dr_n(i,j,k) = r_n(k) - r(j,k);
+                dr_n(i,j,k) -= L * rint(dr_n(i,j,k)/L);//sposto in [-L/2,+L/2]
+            }
+            else if (i!=n && j==n){//modifico le distanze per una particella modificata
+                dr_n(i,j,k) = r(i,k) - r_n(k);
+                dr_n(i,j,k) -= L * rint(dr_n(i,j,k)/L);//sposto in [-L/2,+L/2]
+            }
+            else{//impongo distanza tra particella modificata e se stessa uguale a zero
+                dr_n(i,j,k) = 0;
+            }
+        }
+    }
+}
+void MRT2(mat &r, double *V, int N, double Delta, double T, double L, double r_c, cube &dr){//N=N_mol
+    cube dr_n(N, N, 3);
+    rowvec r_n(3); 
+
+    double s= rand() / (RAND_MAX + 1.0);//eseguo prima il rand perche da problemi senno
+    int n = (int)rint((N-1) *s);//trovo la molecola che viene modificata da MTR2
+
+   // int n = (int)rint((N-1) *rand() / (RAND_MAX + 1.0));
+
+    r_n(0) = r(n,0) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);//modifico le posizioni della particella n
+    r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
+    r_n(2) = r(n,2) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
+    
+    double V_tot_r1=0;//potenziale in posizione nuova
+    double V_tot_r0= *V;//potenziale in posizione vecchia
+
+    double dr_mod, dr_mod_n;
+
+    for (int i = 0; i < N; ++i) {
+
+        posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
+
+        for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
+            
+            dr_mod_n = mod(dr_n,i,j);
+            
+            if (dr_mod_n < r_c) {
+                V_tot_r1+=V_LJ(dr_mod_n, L);
+            }
+        }
+    }
+
+    int accetto=accetto_spostamento(r, r_n, V_tot_r0, V_tot_r1, n, T);//verifico se accettare lo spostamento con MTR2
+    
+    if(accetto==1){
+        *V = V_tot_r1; 
+    }
+}
+void calcolo_coordinate(string coord_path, double rho, double N_t, double Delta) {
+    double L = cbrt(N / rho);
+    N_t+=1e4;//aggiungo punti a quelli di equilibrazione
+
+    mat r(N,3);
+    cube dr(N,N,3);
+
+    ofstream coord;
+
+    /*** inizializzo variabili ***/
+    crea_reticolo(r, L);
+    
+    for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
+        for (int j = i + 1; j < N; ++j){
+            for (int k = 0; k < 3; ++k){
+                dr(i,j,k) = r(i,k) - r(j,k);
+                dr(i,j,k) -= L * rint(dr(i,j,k)/L);//sposto in [-L/2,+L/2]
+            }
+        }
+    }
+    
+
+    coord.open(coord_path);
+    coord << N << "\t" << N_t << "\t" << rho << "\t" << Delta << "\n";
+    coord << "molecola\n";
+
+    double V = 0;
+
+    for (int i = 0; i < N_t; ++i) {
+        stampa_coord(r, coord);
+        MRT2(r, &V, N, Delta, T, L, r_c, dr);
+    }
+    coord.close();
+}
+void plot_coordinate(string coord_path, int N_step, double pausa) {
+    ifstream coord_in; string comando;
+    int N_t; double rho, sigma, dt;
+
+    coord_in.open(coord_path);
+    coord_in >> N_t >> N_t >> dt >> rho >> sigma;
+    coord_in.close();
+
+    if (N_step > N_t) {N_step = N_t;}
+    int skip = rint(N_t / N_step); if (skip == 0) {skip = 1;}
+    double L = cbrt(N / rho);
+
+    comando = "gnuplot -e N=";
+    comando += to_string(N);
+    comando += " -e L=";
+    comando += to_string(L);
+    comando += " -e N_step=";
+    comando += to_string(N_step);
+    comando += " -e dt=";
+    comando += to_string(dt);
+    comando += " -e skip=";
+    comando += to_string(skip);
+    comando += " -e pausa=";
+    comando += to_string(pausa);
+    comando += " animation.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
+void calcolo_osservabili_da_file(string coord_path, string obs_path) {
+    ifstream coord_in; ofstream obs;
+    string line;
+    int N_t; double rho, sigma, dt;
+
+    coord_in.open(coord_path);
+    coord_in >> N_t >> N_t >> dt >> rho >> sigma;
+    coord_in >> line; //scarta la seconda riga
+
+    double L = cbrt(N / rho);
+
+    mat r(N,3); 
+    rowvec v(3), dr(3);
+    double dr_mod, v_mod;
+
+    obs.open(obs_path);
+    double t = 0;
+    double K_avg = 0, W_avg = 0, P, T;
+    double K, V, E, W;
+    for (int i_t = 0; i_t < N_t; ++i_t) {
+
+        K = 0; V = 0; W = 0;
+
+        for (int i = 0; i < N; ++i) {
+            coord_in >> line; //scarta la prima colonna
+
+            coord_in >> r(i,0) >> r(i,1) >> r(i,2);
+            coord_in >> v(0) >> v(1) >> v(2);
+
+            v_mod = mod(v);
+            // obs << line <<endl;
+            K += 0.5 * v_mod * v_mod;
+        }
+
+        for (int i = 0; i < N; ++i) {
+            for (int j = i + 1; j < N; ++j) {
+                for (int k = 0; k < 3; ++k){
+                    dr(k) = r(i,k) - r(j,k);
+                    dr(k) -= L * rint(dr(k)/L);//sposto in [-L/2,+L/2]
+                }
+
+                dr_mod = mod(dr);
+                if (dr_mod < L / 2) {
+                    if (dr_mod < L / 2 && dr_mod != 0) {
+                        double VL_2 = 4 * (pow(2 / L, 12) - pow(2 / L, 6));
+                        //double VpL_2 = 24 * (pow(1 / dr_mod, 8) - 2 * pow(1 / dr_mod, 14));
+                        V += 4 * (pow(1 / dr_mod, 12) - pow(1 / dr_mod, 6)) - VL_2;
+                    }
+                    W += -24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
+                }
+            }
+        }
+        W /= N;
+        K_avg = K_avg + (K - K_avg) / (i_t + 1);//forse è +2
+        W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
+
+        T = 2.0 * K_avg / (3.0 * N);
+        P = (1 + W_avg / (3.0 * T_req));
+
+        E = K + V;
+        obs << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
+        t += dt;
+    }
+    cout << "Rho = " << rho << "\t\tT = " << T << "\nSigma = " << sigma << "\t->\t" << sigma*sqrt(T_req / T) << "\n" << endl;
+    coord_in.close();
+    obs.close();
+}
+void plot_osservabili() {
+    string comando;
+
+    comando = "gnuplot";
+    comando += " plot.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
+double pressione(double rho, double sigma, double dt, double t1) {
+    double L = cbrt(N / rho);
+    const int N_t = t1 / dt;
+    mat r(N,3), v(N,3), a(N,3);//, *dr[N]; vec_2D(dr, N);
+    rowvec dr(3);
+    double dr_mod;
+
+    /*** inizializzo variabili ***/
+    crea_reticolo(r, L);
+    distr_gauss(v, sigma, N, 3);
+    aggiorna_a(r, a, L);
+
+    double W_avg = 0, P;
+    double W;
+
+    double t = 0;
+    for (int i_t = 0; i_t < N_t; ++i_t) {
+        W = 0;
+        vel_verlet(r, v, a, dt, L);
+
+        for (int i = 0; i < N; ++i) {
+            for (int j = i + 1; j < N; ++j) {
+                for (int k = 0; k < 3; ++k){
+                    dr(k) = r(i,k) - r(j,k);
+                    dr(k) -= L * rint(dr(k)/L);//sposto in [-L/2,+L/2]
+                }
+
+                dr_mod = mod(dr);
+                if (dr_mod < L / 2) {
+                    W += -24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
+                }
+            }
+        }
+        W /= N;
+        W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
+    }
+    return (1 + W_avg / (3.0 * T_req));
+}
+void calcolo_pressioni(string p_path, coppia *coppie, double dt, double t1, int c_min, int c_max) {
+    ofstream press;
+    press.open(p_path);
+    for (int caso = c_min; caso <= c_max; ++caso) {
+        press << coppie[caso].rho << "\t" << pressione(coppie[caso].rho, coppie[caso].sigma, dt, t1) << "\n";
+    }
+    press.close();
+}
+void plot_pressioni() {
+    string comando;
+
+    comando = "gnuplot";
+    comando += " plot_pressione.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
+void calcolo_coordinate_per_gdr(string coord_g_path, double rho, double sigma, double dt, double t1) {
+    ofstream coord_gdr;
+    coord_gdr.open(coord_g_path);
+
+    double L = cbrt(N / rho);
+    const int N_t = t1 / dt;
+    mat r(N,3), v(N,3), a(N,3);
+    rowvec rp(3);
+    int p = 0;//particella attorno cui calcolo g(r)
+
+    /*** inizializzo variabili ***/
+    crea_reticolo(r, L);
+    distr_gauss(v, sigma, N, 3);
+    aggiorna_a(r, a, L);
+
+    double t = 0;
+    for (int i_t = 0; i_t < N_t; ++i_t) {
+        vel_verlet(r, v, a, dt, L);
+    }
+    for (int p = 0; p < N; ++p){
+        coord_gdr << "Particella" << p << endl;
+        for (int i = 0; i < N; ++i) {
+            for (int k = 0; k < 3; ++k){
+                rp(k) = r(p,k) - r(i,k);//trovo distanza relativa part p,j
+    
+                rp(k) -= L * rint(rp(k) / L);//sposto in [-L/2,+L/2]
+            }
+            coord_gdr << mod(rp) << "\n";
+        }
+    }
+    coord_gdr.close();
+}
+void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_bins) {
+    ifstream coord_gdr;
+    string line;
+    coord_gdr.open(coord_g_path);
+    ofstream gdr;
+
+    double L = cbrt(N / rho);
+
+    double delta_r = 0.5 * L / N_bins;
+    cout << "delta_r = " << delta_r << endl;
+    cout << "L/2 = " << L / 2 << endl;
+
+    int freq[N_bins];
+    for (int k = 0; k < N_bins; ++k) {
+        freq[k] = 0;
+    }
+    double g, rp_mod, r_k;
+    for (int p = 0; p < N; ++p){
+        coord_gdr >> line;
+        // cout<<line<<endl;
+        for (int i = 0; i < N; ++i) {
+            coord_gdr >> rp_mod;
+            // cout<<rp_mod<<endl;
+            for (int k = 0; k < N_bins; ++k) {
+                r_k = (2 * k + 1) * delta_r / 2;
+                if (rp_mod > r_k - delta_r / 2 && rp_mod <= r_k + delta_r / 2) {
+                    freq[k]++;
+                    break;
+                }
+            }
+        }
+    }
+    coord_gdr.close();
+    gdr.open(g_path);
+    for (int k = 0; k < N_bins; ++k) {
+        r_k = (2 * k + 1) * delta_r / 2;
+        double dV = 4 * M_PI * r_k * r_k * delta_r + M_PI / 3 * pow1(delta_r, 3);//definisco il volumetto sferico
+        g = freq[k] / dV;
+        g /= rho;
+        g /= N;
+        gdr << r_k << "\t" << freq[k] << "\t" << g << "\n";
+    }
+    gdr.close();
+}
+void plot_gdr() {
+    string comando;
+
+    comando = "gnuplot";
+    comando += " plot_gdr.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
+
+ #endif
