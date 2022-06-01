@@ -123,7 +123,7 @@ void stampa_coord(mat &r, mat &v, ofstream &file) {
     atomoN x y z
     */
     for (int i = 0; i < N; ++i) {
-        file << "P" << i << "\t" << r.row(i) << "\t" << v.row(i) << "\n";
+        file << "P" << i << "\t" << r(i,0) << "\t" << r(i,1) << "\t" << r(i,2) << "\t" <<v(i,0) << "\t" << v(i,1) << "\t" << v(i,2) << "\n";
     }
 }
 void v_cm_0(mat &v) {
@@ -345,68 +345,41 @@ void plot_pressioni() {
     LOG(comando);
     system(comando.c_str());
 }
-// void calcolo_coordinate_per_gdr(string coord_g_path, double rho, double sigma, double dt, double t1) {
-//     ofstream coord_gdr;
-//     coord_gdr.open(coord_g_path);
+void calcolo_coordinate_per_gdr(string coord_g_path, double rho, double sigma, double dt, double t1) {
+    ofstream coord_gdr;
+    coord_gdr.open(coord_g_path);
 
-//     double L = cbrt(N / rho);
-//     const int N_t = t1 / dt;
-//     vec r[N], v[N], a[N], rp;
-//     int p = 0;//particella attorno cui calcolo g(r)
+    double L = cbrt(N / rho);
+    const int N_t = t1 / dt;
+    mat r(N,3), v(N,3), a(N,3);
+    rowvec rp(3);
+    int p = 0;//particella attorno cui calcolo g(r)
 
-//     /*** inizializzo variabili ***/
-//     crea_reticolo(r, L);
-//     distr_gauss(v, sigma, N, 3);
-//     aggiorna_a(r, a, L);
+    /*** inizializzo variabili ***/
+    crea_reticolo(r, L);
+    distr_gauss(v, sigma, N, 3);
+    aggiorna_a(r, a, L);
 
-//     double t = 0;
-//     for (int i_t = 0; i_t < N_t; ++i_t) {
-//         vel_verlet(r, v, a, dt, L);
-//     }
-//     for (int i = 0; i < N; ++i) {
-//         rp.x = r[p].x - r[i].x;
-//         rp.y = r[p].y - r[i].y;
-//         rp.z = r[p].z - r[i].z;
-
-//         rp.x -= L * rint(rp.x / L);
-//         rp.y -= L * rint(rp.y / L);
-//         rp.z -= L * rint(rp.z / L);
-
-//         coord_gdr << rp.mod() << "\n";
-//     }
-//     coord_gdr.close();
-// }
-void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){//penso funzionante
-    double delta_r=L/((double)N_b*2);
-    rowvec dr(3);
-    double dr_mod;
-    for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
-        for (int k = 0; k < N_b; ++k){//ciclo sui bin
+    double t = 0;
+    for (int i_t = 0; i_t < N_t; ++i_t) {
+        vel_verlet(r, v, a, dt, L);
+    }
+    for (int p = 0; p < N; ++p){
+        coord_gdr << "Particella" << p << endl;
+        for (int i = 0; i < N; ++i) {
+            for (int k = 0; k < 3; ++k){
+                rp(k) = r(p,k) - r(i,k);//trovo distanza relativa part p,j
     
-            double R=delta_r*k+delta_r/2;//definisco il raggio medio del volumetto sferico
-            double dV=4*M_PI*R*R*delta_r+M_PI/3*pow1(delta_r,3);//definisco il volumetto sferico
-            double freq=0;//numero di particelle in un volumetto
-    
-            for (int j = 0; j < N; ++j){//ciclo sulle particelle non centrali
-                
-                for (int k1 = 0; k1 < 3; ++k1){
-                    dr(k1) = r(i,k1) - r(j,k1);//trovo distanza relativa part i,j
-                    dr(k1) -= L * rint(dr(k1)/L);//sposto in [-L/2,+L/2]
-                }
-                dr_mod=mod(dr);
-                if(dr_mod<=R+delta_r/2 && dr_mod>R-delta_r/2){//se nel volumetto allora aumento la freq 
-                    freq++;
-                }
+                rp(k) -= L * rint(rp(k) / L);//sposto in [-L/2,+L/2]
             }
-            gdr(k,0)+=1/rho*(freq/dV);//def gdr
-            gdr(k,1)=R;
+            coord_gdr << mod(rp) << "\n";
         }
     }
-    
-    gdr.col(0)/=N;//medio sulle part
+    coord_gdr.close();
 }
 void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_bins) {
     ifstream coord_gdr;
+    string line;
     coord_gdr.open(coord_g_path);
     ofstream gdr;
 
@@ -421,13 +394,18 @@ void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_b
         freq[k] = 0;
     }
     double g, rp_mod, r_k;
-    for (int i = 0; i < N; ++i) {
-        coord_gdr >> rp_mod;
-        for (int k = 0; k < N_bins; ++k) {
-            r_k = (2 * k + 1) * delta_r / 2;
-            if (rp_mod > r_k - delta_r / 2 && rp_mod <= r_k + delta_r / 2) {
-                freq[k]++;
-                break;
+    for (int p = 0; p < N; ++p){
+        coord_gdr >> line;
+        // cout<<line<<endl;
+        for (int i = 0; i < N; ++i) {
+            coord_gdr >> rp_mod;
+            // cout<<rp_mod<<endl;
+            for (int k = 0; k < N_bins; ++k) {
+                r_k = (2 * k + 1) * delta_r / 2;
+                if (rp_mod > r_k - delta_r / 2 && rp_mod <= r_k + delta_r / 2) {
+                    freq[k]++;
+                    break;
+                }
             }
         }
     }
@@ -435,20 +413,21 @@ void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_b
     gdr.open(g_path);
     for (int k = 0; k < N_bins; ++k) {
         r_k = (2 * k + 1) * delta_r / 2;
-        double dV=4*M_PI*R*R*delta_r+M_PI/3*pow1(delta_r,3);//definisco il volumetto sferico
+        double dV = 4 * M_PI * r_k * r_k * delta_r + M_PI / 3 * pow1(delta_r, 3);//definisco il volumetto sferico
         g = freq[k] / dV;
         g /= rho;
+        g /= N;
         gdr << r_k << "\t" << freq[k] << "\t" << g << "\n";
     }
     gdr.close();
 }
-// void plot_gdr() {
-//     string comando;
+void plot_gdr() {
+    string comando;
 
-//     comando = "gnuplot";
-//     comando += " plot_gdr.plt";
-//     LOG(comando);
-//     system(comando.c_str());
-// }
+    comando = "gnuplot";
+    comando += " plot_gdr.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
 
  #endif

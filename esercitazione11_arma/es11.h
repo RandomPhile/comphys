@@ -12,7 +12,7 @@ extern int M;
 extern int N;
 extern int numero_accettati;
 extern int numero_proposti;
-
+extern ofstream dati;
 
 double mod(cube &r, double riga, double colonna){//calcolo il modulo della posizione relativa delle particelle i e j
     double mod= sqrt(pow1(r(riga,colonna,0),2)+pow1(r(riga,colonna,1),2)+pow1(r(riga,colonna,2),2));
@@ -95,7 +95,9 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     rowvec r_n(3); 
 
     double s= rand() / (RAND_MAX + 1.0);//eseguo prima il rand perche da problemi senno
-    int n = Fabs((int)rint((N-1) *s));//trovo la molecola che viene modificata da MTR2
+    int n = (int)rint((N-1) *s);//trovo la molecola che viene modificata da MTR2
+
+   // int n = (int)rint((N-1) *rand() / (RAND_MAX + 1.0));
 
     r_n(0) = r(n,0) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);//modifico le posizioni della particella n
     r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
@@ -141,10 +143,15 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         *W/=N;
     }
 }
-void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){//penso funzionante
+void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
+    cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
+
+    mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale        
+    dati<<"\n\n";
     double delta_r=L/((double)N_b*2);
     rowvec dr(3);
     double dr_mod;
+
     for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
         for (int k = 0; k < N_b; ++k){//ciclo sui bin
     
@@ -169,6 +176,9 @@ void gdr_funz(mat &r, double L, double rho, mat &gdr, int N_b){//penso funzionan
     }
     
     gdr.col(0)/=N;//medio sulle part
+    for (int i = 0; i < N_b; ++i){
+        dati << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
+    }
 }
 #endif 
 

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cmath>
 
-#define ARMA_NO_DEBUG
+#define ARMA_NO_DEBUG//non fa controlli e va piu veloce, da togliere solo se il codice funziona gia perfettamente
 
 #include <armadillo>
 #include <iomanip>
@@ -10,16 +10,10 @@
 
 #include "es11.h"
 
-/* NOTE:
--se K o V esplodono molto probabilmente dt è troppo grande
--per stimare sigma t.c. T=1.1, uso N grande ()
--M=1, caso=2:  non esiste un sigma per far convergere T a T_req=1.1
-*/
-
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 2; //1,2,4
-int N = M * pow(6, 3); //numero di particelle
+int M = 4; //1,2,4
+int N = M * pow(8, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -27,11 +21,12 @@ ofstream dati, gnuplot, risultati;
 
 int main() {
     srand(1);//default seed = 1
-    int N_t = 1e5;//numero passi simulazione
-    int N_b=30;//numero bin
+    int N_t;//numero passi simulazione, vedi rigo 61 per il valore in base al tempo di equilibrazione stimato
+    int N_b=20;//numero bin
     double T_req = 1.1;//temperatura adimensionale
 
     rowvec rho={0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4};
+    rowvec passi_eq={400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700, 3600, 2200};//tempi di equilibrazione con delta preso per avere circa 50%
 
     int caso_min = 0;//mettere -1 per avere P(rho)
     int caso_max;
@@ -62,10 +57,32 @@ int main() {
         start=caso_min;
     }
     for (int caso = start; caso < caso_max; ++caso) {
+
+        N_t=passi_eq(caso)+1e4;//faccio fare 7000 passi dopo l'equilibrazione per avere dei risultati carini
+        //N_t=3e4;
+
         double L = cbrt(N / rho(caso));
         double r_c = L / 2;
+        double Delta;
 
-        double Delta=L/(40*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso>=8){
+            Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+            if(caso!=-1){
+                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+            }
+        }
+        else if(caso<8 && caso>4){
+            Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+            if(caso!=-1){
+                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+            }
+        }
+        else{
+            Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+            if(caso!=-1){
+                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+            }
+        }
         
         crea_reticolo(r, L);//creo il reticolo iniziale
         
@@ -78,53 +95,48 @@ int main() {
             }
         }
 
-        double E = 0, T = 0, P = 0;
-        double K = 0, V = 0, W = 0;
-        double K_c = 0, V_m = 0, W_m = 0, P_m = 0;
+        double P = 0, sigma_P;
+        double V = 0, W = 0;
+        double V_m = 0, W_m = 0, P_m = 0;
 
-        for (int i = 0; i < N_t; ++i) {//tempo
-            V_m = V_m * (i + 1.0);
-            W_m = W_m * (i + 1.0);
+        for (int i = 0; i < N_t; ++i) {//passi
+            if(i>passi_eq(caso)){
+                V_m = V_m * (i-passi_eq(caso) + 1.0);
+                W_m = W_m * (i-passi_eq(caso) + 1.0);
+                P_quadro = (P_quadro + P * P) * (i-passi_eq(caso) + 1.0);
+            }
             
             MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
             
-            V_m = (V_m + V) / (i + 2.0);
-            W_m = (W_m + W) / (i + 2.0);
+            if(i>passi_eq(caso)){//tempo di equilibrazione
+                V_m = (V_m + V) / (i-passi_eq(caso) + 2.0);
+                W_m = (W_m + W) / (i-passi_eq(caso) + 2.0);
+    
+                P = (1 + W / (3.0 * T_req));
+                P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
 
-            P = (1 + W / (3.0 * T_req));
-            P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
-            // P = rho(caso) * (1 + W_c / (3.0 * T_req)); //P su k_B*T_req
+                sigma_P = fabs(P-P_m)/sqrt(i-passi_eq(caso));
+                //cout<<sigma_P<<endl;
 
-            if (caso_min != -1) {
-                dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << endl;
+                if (caso_min != -1) {
+                    dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sigma_P << endl;
+                }
             }
+
             if(i==(int)(N_t/2) && caso_min!=-1){
                 cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
             }
         }
-        
+        cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
         if (caso_min == -1) {
             dati << rho(caso) << "\t" << P << endl;
-            cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
         }
         else{//calcolo della gdr
-            cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
-            mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale
-            
-            dati<<"\n\n";
-            double L_cella= L / cbrt(N / M);
-            gdr_funz(r, L, rho(caso), gdr, N_b);
-            for (int i = 0; i < N_b; ++i){
-                dati << gdr(i,1)<< "\t" << gdr(i,0) << endl;
-            }
-            dati<<"\n\n";
-            for (int i = 0; i < N; ++i){
-                dati<<r(i,0)/L<<"\t"<<r(i,1)/L<<"\t"<<r(i,2)/L<<endl;//normalizzo sulla scatola per presentare il risultato
-            }
+            gdr_funz(r, L, rho(caso), N_b);
         }
         
 
-        cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%\n\n";
+        cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
     }
     
     dati.close();
