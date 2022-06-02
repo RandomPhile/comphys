@@ -14,6 +14,22 @@ extern int numero_accettati;
 extern int numero_proposti;
 extern ofstream dati;
 
+
+void stampa_coord(mat &r, ofstream &file) {
+    /* struttura file .xyz per VMD
+    N
+    nome molecola
+    atomo1 x y z
+    atomo2 x y z
+    ...
+    atomoN x y z
+    */
+    for (int i = 0; i < N; ++i) {
+        file << "P" << i << "\t" << r(i,0) << "\t" << r(i,1) << "\t" << r(i,2)  << "\n";
+    }
+}
+
+
 double mod(cube &r, double riga, double colonna){//calcolo il modulo della posizione relativa delle particelle i e j
     double mod= sqrt(pow1(r(riga,colonna,0),2)+pow1(r(riga,colonna,1),2)+pow1(r(riga,colonna,2),2));
     return mod;
@@ -179,6 +195,48 @@ void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
     for (int i = 0; i < N_b; ++i){
         dati << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
     }
+}
+
+void calcola_coord_oss(mat &r, cube &dr, double L,){
+    crea_reticolo(r, L);//creo il reticolo iniziale
+        
+    for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
+        for (int j = i + 1; j < N; ++j){
+            for (int k = 0; k < 3; ++k){
+                dr(i,j,k) = r(i,k) - r(j,k);
+                dr(i,j,k) -= L * rint(dr(i,j,k)/L);//sposto in [-L/2,+L/2]
+            }
+        }
+    }
+
+    for (int i = 0; i < N_t; ++i) {//passi
+            if(i>passi_eq(caso)){
+                V_m = V_m * (i - passi_eq(caso));
+                W_m = W_m * (i - passi_eq(caso));
+                var_P = var_P * (i - passi_eq(caso));
+            }
+            
+            stampa_coord(r,coord);
+            MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
+            
+            if(i>passi_eq(caso)){//tempo di equilibrazione
+                V_m = (V_m + V) / (i - passi_eq(caso) + 1.0);
+                W_m = (W_m + W) / (i - passi_eq(caso) + 1.0);
+    
+                P = (1 + W / (3.0 * T_req));
+                P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+
+                var_P = var_P + (P - P_m) * (P - P_m) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
+
+                if (caso_min != -1) {
+                    dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << endl;
+                }
+            }
+
+            if(i==(int)(N_t/2) && caso_min!=-1){
+                cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
+            }
+        }
 }
 #endif 
 

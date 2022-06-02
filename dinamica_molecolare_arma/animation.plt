@@ -19,7 +19,7 @@ set object 6 polygon from 0,0,L to L,0,L to L,L,L to 0,L,L to 0,0,L fillcolor rg
 n = 2
 do for [step=1:N_step] {
 	#set output sprintf('png/animation%03.0f.png',step)
-	splot "out/coordinate.xyz" every ::n::n+N u 2:3:4 pt 7 ps 0.5 lc rgb "red" title sprintf('step = %03.0f    t = %f',step,n*dt/N)#,\
+	splot "out/coordinate.xyz" every ::n::n+N u 2:3:4 pt 7 ps 0.5 lc rgb "red" title sprintf('step = %03.0f    passo = %f',step,n)#,\
 	      #"out/coordinate.xyz" every ::n::n+N u 2:3:4:1 w labels offset 2 title ""
 		  #"coordinate.xyz" every ::n::n+N u 2:3:4:5:6:7 with vectors filled head lw 2 lc rgb "blue" title ""
 	

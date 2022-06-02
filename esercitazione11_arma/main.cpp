@@ -17,7 +17,7 @@ int N = M * pow(8, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
-ofstream dati, gnuplot, risultati;
+ofstream dati, gnuplot, coord;
 
 int main() {
     srand(1);//default seed = 1
@@ -43,7 +43,7 @@ int main() {
 
     int reticolo   = log2(M);
 
-    risultati.open("risultati.dat");
+    coord.open("coord.dat");
     gnuplot.open("gnuplot.dat");
     gnuplot << caso_min << endl;
     gnuplot.close();
@@ -84,49 +84,14 @@ int main() {
             }
         }
         
-        crea_reticolo(r, L);//creo il reticolo iniziale
         
-        for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
-            for (int j = i + 1; j < N; ++j){
-                for (int k = 0; k < 3; ++k){
-                    dr(i,j,k) = r(i,k) - r(j,k);
-                    dr(i,j,k) -= L * rint(dr(i,j,k)/L);//sposto in [-L/2,+L/2]
-                }
-            }
-        }
 
-        double P = 0, sigma_P;
+        double P = 0, var_P = 0;
         double V = 0, W = 0;
         double V_m = 0, W_m = 0, P_m = 0;
 
-        for (int i = 0; i < N_t; ++i) {//passi
-            if(i>passi_eq(caso)){
-                V_m = V_m * (i-passi_eq(caso) + 1.0);
-                W_m = W_m * (i-passi_eq(caso) + 1.0);
-                P_quadro = (P_quadro + P * P) * (i-passi_eq(caso) + 1.0);
-            }
-            
-            MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
-            
-            if(i>passi_eq(caso)){//tempo di equilibrazione
-                V_m = (V_m + V) / (i-passi_eq(caso) + 2.0);
-                W_m = (W_m + W) / (i-passi_eq(caso) + 2.0);
-    
-                P = (1 + W / (3.0 * T_req));
-                P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+        calcola_coord_oss();
 
-                sigma_P = fabs(P-P_m)/sqrt(i-passi_eq(caso));
-                //cout<<sigma_P<<endl;
-
-                if (caso_min != -1) {
-                    dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sigma_P << endl;
-                }
-            }
-
-            if(i==(int)(N_t/2) && caso_min!=-1){
-                cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
-            }
-        }
         cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
         if (caso_min == -1) {
             dati << rho(caso) << "\t" << P << endl;
@@ -140,7 +105,7 @@ int main() {
     }
     
     dati.close();
-    risultati.close();
+    coord.close();
 
 
     return 0;
