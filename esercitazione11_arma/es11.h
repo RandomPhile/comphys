@@ -15,6 +15,27 @@ extern int numero_proposti;
 extern ofstream dati;
 
 
+int calcola_delta(double L, rowvec &rho, int caso){
+    if(caso>=8){
+        Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
+            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        }
+    }
+    else if(caso<8 && caso>4){
+        Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
+            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        }
+    }
+    else{
+        Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
+            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        }
+    }
+}
+
 void stampa_coord(mat &r, ofstream &file) {
     /* struttura file .xyz per VMD
     N
@@ -159,9 +180,21 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         *W/=N;
     }
 }
-void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
+void gdr_funz(string coord_path, double L, double rho, int N_b){//penso funzionante
+    mat r(N,3);
+    
     cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
+    
+    ifstream coord;
+    coord.open(coord_path);
 
+    string line;
+
+    for (int i = 0; i < N; ++i){
+        coord >> line >> r(i,0) >> r(i,1) >> r(i,2);
+    }
+    coord.close();
+    
     mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale        
     dati<<"\n\n";
     double delta_r=L/((double)N_b*2);
@@ -197,7 +230,11 @@ void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
     }
 }
 
-void calcola_coord_oss(mat &r, cube &dr, double L,){
+void calcola_coord_oss(mat &r, cube &dr, double L, int N_t, rowvec passi_eq, int caso, double T_req, int caso_min){
+    double P = 0, var_P = 0;
+    double V = 0, W = 0;
+    double V_m = 0, W_m = 0, P_m = 0;
+
     crea_reticolo(r, L);//creo il reticolo iniziale
         
     for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale

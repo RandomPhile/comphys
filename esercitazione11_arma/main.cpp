@@ -43,7 +43,11 @@ int main() {
 
     int reticolo   = log2(M);
 
-    coord.open("coord.dat");
+
+    string coord_path = "coord.dat";
+
+
+    
     gnuplot.open("gnuplot.dat");
     gnuplot << caso_min << endl;
     gnuplot.close();
@@ -59,40 +63,19 @@ int main() {
     for (int caso = start; caso < caso_max; ++caso) {
 
         N_t=passi_eq(caso)+1e4;//faccio fare 7000 passi dopo l'equilibrazione per avere dei risultati carini
-        //N_t=3e4;
 
         double L = cbrt(N / rho(caso));
         double r_c = L / 2;
         double Delta;
 
-        if(caso>=8){
-            Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-            if(caso!=-1){
-                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-            }
-        }
-        else if(caso<8 && caso>4){
-            Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-            if(caso!=-1){
-                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-            }
-        }
-        else{
-            Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-            if(caso!=-1){
-                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-            }
-        }
+        Delta = calcola_delta(L, rho, caso);
+
+        coord.open("coord.dat");
+        calcola_coord_oss(r, dr, L, N_t, passi_eq, caso, T_req, caso_min);
+        coord.close();
         
-        
-
-        double P = 0, var_P = 0;
-        double V = 0, W = 0;
-        double V_m = 0, W_m = 0, P_m = 0;
-
-        calcola_coord_oss();
-
         cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
+        
         if (caso_min == -1) {
             dati << rho(caso) << "\t" << P << endl;
         }
@@ -105,8 +88,6 @@ int main() {
     }
     
     dati.close();
-    coord.close();
-
 
     return 0;
 }
