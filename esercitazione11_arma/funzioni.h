@@ -1,3 +1,6 @@
+#ifndef funzioni_h
+#define funzioni_h
+
 #include "header.h"
 
 double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow

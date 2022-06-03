@@ -116,8 +116,6 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     double s= rand() / (RAND_MAX + 1.0);//eseguo prima il rand perche da problemi senno
     int n = (int)rint((N-1) *s);//trovo la molecola che viene modificata da MTR2
 
-   // int n = (int)rint((N-1) *rand() / (RAND_MAX + 1.0));
-
     r_n(0) = r(n,0) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);//modifico le posizioni della particella n
     r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     r_n(2) = r(n,2) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
@@ -125,6 +123,7 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     double V_tot_r1=0;//potenziale in posizione nuova
     double V_tot_r0= *V;//potenziale in posizione vecchia
     double dr_mod, dr_mod_n;
+    
     for (int i = 0; i < N; ++i) {
         posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
         for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
@@ -157,11 +156,22 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         *W/=N;
     }
 }
+void gdr_plot(){
+    //ora faccio il plot
+    string comando;
+
+    comando = "gnuplot";
+    comando += " plot_gdr.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
 void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
     cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
-
+    
+    ofstream gdr_file;
+    gdr_file.open("out/gdr_file.dat");
+    
     mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale        
-    dati<<"\n\n";
     double delta_r=L/((double)N_b*2);
     rowvec dr(3);
     double dr_mod;
@@ -191,7 +201,8 @@ void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
 
     gdr.col(0)/=N;//medio sulle part
     for (int i = 0; i < N_b; ++i){
-        dati << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
+        gdr_file << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
     }
+    gdr_plot();
 }
 #endif 

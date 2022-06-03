@@ -14,8 +14,6 @@
 //CC, BCC, FCC
 int M = 2; //1,2,4
 int N = M * pow(6, 3); //numero di particelle
-int M = 4; //1,2,4
-int N = M * pow(8, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -30,7 +28,7 @@ int main() {
     rowvec rho={0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4};
     rowvec passi_eq={400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700, 3600, 2200};//tempi di equilibrazione con delta preso per avere circa 50%
 
-    int caso_min = 0;//mettere -1 per avere P(rho)
+    int caso_min = -1;//mettere -1 per avere P(rho)
     int caso_max;
     if (caso_min == -1) {
         caso_max = rho.size();
@@ -56,8 +54,7 @@ int main() {
     }
     for (int caso = start; caso < caso_max; ++caso) {
 
-        N_t=passi_eq(caso)+1e4;//faccio fare 7000 passi dopo l'equilibrazione per avere dei risultati carini
-        //N_t=3e4;
+        N_t=passi_eq(caso)+1e4;//faccio fare 10000 passi dopo l'equilibrazione per avere dei risultati carini
 
         double L = cbrt(N / rho(caso));
         double r_c = L / 2;
@@ -79,28 +76,28 @@ int main() {
         double P = 0, sigma_P;
         double V = 0, W = 0;
         double V_m = 0, W_m = 0, P_m = 0;
+        double var_P = 0;
 
         for (int i = 0; i < N_t; ++i) {//passi
             if(i>passi_eq(caso)){
-                V_m = V_m * (i-passi_eq(caso) + 1.0);
-                W_m = W_m * (i-passi_eq(caso) + 1.0);
-                P_quadro = (P_quadro + P * P) * (i-passi_eq(caso) + 1.0);
+                V_m = V_m * (i-passi_eq(caso));
+                W_m = W_m * (i-passi_eq(caso));
+                var_P = var_P * (i - passi_eq(caso));
             }
 
             MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
+            // cout<<V<<endl;
 
             if(i>passi_eq(caso)){//tempo di equilibrazione
-                V_m = (V_m + V) / (i-passi_eq(caso) + 2.0);
-                W_m = (W_m + W) / (i-passi_eq(caso) + 2.0);
+                V_m = (V_m + V) / (i-passi_eq(caso) + 1.0);
+                W_m = (W_m + W) / (i-passi_eq(caso) + 1.0);
 
                 P = (1 + W / (3.0 * T_req));
                 P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
-
-                sigma_P = fabs(P-P_m)/sqrt(i-passi_eq(caso));
-                //cout<<sigma_P<<endl;
+                var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
 
                 if (caso_min != -1) {
-                    dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sigma_P << endl;
+                    dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << endl;
                 }
             }
 
@@ -111,7 +108,7 @@ int main() {
 
         cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
         if (caso_min == -1) {
-            dati << rho(caso) << "\t" << P << endl;
+            dati << rho(caso) << "\t" << P << "\t" << sqrt(var_P) << endl;
         }
         else{//calcolo della gdr
             gdr_funz(r, L, rho(caso), N_b);
@@ -123,3 +120,9 @@ int main() {
     risultati.close();
     return 0;
 }
+void blocking(int N_B, ifstream &dati){
+    double P, variabile_inutile;
+    rowvec P(N_B);
+
+}
+

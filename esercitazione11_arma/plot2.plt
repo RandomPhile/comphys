@@ -7,6 +7,6 @@ set term qt 0 title "Pressione scalata - densità" font "Helvetica" position 0,0
 set xlabel "{/Symbol r}"
 set ylabel "P / ({/Symbol r} k_B T_{req})"
 set ytics add ("1 " 1)
-plot "dati.dat" i 0 u 1:2 w linespoints ls 1 title ""
+plot "dati.dat" i 0 u 1:2:3 notitle w yerrorlines lw 1.5 lc rgb '#0060ad' 
 
 pause-1

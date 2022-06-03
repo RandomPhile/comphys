@@ -9,16 +9,16 @@ int main() {
 
 	/*** costanti problema ***/
 	coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (12 minuti)
-		{.rho = 0.01, .sigma = 1.04332, .t_eq = 0},//
-		{.rho = 0.1, .sigma = 0.828379, .t_eq = 0},
-		{.rho = 0.2, .sigma = 0.670309, .t_eq = 0},
-		{.rho = 0.3, .sigma = 0.656069, .t_eq = 0},
+		{.rho = 0.01, .sigma = 1.04332, .t_eq = 1},//
+		{.rho = 0.1, .sigma = 0.828379, .t_eq = 1},
+		{.rho = 0.2, .sigma = 0.670309, .t_eq = 1},
+		{.rho = 0.3, .sigma = 0.656069, .t_eq = 1},
 		{.rho = 0.4, .sigma = 0.762703, .t_eq = 1.1},
-		{.rho = 0.5, .sigma = 0.925801, .t_eq = 0},
-		{.rho = 0.6, .sigma = 1.12905, .t_eq = 0},
-		{.rho = 0.7, .sigma = 1.28666, .t_eq = 0},
-		{.rho = 0.8, .sigma = 1.41451, .t_eq = 0},
-		{.rho = 0.9, .sigma = 1.45276, .t_eq = 0},
+		{.rho = 0.5, .sigma = 0.925801, .t_eq = 1},
+		{.rho = 0.6, .sigma = 1.12905, .t_eq = 1},
+		{.rho = 0.7, .sigma = 1.28666, .t_eq = 1},
+		{.rho = 0.8, .sigma = 1.41451, .t_eq = 1},
+		{.rho = 0.9, .sigma = 1.45276, .t_eq = 1},
 		{.rho = 1.0, .sigma = 1.44585, .t_eq = 0.55},//
 		{.rho = 1.1, .sigma = 1.39870, .t_eq = 0.51},
 		{.rho = 1.15, .sigma = 1.41261, .t_eq = 0.51},
@@ -31,7 +31,7 @@ int main() {
 	string coord_g_path = "out/coordinate_gdr.xyz";
 	string g_path = "out/gdr.dat";
 
-	int caso = 12;//valore densità (e relativa sigma)
+	int caso = 0;//valore densità (e relativa sigma)
 
 	// calcolo_coordinate(coord_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
 	// calcolo_osservabili_da_file(coord_path, obs_path, coppie[caso].t_eq);
@@ -39,10 +39,10 @@ int main() {
 	int N_step    = 100;
 	double pausa  = 0.01;
 	// plot_coordinate(coord_path, N_step, pausa);
-	plot_osservabili();
+	// plot_osservabili();
 
-	// calcolo_pressioni(p_path, coppie, dt, t1, 0, 13);
-	// plot_pressioni();
+	calcolo_pressioni(p_path, coppie, dt, t1, 0, 13);
+	plot_pressioni();
 
 
 	// calcolo_coordinate_per_gdr(coord_g_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
