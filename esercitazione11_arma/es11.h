@@ -1,37 +1,28 @@
 #ifndef es11_h
 #define es11_h
 
-#include "header.h"
 #include "funzioni.h"
 
-using namespace std;
-using namespace arma;
-
-
-extern int M;
-extern int N;
-extern int numero_accettati;
-extern int numero_proposti;
-extern ofstream dati;
-
-
-int calcola_delta(double L, rowvec &rho, int caso){
+double calcola_delta(double L, rowvec &rho, int caso){
+    double Delta;
     if(caso>=8){
         Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-        if(caso!=-1){
-            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-        }
+        cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        return Delta;
     }
     else if(caso<8 && caso>4){
         Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-        if(caso!=-1){
-            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-        }
+        cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        return Delta;
     }
     else{
         Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
         if(caso!=-1){
             cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+            return Delta;
+        }
+        else{
+            return NAN;
         }
     }
 }
@@ -180,23 +171,27 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         *W/=N;
     }
 }
-void gdr_funz(string coord_path, double L, double rho, int N_b){//penso funzionante
-    mat r(N,3);
+void gdr_funz(double L, double rho){//penso funzionante
+    cube r(N_t,N,3);
+    string gdr_path="out/gdr_file.dat";
     
     cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
     
-    ifstream coord;
-    coord.open(coord_path);
+    ifstream coord; ofstream gdr_file;
 
+    coord.open(coord_path);
+    gdr_file.open(gdr_path);
     string line;
 
-    for (int i = 0; i < N; ++i){
-        coord >> line >> r(i,0) >> r(i,1) >> r(i,2);
+    for (int j = 0; j < N_t; ++j){
+        for (int i = 0; i < N; ++i){
+            coord >> line >> r(j,i,0) >> r(j,i,1) >> r(j,i,2);
+        }
     }
     coord.close();
-    
+
     mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale        
-    dati<<"\n\n";
+    
     double delta_r=L/((double)N_b*2);
     rowvec dr(3);
     double dr_mod;
@@ -211,7 +206,7 @@ void gdr_funz(string coord_path, double L, double rho, int N_b){//penso funziona
             for (int j = 0; j < N; ++j){//ciclo sulle particelle non centrali
                 
                 for (int k1 = 0; k1 < 3; ++k1){
-                    dr(k1) = r(i,k1) - r(j,k1);//trovo distanza relativa part i,j
+                    dr(k1) = r(N_t-1,i,k1) - r(N_t-1,j,k1);//trovo distanza relativa part i,j
                     dr(k1) -= L * rint(dr(k1)/L);//sposto in [-L/2,+L/2]
                 }
                 dr_mod=mod(dr);
@@ -226,15 +221,21 @@ void gdr_funz(string coord_path, double L, double rho, int N_b){//penso funziona
     
     gdr.col(0)/=N;//medio sulle part
     for (int i = 0; i < N_b; ++i){
-        dati << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
+        gdr_file << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
     }
+    gdr_file.close();
 }
 
-void calcola_coord_oss(mat &r, cube &dr, double L, int N_t, rowvec passi_eq, int caso, double T_req, int caso_min){
-    double P = 0, var_P = 0;
+void calcola_coord_oss(mat &r, cube &dr, double L, rowvec passi_eq, int caso, int caso_min, double Delta, double *P){
+    double r_c = L / 2;
+    double var_P = 0;
     double V = 0, W = 0;
     double V_m = 0, W_m = 0, P_m = 0;
 
+    ofstream oss;
+    ofstream coord;
+    coord.open(coord_path);
+    oss.open(oss_path);
     crea_reticolo(r, L);//creo il reticolo iniziale
         
     for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
@@ -247,33 +248,34 @@ void calcola_coord_oss(mat &r, cube &dr, double L, int N_t, rowvec passi_eq, int
     }
 
     for (int i = 0; i < N_t; ++i) {//passi
-            if(i>passi_eq(caso)){
-                V_m = V_m * (i - passi_eq(caso));
-                W_m = W_m * (i - passi_eq(caso));
-                var_P = var_P * (i - passi_eq(caso));
-            }
-            
-            stampa_coord(r,coord);
-            MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
-            
-            if(i>passi_eq(caso)){//tempo di equilibrazione
-                V_m = (V_m + V) / (i - passi_eq(caso) + 1.0);
-                W_m = (W_m + W) / (i - passi_eq(caso) + 1.0);
-    
-                P = (1 + W / (3.0 * T_req));
-                P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+        if(i>passi_eq(caso)){
+            V_m = V_m * (i - passi_eq(caso));
+            W_m = W_m * (i - passi_eq(caso));
+            var_P = var_P * (i - passi_eq(caso));
+        }
+        
+        stampa_coord(r,coord);
+        MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
+        
+        if(i>passi_eq(caso)){//tempo di equilibrazione
+            V_m = (V_m + V) / (i - passi_eq(caso) + 1.0);
+            W_m = (W_m + W) / (i - passi_eq(caso) + 1.0);
 
-                var_P = var_P + (P - P_m) * (P - P_m) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
-
-                if (caso_min != -1) {
-                    dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << endl;
-                }
-            }
-
-            if(i==(int)(N_t/2) && caso_min!=-1){
-                cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
+            *P = (1 + W / (3.0 * T_req));
+            P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+            var_P = var_P + (*P - P_m) * (*P - P_m) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
+            if (caso_min != -1) {
+                oss << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << *P << "\t" << sqrt(var_P) << endl;
             }
         }
+        if(i==(int)(N_t/2) && caso_min!=-1){
+            cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
+        }
+    }
+    cout <<"Pressione = " << *P << endl;
+    cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
+    oss.close();
+    coord.close();
 }
 #endif 
 

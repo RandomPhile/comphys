@@ -2,7 +2,7 @@
 #define funzioni_h
 
 
-#include "header.h"
+#include "costanti.h"
 
 double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
     double ris = 1.0;

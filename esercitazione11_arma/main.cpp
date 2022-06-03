@@ -1,29 +1,7 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-
-#define ARMA_NO_DEBUG//non fa controlli e va piu veloce, da togliere solo se il codice funziona gia perfettamente
-
-#include <armadillo>
-#include <iomanip>
-#include <algorithm>
-
 #include "es11.h"
-
-/*** variabili globali ***/
-//CC, BCC, FCC
-int M = 4; //1,2,4
-int N = M * pow(8, 3); //numero di particelle
-
-int numero_proposti=0;
-int numero_accettati=0;
-ofstream dati, gnuplot, coord;
 
 int main() {
     srand(1);//default seed = 1
-    int N_t;//numero passi simulazione, vedi rigo 61 per il valore in base al tempo di equilibrazione stimato
-    int N_b=20;//numero bin
-    double T_req = 1.1;//temperatura adimensionale
 
     rowvec rho={0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4};
     rowvec passi_eq={400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700, 3600, 2200};//tempi di equilibrazione con delta preso per avere circa 50%
@@ -42,17 +20,17 @@ int main() {
     cube dr(N,N,3);
 
     int reticolo   = log2(M);
-
-
-    string coord_path = "coord.dat";
-
-
     
-    gnuplot.open("gnuplot.dat");
+    ofstream gnuplot;
+    gnuplot.open(gnuplot_path);
     gnuplot << caso_min << endl;
     gnuplot.close();
 
-    dati.open("dati.dat");
+    ofstream dati;
+    dati.open(dati_path);
+
+    ofstream coord;
+
     int start;
     if(caso_min==-1){
         start=caso_min+1;
@@ -65,26 +43,21 @@ int main() {
         N_t=passi_eq(caso)+1e4;//faccio fare 7000 passi dopo l'equilibrazione per avere dei risultati carini
 
         double L = cbrt(N / rho(caso));
-        double r_c = L / 2;
         double Delta;
+        double P = 0;
 
         Delta = calcola_delta(L, rho, caso);
-
-        coord.open("coord.dat");
-        calcola_coord_oss(r, dr, L, N_t, passi_eq, caso, T_req, caso_min);
-        coord.close();
         
-        cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
+        calcola_coord_oss(r, dr, L, passi_eq, caso, caso_min, Delta, &P);//da commentare una volta calcolate tutte le coord e osserv
+        
+        cout << "Densità = " << rho(caso) << endl;
         
         if (caso_min == -1) {
             dati << rho(caso) << "\t" << P << endl;
         }
         else{//calcolo della gdr
-            gdr_funz(r, L, rho(caso), N_b);
+            // gdr_funz(coord_path, L, rho(caso));//da togliere il commento dopo aver già calcolato tutte le coordinate
         }
-        
-
-        cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
     }
     
     dati.close();

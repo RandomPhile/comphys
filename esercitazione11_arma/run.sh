@@ -10,7 +10,7 @@ i=0
 while read line; do    
 	param[$i]=$line
 	i=$i+1
-done < gnuplot.dat
+done < out/gnuplot.dat
 
 if ((${param[0]} == -1));
 then
