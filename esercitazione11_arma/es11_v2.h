@@ -1,43 +1,72 @@
 #ifndef es11_h
 #define es11_h
 
-#include "header.h"
 #include "funzioni.h"
 
-using namespace std;
-using namespace arma;
-
-extern int M;
-extern int N;
-extern int numero_accettati;
-extern int numero_proposti;
-
-extern ofstream dati;
-
-double Calcola_Delta(double L, rowvec rho, int caso){
+double calcola_delta(double L, rowvec &rho, int caso){
     double Delta;
     if(caso>=8){
-            Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-            return Delta;
-        }
-        else if(caso<8 && caso>4){
-            Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        return Delta;
+    }
+    else if(caso<8 && caso>4){
+        Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        return Delta;
+    }
+    else{
+        Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
             cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
             return Delta;
         }
         else{
-            Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-            if(caso!=-1){
-                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-                return Delta;
-            }
-            else{
-                return NAN;
-            }
+            return NAN;
         }
-
+    }
 }
+void gdr_plot(){
+    //ora faccio il plot
+    string comando;
+
+    comando = "gnuplot";
+    comando += " plot_gdr.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
+void plot_pressioni() {
+    if(caso_min==-1){
+        string comando;
+        comando = "gnuplot";
+        comando += " plot2.plt";
+        LOG(comando);
+        system(comando.c_str());
+    }
+    else{
+        string comando;
+        comando = "gnuplot";
+        comando += " plot.plt";
+        LOG(comando);
+        system(comando.c_str());
+    }
+}
+
+void stampa_coord(mat &r, ofstream &file) {
+    /* struttura file .xyz per VMD
+    N
+    nome molecola
+    atomo1 x y z
+    atomo2 x y z
+    ...
+    atomoN x y z
+    */
+    for (int i = 0; i < N; ++i) {
+        file << "P" << i << "\t" << r(i,0) << "\t" << r(i,1) << "\t" << r(i,2)  << "\n";
+    }
+}
+
+
 double mod(cube &r, double riga, double colonna){//calcolo il modulo della posizione relativa delle particelle i e j
     double mod= sqrt(pow1(r(riga,colonna,0),2)+pow1(r(riga,colonna,1),2)+pow1(r(riga,colonna,2),2));
     return mod;
@@ -50,12 +79,14 @@ void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento
     int n = cbrt(N / M);
     double L_cella = L / cbrt(N / M);
     int cont = 0;//contatore particella
+
     mat b = {{0, 0, 0}, {0.5, 0.5, 0}, {0.5, 0, 0.5}, {0, 0.5, 0.5}};
     if (M == 2) {b(1,2) = 0.5;}
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
             for (int k = 0; k < n; ++k) {
                 rowvec R = {L_cella*(double)i, L_cella*(double)j, L_cella*(double)k};
+
                 for (int l = 0; l < M; ++l) {
                     r.row(cont) = R + b.row(l) * L_cella;
                     cont++;
@@ -64,6 +95,7 @@ void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento
         }
     }
 }
+
 double V_LJ(double r, double L) {
     //potenziale va a zero in modo continuo sul bordo della scatola
     if (r < L / 2 && r != 0) {
@@ -74,6 +106,7 @@ double V_LJ(double r, double L) {
         return 0;
     }
 }
+
 int accetto_spostamento(mat &r, rowvec &r_n, double V_tot_r0, double V_tot_r1, int n, double T){//accetto lo spostamento di MRT2?
     double A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));//trovo A
     numero_proposti++;
@@ -109,6 +142,7 @@ void posiz_MRT2(cube &dr, cube &dr_n, rowvec &r_n, mat &r, int i, double L, int 
         }
     }
 }
+
 void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L, double r_c, cube &dr){//N=N_mol
     cube dr_n(N, N, 3);
     rowvec r_n(3); 
@@ -124,9 +158,13 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     
     double V_tot_r1=0;//potenziale in posizione nuova
     double V_tot_r0= *V;//potenziale in posizione vecchia
+
     double dr_mod, dr_mod_n;
+
     for (int i = 0; i < N; ++i) {
+
         posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
+
         for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
             
             dr_mod_n = mod(dr_n,i,j);
@@ -136,6 +174,7 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
             }
         }
     }
+
     int accetto=accetto_spostamento(r, r_n, V_tot_r0, V_tot_r1, n, T);//verifico se accettare lo spostamento con MTR2
     
     if(accetto==1){
@@ -157,18 +196,35 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         *W/=N;
     }
 }
-void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
+void gdr_funz(double L, double rho){//penso funzionante
+    mat r(N,3);
+    string gdr_path="out/gdr_file.dat";
+    
     cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
+    
+    ifstream coord; ofstream gdr_file;
+
+    coord.open(coord_path);
+    gdr_file.open(gdr_path);
+    string line;
+
+    for (int o = 0; o < N_t; ++o){//perche non funziona se questo ciclo è presente?
+        for (int i = 0; i < N; ++i){
+            coord >> line >> r(i,0) >> r(i,1) >> r(i,2);
+        }
+    }
+
+    coord.close();
 
     mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale        
-    dati<<"\n\n";
+    
     double delta_r=L/((double)N_b*2);
     rowvec dr(3);
     double dr_mod;
 
     for (int i = 0; i < N; ++i){//ciclo sulle particelle centrali
         for (int k = 0; k < N_b; ++k){//ciclo sui bin
-
+    
             double R=delta_r*k+delta_r/2;//definisco il raggio medio del volumetto sferico
             double dV=4*M_PI*R*R*delta_r+M_PI/3*pow1(delta_r,3);//definisco il volumetto sferico
             double freq=0;//numero di particelle in un volumetto
@@ -188,10 +244,116 @@ void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
             gdr(k,1)=R;
         }
     }
-
+    
     gdr.col(0)/=N;//medio sulle part
     for (int i = 0; i < N_b; ++i){
-        dati << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
+        gdr_file << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
     }
+    gdr_file.close();
+    gdr_plot();
+
+}
+
+void calcola_coord_oss(mat &r, cube &dr, double L, rowvec passi_eq, int caso, rowvec rho, double *P){
+    double r_c = L / 2;
+    double var_P = 0;
+    double V = 0, W = 0;
+    double V_m = 0, W_m = 0, P_m = 0;
+
+    double Delta;
+    Delta = calcola_delta(L, rho, caso);
+
+    ofstream oss;
+    ofstream coord;
+    coord.open(coord_path);
+    oss.open(oss_path);
+    crea_reticolo(r, L);//creo il reticolo iniziale
+        
+    for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
+        for (int j = i + 1; j < N; ++j){
+            for (int k = 0; k < 3; ++k){
+                dr(i,j,k) = r(i,k) - r(j,k);
+                dr(i,j,k) -= L * rint(dr(i,j,k)/L);//sposto in [-L/2,+L/2]
+            }
+        }
+    }
+
+    for (int i = 0; i < N_t; ++i) {//passi
+        if(i>passi_eq(caso)){
+            V_m = V_m * (i - passi_eq(caso));
+            W_m = W_m * (i - passi_eq(caso));
+            var_P = var_P * (i - passi_eq(caso));
+        }
+        
+        stampa_coord(r,coord);
+        MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
+        
+        if(i>passi_eq(caso)){//tempo di equilibrazione
+            V_m = (V_m + V) / (i - passi_eq(caso) + 1.0);
+            W_m = (W_m + W) / (i - passi_eq(caso) + 1.0);
+
+            *P = (1 + W / (3.0 * T_req));
+            P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+            var_P = var_P + (*P - P_m) * (*P - P_m) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
+            if (caso_min != -1) {
+                oss << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << *P << "\t" << sqrt(var_P) << endl;
+            }
+        }
+        if(i==(int)(N_t/2) && caso_min!=-1){
+            cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
+        }
+    }
+    cout << "Pressione = " << *P << " Densità = " << rho(caso) << endl;
+    cout << "Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n";
+    oss.close();
+    coord.close();
+    cout << "\n\n";
+}
+void pressioni(rowvec rho, rowvec passi_eq, rowvec L){
+    int caso_max;
+
+    if (caso_min == -1) {
+        caso_max = rho.size();
+    } else {
+        caso_max = caso_min + 1;
+    }
+
+    
+    //###################################################
+    mat r(N,3);
+    cube dr(N,N,3);
+
+    int reticolo   = log2(M);
+    
+    ofstream dati;
+    dati.open(dati_path);
+
+    ofstream coord;
+
+    int start;
+    if(caso_min==-1){
+        start=caso_min+1;
+    }
+    else{
+        start=caso_min;
+    }
+    for (int caso = start; caso < caso_max; ++caso) {
+
+        N_t=passi_eq(caso)+1e4;//faccio fare 10000 passi dopo l'equilibrazione per avere dei risultati carini
+        
+        double P = 0;
+        
+        calcola_coord_oss(r, dr, L(caso), passi_eq, caso, rho, &P);//da commentare una volta calcolate tutte le coord e osserv
+        
+        if (caso_min == -1) {
+            dati << rho(caso) << "\t" << P << endl;
+        }
+    }
+    
+    dati.close();
+
+    plot_pressioni();
 }
 #endif 
+
+

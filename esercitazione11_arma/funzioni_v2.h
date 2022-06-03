@@ -1,4 +1,8 @@
-#include "header.h"
+#ifndef funzioni_h
+#define funzioni_h
+
+
+#include "costanti.h"
 
 double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
     double ris = 1.0;
@@ -15,5 +19,4 @@ double min(double a, double b){
         return b;
     }
 }
-
 #endif 
