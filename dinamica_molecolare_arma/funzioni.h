@@ -81,10 +81,6 @@ int input() {
     cout << "step: "; cin >> input;
     return input;
 }
-// void vec_2D (vec *dr[], int dim) {
-//     for (int i = 0; i < dim; ++i)
-//         dr[i] = new vec[dim];
-// }
 void aggiorna_a(mat &r, mat &a, double L) {
     rowvec dr(3);
     for (int i = 0; i < N; ++i) {
@@ -216,7 +212,7 @@ void plot_coordinate(string coord_path, int N_step, double pausa) {
     LOG(comando);
     system(comando.c_str());
 }
-void calcolo_osservabili_da_file(string coord_path, string obs_path) {
+void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq) {
     ifstream coord_in; ofstream obs;
     string line;
     int N_t; double rho, sigma, dt;
@@ -246,37 +242,39 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path) {
             coord_in >> v(0) >> v(1) >> v(2);
 
             v_mod = mod(v);
-            // obs << line <<endl;
+            
             K += 0.5 * v_mod * v_mod;
         }
 
-        for (int i = 0; i < N; ++i) {
-            for (int j = i + 1; j < N; ++j) {
-                for (int k = 0; k < 3; ++k){
-                    dr(k) = r(i,k) - r(j,k);
-                    dr(k) -= L * rint(dr(k)/L);//sposto in [-L/2,+L/2]
-                }
-
-                dr_mod = mod(dr);
-                if (dr_mod < L / 2) {
-                    if (dr_mod < L / 2 && dr_mod != 0) {
-                        double VL_2 = 4 * (pow(2 / L, 12) - pow(2 / L, 6));
-                        //double VpL_2 = 24 * (pow(1 / dr_mod, 8) - 2 * pow(1 / dr_mod, 14));
-                        V += 4 * (pow(1 / dr_mod, 12) - pow(1 / dr_mod, 6)) - VL_2;
+        if(t>t_eq){
+            for (int i = 0; i < N; ++i) {
+                for (int j = i + 1; j < N; ++j) {
+                    for (int k = 0; k < 3; ++k){
+                        dr(k) = r(i,k) - r(j,k);
+                        dr(k) -= L * rint(dr(k)/L);//sposto in [-L/2,+L/2]
                     }
-                    W += -24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
+    
+                    dr_mod = mod(dr);
+                    if (dr_mod < L / 2) {
+                        if (dr_mod < L / 2 && dr_mod != 0) {
+                            double VL_2 = 4 * (pow(2 / L, 12) - pow(2 / L, 6));
+                            //double VpL_2 = 24 * (pow(1 / dr_mod, 8) - 2 * pow(1 / dr_mod, 14));
+                            V += 4 * (pow(1 / dr_mod, 12) - pow(1 / dr_mod, 6)) - VL_2;
+                        }
+                        W += -24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
+                    }
                 }
             }
+            W /= N;
+            K_avg = K_avg + (K - K_avg) / (i_t + 1);//forse è +2
+            W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
+    
+            T = 2.0 * K_avg / (3.0 * N);
+            P = (1 + W_avg / (3.0 * T_req));
+    
+            E = K + V;
+            obs << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
         }
-        W /= N;
-        K_avg = K_avg + (K - K_avg) / (i_t + 1);//forse è +2
-        W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
-
-        T = 2.0 * K_avg / (3.0 * N);
-        P = (1 + W_avg / (3.0 * T_req));
-
-        E = K + V;
-        obs << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
         t += dt;
     }
     cout << "Rho = " << rho << "\t\tT = " << T << "\nSigma = " << sigma << "\t->\t" << sigma*sqrt(T_req / T) << "\n" << endl;

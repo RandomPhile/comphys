@@ -5,7 +5,7 @@ int main() {
 	/*** costanti simulazione ***/
 	srand(2); //default seed = 1
 	const double dt = 0.01; //passo temporale
-	const double t1 = 40; //durata simulazione
+	const double t1 = 20; //durata simulazione
 
 	/*** costanti problema ***/
 	coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (12 minuti)
@@ -19,10 +19,10 @@ int main() {
 		{.rho = 0.7, .sigma = 1.28666, .t_eq = 0},
 		{.rho = 0.8, .sigma = 1.41451, .t_eq = 0},
 		{.rho = 0.9, .sigma = 1.45276, .t_eq = 0},
-		{.rho = 1.0, .sigma = 1.44585, .t_eq = 0},//
-		{.rho = 1.1, .sigma = 1.39870, .t_eq = 0},
-		{.rho = 1.15, .sigma = 1.41261, .t_eq = 0},
-		{.rho = 1.2, .sigma = 1.45959, .t_eq = 0}
+		{.rho = 1.0, .sigma = 1.44585, .t_eq = 0.55},//
+		{.rho = 1.1, .sigma = 1.39870, .t_eq = 0.51},
+		{.rho = 1.15, .sigma = 1.41261, .t_eq = 0.51},
+		{.rho = 1.2, .sigma = 1.45959, .t_eq = 0.62}
 	};
 
 	string coord_path = "out/coordinate.xyz";
@@ -31,15 +31,15 @@ int main() {
 	string coord_g_path = "out/coordinate_gdr.xyz";
 	string g_path = "out/gdr.dat";
 
-	int caso = 12;//valore densità (e relativa sigma)
+	int caso = 10;//valore densità (e relativa sigma)
 
 	// calcolo_coordinate(coord_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
-	// calcolo_osservabili_da_file(coord_path, obs_path);
+	calcolo_osservabili_da_file(coord_path, obs_path, coppie[caso].t_eq);
 
 	int N_step    = 100;
 	double pausa  = 0.01;
 	// plot_coordinate(coord_path, N_step, pausa);
-	// plot_osservabili();
+	plot_osservabili();
 
 	// calcolo_pressioni(p_path, coppie, dt, t1, 0, 13);
 	// plot_pressioni();
@@ -48,8 +48,8 @@ int main() {
 	// calcolo_coordinate_per_gdr(coord_g_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
 
 	int N_bins = 70;
-	calcolo_gdr_da_file(coord_g_path, g_path, coppie[caso].rho, N_bins);
-	plot_gdr();
+	// calcolo_gdr_da_file(coord_g_path, g_path, coppie[caso].rho, N_bins);
+	// plot_gdr();
 
 	return 0;
 }

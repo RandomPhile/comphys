@@ -208,8 +208,7 @@ void gdr_funz(double L, double rho){//penso funzionante
     gdr_file.open(gdr_path);
     string line;
 
-    for (int o = 0; o < N_t; ++o){
-        cout<<"caio2"<<endl;
+    for (int o = 0; o < N_t; ++o){//perche non funziona se questo ciclo è presente?
         for (int i = 0; i < N; ++i){
             coord >> line >> r(i,0) >> r(i,1) >> r(i,2);
         }
