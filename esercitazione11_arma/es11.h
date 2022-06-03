@@ -26,6 +26,31 @@ double calcola_delta(double L, rowvec &rho, int caso){
         }
     }
 }
+void gdr_plot(){
+    //ora faccio il plot
+    string comando;
+
+    comando = "gnuplot";
+    comando += " plot_gdr.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
+void plot_pressioni() {
+    if(caso_min==-1){
+        string comando;
+        comando = "gnuplot";
+        comando += " plot2.plt";
+        LOG(comando);
+        system(comando.c_str());
+    }
+    else{
+        string comando;
+        comando = "gnuplot";
+        comando += " plot.plt";
+        LOG(comando);
+        system(comando.c_str());
+    }
+}
 
 void stampa_coord(mat &r, ofstream &file) {
     /* struttura file .xyz per VMD
@@ -172,7 +197,7 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     }
 }
 void gdr_funz(double L, double rho){//penso funzionante
-    cube r(N_t,N,3);
+    mat r(N,3);
     string gdr_path="out/gdr_file.dat";
     
     cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
@@ -183,11 +208,13 @@ void gdr_funz(double L, double rho){//penso funzionante
     gdr_file.open(gdr_path);
     string line;
 
-    for (int j = 0; j < N_t; ++j){
+    for (int o = 0; o < N_t; ++o){
+        cout<<"caio2"<<endl;
         for (int i = 0; i < N; ++i){
-            coord >> line >> r(j,i,0) >> r(j,i,1) >> r(j,i,2);
+            coord >> line >> r(i,0) >> r(i,1) >> r(i,2);
         }
     }
+
     coord.close();
 
     mat gdr(N_b, 2);//in una la gdr e nell'altra colonna la distanza dalla part centrale        
@@ -206,7 +233,7 @@ void gdr_funz(double L, double rho){//penso funzionante
             for (int j = 0; j < N; ++j){//ciclo sulle particelle non centrali
                 
                 for (int k1 = 0; k1 < 3; ++k1){
-                    dr(k1) = r(N_t-1,i,k1) - r(N_t-1,j,k1);//trovo distanza relativa part i,j
+                    dr(k1) = r(i,k1) - r(j,k1);//trovo distanza relativa part i,j
                     dr(k1) -= L * rint(dr(k1)/L);//sposto in [-L/2,+L/2]
                 }
                 dr_mod=mod(dr);
@@ -224,13 +251,18 @@ void gdr_funz(double L, double rho){//penso funzionante
         gdr_file << (gdr(i,1)/L) * cbrt(N / M)<< "\t" << gdr(i,0) << endl;//in x c'è il raggio scalato sulla distanza iniziale dei primi vicini, la "cella"
     }
     gdr_file.close();
+    gdr_plot();
+
 }
 
-void calcola_coord_oss(mat &r, cube &dr, double L, rowvec passi_eq, int caso, int caso_min, double Delta, double *P){
+void calcola_coord_oss(mat &r, cube &dr, double L, rowvec passi_eq, int caso, rowvec rho, double *P){
     double r_c = L / 2;
     double var_P = 0;
     double V = 0, W = 0;
     double V_m = 0, W_m = 0, P_m = 0;
+
+    double Delta;
+    Delta = calcola_delta(L, rho, caso);
 
     ofstream oss;
     ofstream coord;
@@ -272,10 +304,56 @@ void calcola_coord_oss(mat &r, cube &dr, double L, rowvec passi_eq, int caso, in
             cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
         }
     }
-    cout <<"Pressione = " << *P << endl;
-    cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
+    cout << "Pressione = " << *P << " Densità = " << rho(caso) << endl;
+    cout << "Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n";
     oss.close();
     coord.close();
+    cout << "\n\n";
+}
+void pressioni(rowvec rho, rowvec passi_eq, rowvec L){
+    int caso_max;
+
+    if (caso_min == -1) {
+        caso_max = rho.size();
+    } else {
+        caso_max = caso_min + 1;
+    }
+
+    
+    //###################################################
+    mat r(N,3);
+    cube dr(N,N,3);
+
+    int reticolo   = log2(M);
+    
+    ofstream dati;
+    dati.open(dati_path);
+
+    ofstream coord;
+
+    int start;
+    if(caso_min==-1){
+        start=caso_min+1;
+    }
+    else{
+        start=caso_min;
+    }
+    for (int caso = start; caso < caso_max; ++caso) {
+
+        N_t=passi_eq(caso)+1e4;//faccio fare 10000 passi dopo l'equilibrazione per avere dei risultati carini
+        
+        double P = 0;
+        
+        calcola_coord_oss(r, dr, L(caso), passi_eq, caso, rho, &P);//da commentare una volta calcolate tutte le coord e osserv
+        
+        if (caso_min == -1) {
+            dati << rho(caso) << "\t" << P << endl;
+        }
+    }
+    
+    dati.close();
+
+    plot_pressioni();
 }
 #endif 
 

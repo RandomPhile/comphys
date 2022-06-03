@@ -11,6 +11,13 @@
 using namespace std;
 using namespace arma;
 
+
+
+int caso_min = 9;//mettere -1 per avere P(rho)
+
+
+
+
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 1; //1,2,4
