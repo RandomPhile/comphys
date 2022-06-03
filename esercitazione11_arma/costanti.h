@@ -13,16 +13,16 @@ using namespace arma;
 
 
 
-int caso_min = 9;//mettere -1 per avere P(rho)
+int caso_min = 10;//mettere -1 per avere P(rho)
 
 
 
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 1; //1,2,4
-int N = M * pow(6, 3); //numero di particelle
-int N_t;//numero passi simulazione, vedi rigo 61 per il valore in base al tempo di equilibrazione stimato
+int M = 2; //1,2,4
+int N = M * pow(7, 3); //numero di particelle
+int N_t;//numero passi simulazione, vedi rigo 7 del main per il valore del tempo di equilibrazione stimato
 
 int N_b=20;//numero bin
 double T_req = 1.1;//temperatura adimensionale

@@ -15,9 +15,9 @@ int main() {
     gnuplot << caso_min << endl;
     gnuplot.close();
 
-    // pressioni(rho, passi_eq, L);
+    pressioni(rho, passi_eq, L);
 
-    gdr_funz(L(caso_min), rho(caso_min));//da togliere il commento dopo aver già calcolato tutte le coordinate se caso_min!=-1
+    // gdr_funz(L(caso_min), rho(caso_min));//da togliere il commento dopo aver già calcolato tutte le coordinate se caso_min!=-1
 
     return 0;
 }
