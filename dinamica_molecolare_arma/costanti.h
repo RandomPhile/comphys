@@ -3,6 +3,9 @@
 
 #include <cmath>
 
+#define ARMA_NO_DEBUG //non fa controlli e va piu veloce, da togliere solo se il codice funziona gia perfettamente
+
+
 /*** costanti globali ***/
 const int M = 4; //1: CC, 2: BCC, 4: FCC¡
 const int N = M * pow(7, 3);
