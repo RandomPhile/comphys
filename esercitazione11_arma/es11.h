@@ -246,7 +246,7 @@ void blocking(int N_t, ifstream &dati, ifstream &risultati){//crea e plotta il g
     
         ofstream blocking;
         blocking.open("blocking.dat");
-        blocking << part_per_B << "\t" << sqrt(var_PB) << endl;
+        blocking << part_per_B << "\t" << sqrt(var_PB / N_B) << endl;
     }
     blocking_plot();//faccio fare il plot
 }
