@@ -227,32 +227,36 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
     risultati.open("risultati.dat");
     
     for (int i = 0; i < N_t; ++i){
-        dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >>variabile_inutile;
+        dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >> variabile_inutile;
     }
+    // cout<<P<<endl;
     risultati >> variabile_inutile >> P_media >> variabile_inutile;
     dati.close();
     risultati.close();
 
-    for (int p_per_B = 5; p_per_B < N_t/3; ++p_per_B){
-        int N_B = floor(N_t / p_per_B);
+    int N_B_prec=0;
 
-        double P_mB=0;
-        double var_PB=0;
-        rowvec P_m(N_B);
-    
-        for (int i = 0; i < N_B; ++i){//calcolo le medie sui blocchi
-            double somma = 0;
-            for (int j = 0; j < p_per_B; ++j){
-                somma += P(i * N_B + j);
+    for (int p_per_B = 1; p_per_B < N_t/3; ++p_per_B){
+        int N_B = floor(N_t / p_per_B);
+        
+        if(N_B_prec!=N_B){
+            double P_mB=0;
+            double var_PB=0;
+            rowvec P_m(N_B, fill::zeros);
+
+            
+            for (int i = 0; i < N_B; ++i){//calcolo le medie sui blocchi
+                for (int j = 0; j < p_per_B; ++j){
+                    P_m(i) += P(i * p_per_B + j) / p_per_B;
+                }
             }
-            P_m(i) = somma / p_per_B;
+            for (int i = 0; i < N_B; ++i){//calcolo la media complessiva come media sui blocchi
+                P_mB += P_m(i) / N_B;
+                var_PB += (P_m(i) - P_media) * (P_m(i) - P_media) / N_B;
+            }
+            blocking << N_B << "\t" << sqrt(var_PB / N_B) << endl;
+            N_B_prec=N_B;
         }
-        for (int i = 0; i < N_B; ++i){//calcolo la media complessiva come media sui blocchi
-            P_mB += P_m(i) / N_B;
-            var_PB += (P_m(i) - P_media) * (P_m(i) - P_media) / N_B;
-        }
-    
-        blocking << p_per_B << "\t" << sqrt(var_PB / N_B) << endl;
     }
 
     blocking.close();

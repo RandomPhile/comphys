@@ -12,8 +12,8 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 2; //1,2,4
-int N = M * pow(6, 3); //numero di particelle
+int M = 4; //1,2,4
+int N = M * pow(4, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -26,9 +26,9 @@ int main() {
     double T_req = 1.1;//temperatura adimensionale
 
     rowvec rho={0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4};
-    rowvec passi_eq={400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700, 3600, 2200};//tempi di equilibrazione con delta preso per avere circa 50%
+    rowvec passi_eq={400, 30000, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700, 3600, 2200};//tempi di equilibrazione con delta preso per avere circa 50%
 
-    int caso_min = 8;//mettere -1 per avere P(rho)
+    int caso_min = 1;//mettere -1 per avere P(rho)
     int caso_max;
     if (caso_min == -1) {
         caso_max = rho.size();
@@ -40,11 +40,12 @@ int main() {
     mat r(N,3);
     cube dr(N,N,3);
     int reticolo   = log2(M);
-    risultati.open("risultati.dat");
     gnuplot.open("gnuplot.dat");
     gnuplot << caso_min << endl;
     gnuplot.close();
-    dati.open("dati.dat");
+
+    // risultati.open("risultati.dat");
+    // dati.open("dati.dat");
     // int start;
     // if(caso_min==-1){
     //     start=caso_min+1;
@@ -121,7 +122,7 @@ int main() {
     // dati.close();
     // risultati.close();
 
-    blocking(passi_eq(caso_min)+1e4);
-    
+   blocking(passi_eq(caso_min)+1e4);
+
     return 0;
 }

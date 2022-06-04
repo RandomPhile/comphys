@@ -278,7 +278,7 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq
         P = (1 + W_avg / (3.0 * T_req));
 
         E = K + V;
-        obs << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
+        obs << i_t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
     
         t += dt;
     }
