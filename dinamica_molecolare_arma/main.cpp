@@ -5,7 +5,7 @@ int main() {
 	/*** costanti simulazione ***/
 	srand(2); //default seed = 1
 	const double dt = 0.01; //passo temporale
-	const double t1 = 40; //durata simulazione
+	const double t1 = 20; //durata simulazione
 
 	/*** costanti problema ***/
 	coppia coppie[] = {//aggiornate con M=2,n=6,dt=0.01,t1=20 (12 minuti)
@@ -34,15 +34,15 @@ int main() {
 	int caso = 0;//valore densità (e relativa sigma)
 
 	// calcolo_coordinate(coord_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);
-	// calcolo_osservabili_da_file(coord_path, obs_path, coppie[caso].t_eq);
+	calcolo_osservabili_da_file(coord_path, obs_path, coppie[caso].t_eq);
 
 	int N_step    = 100;
 	double pausa  = 0.01;
 	// plot_coordinate(coord_path, N_step, pausa);
-	// plot_osservabili();
+	plot_osservabili();
 
-	calcolo_pressioni(p_path, coppie, dt, t1, 0, 13);
-	plot_pressioni();
+	// calcolo_pressioni(p_path, coppie, dt, t1, 0, 13, coppie[caso].t_eq);
+	// plot_pressioni();
 
 
 	// calcolo_coordinate_per_gdr(coord_g_path, coppie[caso].rho, coppie[caso].sigma, dt, t1);

@@ -230,6 +230,7 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq
     obs.open(obs_path);
     double t = 0;
     double K_avg = 0, W_avg = 0, P, T;
+    double K_avg_r = 0, T_r;
     double K, V, E, W;
     for (int i_t = 0; i_t < N_t; ++i_t) {
 
@@ -245,39 +246,43 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq
             
             K += 0.5 * v_mod * v_mod;
         }
+        for (int i = 0; i < N; ++i) {
+            for (int j = i + 1; j < N; ++j) {
+                for (int k = 0; k < 3; ++k){
+                    dr(k) = r(i,k) - r(j,k);
+                    dr(k) -= L * rint(dr(k)/L);//sposto in [-L/2,+L/2]
+                }
 
-        if(t>t_eq){
-            for (int i = 0; i < N; ++i) {
-                for (int j = i + 1; j < N; ++j) {
-                    for (int k = 0; k < 3; ++k){
-                        dr(k) = r(i,k) - r(j,k);
-                        dr(k) -= L * rint(dr(k)/L);//sposto in [-L/2,+L/2]
+                dr_mod = mod(dr);
+                if (dr_mod < L / 2) {
+                    if (dr_mod < L / 2 && dr_mod != 0) {
+                        double VL_2 = 4 * (pow(2 / L, 12) - pow(2 / L, 6));
+                        //double VpL_2 = 24 * (pow(1 / dr_mod, 8) - 2 * pow(1 / dr_mod, 14));
+                        V += 4 * (pow(1 / dr_mod, 12) - pow(1 / dr_mod, 6)) - VL_2;
                     }
-    
-                    dr_mod = mod(dr);
-                    if (dr_mod < L / 2) {
-                        if (dr_mod < L / 2 && dr_mod != 0) {
-                            double VL_2 = 4 * (pow(2 / L, 12) - pow(2 / L, 6));
-                            //double VpL_2 = 24 * (pow(1 / dr_mod, 8) - 2 * pow(1 / dr_mod, 14));
-                            V += 4 * (pow(1 / dr_mod, 12) - pow(1 / dr_mod, 6)) - VL_2;
-                        }
-                        W += -24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
-                    }
+                    W += -24 * (pow(1 / dr_mod, 6) - 2 * pow(1 / dr_mod, 12));
                 }
             }
-            W /= N;
-            K_avg = K_avg + (K - K_avg) / (i_t + 1);//forse è +2
-            W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
-    
-            T = 2.0 * K_avg / (3.0 * N);
-            P = (1 + W_avg / (3.0 * T_req));
-    
-            E = K + V;
-            obs << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
         }
+        W /= N;
+        if(t>t_eq){
+            K_avg_r = K_avg_r + (K - K_avg_r) / ((i_t - (int)(t_eq / dt)) + 1);//forse è +2
+            T_r = 2.0 * K_avg_r / (3.0 * N);
+        }
+
+
+        K_avg = K_avg + (K - K_avg) / (i_t + 1);//forse è +2
+        W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
+
+        T = 2.0 * K_avg / (3.0 * N);
+        P = (1 + W_avg / (3.0 * T_req));
+
+        E = K + V;
+        obs << t << "\t" << K << "\t" << V << "\t" << E << "\t" << T << "\t" << P << "\n";
+    
         t += dt;
     }
-    cout << "Rho = " << rho << "\t\tT = " << T << "\nSigma = " << sigma << "\t->\t" << sigma*sqrt(T_req / T) << "\n" << endl;
+    cout << "Rho = " << rho << "\t\tT = " << T_r << "\nSigma = " << sigma << "\t->\t" << sigma*sqrt(T_req / T_r) << "\n" << endl;
     coord_in.close();
     obs.close();
 }
@@ -289,7 +294,7 @@ void plot_osservabili() {
     LOG(comando);
     system(comando.c_str());
 }
-double pressione(double rho, double sigma, double dt, double t1) {
+double pressione(double rho, double sigma, double dt, double t1, double t_eq) {
     double L = cbrt(N / rho);
     const int N_t = t1 / dt;
     mat r(N,3), v(N,3), a(N,3);//, *dr[N]; vec_2D(dr, N);
@@ -302,6 +307,7 @@ double pressione(double rho, double sigma, double dt, double t1) {
     aggiorna_a(r, a, L);
 
     double W_avg = 0, P;
+    double W_avg_r = 0, P_r;
     double W;
 
     double t = 0;
@@ -323,15 +329,17 @@ double pressione(double rho, double sigma, double dt, double t1) {
             }
         }
         W /= N;
-        W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
+        if(i_t >= (int)(t_eq / dt)){
+            W_avg = W_avg + (W - W_avg) / (i_t + 1);//forse è +2
+        }
     }
     return (1 + W_avg / (3.0 * T_req));
 }
-void calcolo_pressioni(string p_path, coppia *coppie, double dt, double t1, int c_min, int c_max) {
+void calcolo_pressioni(string p_path, coppia *coppie, double dt, double t1, int c_min, int c_max, double t_eq) {
     ofstream press;
     press.open(p_path);
     for (int caso = c_min; caso <= c_max; ++caso) {
-        press << coppie[caso].rho << "\t" << pressione(coppie[caso].rho, coppie[caso].sigma, dt, t1) << "\n";
+        press << coppie[caso].rho << "\t" << pressione(coppie[caso].rho, coppie[caso].sigma, dt, t1, t_eq) << "\n";
     }
     press.close();
 }

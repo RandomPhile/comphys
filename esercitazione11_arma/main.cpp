@@ -52,70 +52,71 @@ int main() {
     else{
         start=caso_min;
     }
-    // for (int caso = start; caso < caso_max; ++caso) {
+    for (int caso = start; caso < caso_max; ++caso) {
 
-    //     N_t=passi_eq(caso)+1e4;//faccio fare 10000 passi dopo l'equilibrazione per avere dei risultati carini
+        N_t=passi_eq(caso)+1e4;//faccio fare 10000 passi dopo l'equilibrazione per avere dei risultati carini
 
-    //     double L = cbrt(N / rho(caso));
-    //     double r_c = L / 2;
-    //     double Delta;
+        double L = cbrt(N / rho(caso));
+        double r_c = L / 2;
+        double Delta;
 
-    //     Delta=Calcola_Delta(L, rho, caso);
+        Delta=Calcola_Delta(L, rho, caso);
 
-    //     crea_reticolo(r, L);//creo il reticolo iniziale
+        crea_reticolo(r, L);//creo il reticolo iniziale
 
-    //     for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
-    //         for (int j = i + 1; j < N; ++j){
-    //             for (int k = 0; k < 3; ++k){
-    //                 dr(i,j,k) = r(i,k) - r(j,k);
-    //                 dr(i,j,k) -= L * rint(dr(i,j,k)/L);//sposto in [-L/2,+L/2]
-    //             }
-    //         }
-    //     }
+        for (int i = 0; i < N; ++i){//creo il cubo di distanze relative alla posizione iniziale
+            for (int j = i + 1; j < N; ++j){
+                for (int k = 0; k < 3; ++k){
+                    dr(i,j,k) = r(i,k) - r(j,k);
+                    dr(i,j,k) -= L * rint(dr(i,j,k)/L);//sposto in [-L/2,+L/2]
+                }
+            }
+        }
 
-    //     double P = 0, sigma_P;
-    //     double V = 0, W = 0;
-    //     double V_m = 0, W_m = 0, P_m = 0;
-    //     double var_P = 0;
+        double P = 0, sigma_P;
+        double V = 0, W = 0;
+        double V_m = 0, W_m = 0, P_m = 0;
+        double var_P = 0;
 
-    //     for (int i = 0; i < N_t; ++i) {//passi
-    //         if(i>passi_eq(caso)){
-    //             V_m = V_m * (i-passi_eq(caso));
-    //             W_m = W_m * (i-passi_eq(caso));
-    //             var_P = var_P * (i - passi_eq(caso));
-    //         }
+        for (int i = 0; i < N_t; ++i) {//passi
+            if(i>passi_eq(caso)){
+                V_m = V_m * (i-passi_eq(caso));
+                W_m = W_m * (i-passi_eq(caso));
+                var_P = var_P * (i - passi_eq(caso));
+            }
 
-    //         MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
-    //         // cout<<V<<endl;
+            MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
+            // cout<<V<<endl;
 
-    //         if(i>passi_eq(caso)){//tempo di equilibrazione
-    //             V_m = (V_m + V) / (i-passi_eq(caso) + 1.0);
-    //             W_m = (W_m + W) / (i-passi_eq(caso) + 1.0);
+            P = (1 + W / (3.0 * T_req));
+            if(i>passi_eq(caso)){//tempo di equilibrazione
+                V_m = (V_m + V) / (i-passi_eq(caso) + 1.0);
+                W_m = (W_m + W) / (i-passi_eq(caso) + 1.0);
 
-    //             P = (1 + W / (3.0 * T_req));
-    //             P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
-    //             var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
+                
+                P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+                var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
+            }
 
-    //             if (caso_min != -1) {
-    //                 dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << endl;
-    //             }
-    //         }
+            if (caso_min != -1) {
+                dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << endl;
+            }
 
-    //         if(i==(int)(N_t/2) && caso_min!=-1){
-    //             cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
-    //         }
-    //     }
+            if(i==(int)(N_t/2) && caso_min!=-1){
+                cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
+            }
+        }
 
-    //     cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P_m << endl;
-    //     if (caso_min == -1) {
-    //         dati << rho(caso) << "\t" << P << "\t" << sqrt(var_P) << endl;
-    //     }
-    //     else{//calcolo della gdr
-    //         risultati << rho(caso) << "\t" << P_m << "\t" << sqrt(var_P) << endl;
-    //         gdr_funz(r, L, rho(caso), N_b);
-    //     }
-    //     cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
-    // }
+        cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P_m << endl;
+        if (caso_min == -1) {
+            dati << rho(caso) << "\t" << P << "\t" << sqrt(var_P) << endl;
+        }
+        else{//calcolo della gdr
+            risultati << rho(caso) << "\t" << P_m << "\t" << sqrt(var_P) << endl;
+            gdr_funz(r, L, rho(caso), N_b);
+        }
+        cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
+    }
 
     dati.close();
     risultati.close();
