@@ -106,11 +106,12 @@ int main() {
             }
         }
 
-        cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P << endl;
+        cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P_m << endl;
         if (caso_min == -1) {
             dati << rho(caso) << "\t" << P << "\t" << sqrt(var_P) << endl;
         }
         else{//calcolo della gdr
+            risultati << rho(caso) << "\t" << P_m << "\t" << sqrt(var_P) << endl;
             gdr_funz(r, L, rho(caso), N_b);
         }
         cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
@@ -120,9 +121,56 @@ int main() {
     risultati.close();
     return 0;
 }
-void blocking(int N_B, ifstream &dati){
-    double P, variabile_inutile;
-    rowvec P(N_B);
+void blocking(int N_t, int part_per_B, ifstream &dati, ifstream &risultati){
+    int N_B = floor(N_t / part_per_B);
 
+    double variabile_inutile, P_media, P_mB=0;
+    double var_PB=0;
+    rowvec P_m(N_B), P(N_t);
+
+    dati.open("dati.dat");
+    risultati.open("risultati.dat");
+
+    for (int i = 0; i < N_t; ++i){
+        dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >>variabile_inutile;
+    }
+    risultati >> variabile_inutile >> P_media >> variabile_inutile;
+    dati.close();
+    risultati.close();
+
+    for (int i = 0; i < N_B; ++i){//calcolo le medie sui blocchi
+        double somma = 0;
+        for (int j = 0; j < part_per_B; ++j){
+            somma += P(i * N_B + j);
+        }
+        P_m(i) = somma / part_per_B;
+    }
+    for (int i = 0; i < N_B; ++i){//calcolo la media complessiva come media sui blocchi
+        P_mB += P_m(i) / N_B;
+        var_PB += (P_m(i) - P_media) * (P_m(i) - P_media) / N_B;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
