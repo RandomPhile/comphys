@@ -214,40 +214,48 @@ void blocking_plot(){
     LOG(comando);
     system(comando.c_str());
 }
-void blocking(int N_t, ifstream &dati, ifstream &risultati){//crea e plotta il grafico del blocking
-    for (int part_per_B = 0; part_per_B < N_t/3; ++part_per_B){
-        int N_B = floor(N_t / part_per_B);
+void blocking(int N_t){//crea e plotta il grafico del blocking
+    ifstream dati; ifstream risultati;
+    
+    rowvec P(N_t);
+    double variabile_inutile, P_media;
 
-        double variabile_inutile, P_media, P_mB=0;
+    ofstream blocking;
+    blocking.open("blocking.dat");
+
+    dati.open("dati.dat");
+    risultati.open("risultati.dat");
+    
+    for (int i = 0; i < N_t; ++i){
+        dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >>variabile_inutile;
+    }
+    risultati >> variabile_inutile >> P_media >> variabile_inutile;
+    dati.close();
+    risultati.close();
+
+    for (int p_per_B = 5; p_per_B < N_t/3; ++p_per_B){
+        int N_B = floor(N_t / p_per_B);
+
+        double P_mB=0;
         double var_PB=0;
-        rowvec P_m(N_B), P(N_t);
-    
-        dati.open("dati.dat");
-        risultati.open("risultati.dat");
-    
-        for (int i = 0; i < N_t; ++i){
-            dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >>variabile_inutile;
-        }
-        risultati >> variabile_inutile >> P_media >> variabile_inutile;
-        dati.close();
-        risultati.close();
+        rowvec P_m(N_B);
     
         for (int i = 0; i < N_B; ++i){//calcolo le medie sui blocchi
             double somma = 0;
-            for (int j = 0; j < part_per_B; ++j){
+            for (int j = 0; j < p_per_B; ++j){
                 somma += P(i * N_B + j);
             }
-            P_m(i) = somma / part_per_B;
+            P_m(i) = somma / p_per_B;
         }
         for (int i = 0; i < N_B; ++i){//calcolo la media complessiva come media sui blocchi
             P_mB += P_m(i) / N_B;
             var_PB += (P_m(i) - P_media) * (P_m(i) - P_media) / N_B;
         }
     
-        ofstream blocking;
-        blocking.open("blocking.dat");
-        blocking << part_per_B << "\t" << sqrt(var_PB / N_B) << endl;
+        blocking << p_per_B << "\t" << sqrt(var_PB / N_B) << endl;
     }
+
+    blocking.close();
     blocking_plot();//faccio fare il plot
 }
 
