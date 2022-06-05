@@ -17,26 +17,41 @@ extern ofstream dati;
 double Calcola_Delta(double L, rowvec rho, int caso){
     double Delta;
     if(caso>=8){
-            Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-            cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-            return Delta;
-        }
-        else if(caso<8 && caso>4){
-            Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        Delta=L/(60*rho(caso)*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        return Delta;
+    }
+    else if(caso<8 && caso>4){
+        Delta=L/(50*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
+        return Delta;
+    }
+    else{
+        Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
+        if(caso!=-1){
             cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
             return Delta;
         }
         else{
-            Delta=L/(70*rho(caso));//scelgo un delta che mi dia circa 50% di accettazione
-            if(caso!=-1){
-                cout<<"Delta scalato sulla scatola: "<<Delta/L<<endl;
-                return Delta;
-            }
-            else{
-                return NAN;
-            }
+            return NAN;
         }
-
+    }
+}
+void plot_pressioni(int caso_min) {
+    if(caso_min==-1){
+        string comando;
+        comando = "gnuplot";
+        comando += " plot2.plt";
+        LOG(comando);
+        system(comando.c_str());
+    }
+    else{
+        string comando;
+        comando = "gnuplot";
+        comando += " plot.plt";
+        LOG(comando);
+        system(comando.c_str());
+    }
 }
 double mod(cube &r, double riga, double colonna){//calcolo il modulo della posizione relativa delle particelle i e j
     double mod= sqrt(pow1(r(riga,colonna,0),2)+pow1(r(riga,colonna,1),2)+pow1(r(riga,colonna,2),2));
@@ -120,7 +135,7 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     r_n(2) = r(n,2) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     
-    double V_tot_r1=0;//potenziale in posizione nuova
+    double V_tot_r1= *V;//potenziale in posizione nuova
     double V_tot_r0= *V;//potenziale in posizione vecchia
     double dr_mod, dr_mod_n;
     
@@ -128,10 +143,16 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
         for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
             
-            dr_mod_n = mod(dr_n,i,j);
-            
-            if (dr_mod_n < r_c) {
-                V_tot_r1+=V_LJ(dr_mod_n, L);
+            if(i==n || j==n){
+                dr_mod_n = mod(dr_n,i,j);
+                dr_mod = mod(dr,i,j);
+
+                if (dr_mod_n < r_c && dr_mod < r_c) {
+                    V_tot_r1 = V_tot_r1 + V_LJ(dr_mod_n, L) - V_LJ(dr_mod, L);
+                }
+                else if(dr_mod_n < r_c && dr_mod < r_c){
+                    V_tot_r1 = V_tot_r1 + V_LJ(dr_mod_n, L)
+                }
             }
         }
     }
@@ -244,7 +265,6 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
             double var_PB=0;
             rowvec P_m(N_B, fill::zeros);
 
-            
             for (int i = 0; i < N_B; ++i){//calcolo le medie sui blocchi
                 for (int j = 0; j < p_per_B; ++j){
                     P_m(i) += P(i * p_per_B + j) / p_per_B;
