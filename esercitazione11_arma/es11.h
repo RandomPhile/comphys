@@ -135,7 +135,7 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     r_n(2) = r(n,2) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     
-    double V_tot_r1= *V;//potenziale in posizione nuova
+    double V_tot_r1=0;//potenziale in posizione nuova
     double V_tot_r0= *V;//potenziale in posizione vecchia
     double dr_mod, dr_mod_n;
     
@@ -143,19 +143,10 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
         for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
             
-            if(i==n || j==n){
-                dr_mod_n = mod(dr_n,i,j);
-                dr_mod = mod(dr,i,j);
-
-                if (dr_mod_n < r_c && dr_mod < r_c) {
-                    V_tot_r1 = V_tot_r1 + V_LJ(dr_mod_n, L) - V_LJ(dr_mod, L);
-                }
-                else if(dr_mod_n < r_c && dr_mod < r_c){
-                    V_tot_r1 = V_tot_r1 + V_LJ(dr_mod_n, L)
-                }
-                else{
-                    V_tot_r1 = V_tot_r1 - V_LJ(dr_mod, L);
-                }
+            dr_mod_n = mod(dr_n,i,j);
+            
+            if (dr_mod_n < r_c) {
+                V_tot_r1+=V_LJ(dr_mod_n, L);
             }
         }
     }
@@ -277,7 +268,7 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
                 P_mB += P_m(i) / N_B;
                 var_PB += (P_m(i) - P_media) * (P_m(i) - P_media) / N_B;
             }
-            blocking << N_B << "\t" << sqrt(var_PB / N_B) << endl;
+            blocking << p_per_B << "\t" << sqrt(var_PB / N_B) << endl;
             N_B_prec=N_B;
         }
     }
