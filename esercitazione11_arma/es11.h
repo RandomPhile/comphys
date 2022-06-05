@@ -153,6 +153,9 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
                 else if(dr_mod_n < r_c && dr_mod < r_c){
                     V_tot_r1 = V_tot_r1 + V_LJ(dr_mod_n, L)
                 }
+                else{
+                    V_tot_r1 = V_tot_r1 - V_LJ(dr_mod, L);
+                }
             }
         }
     }
