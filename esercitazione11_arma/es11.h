@@ -1,9 +1,6 @@
 #ifndef es11_h
 #define es11_h
 
-#include "header.h"
-#include "funzioni.h"
-
 using namespace std;
 using namespace arma;
 
@@ -14,6 +11,24 @@ extern int numero_proposti;
 
 extern ofstream dati;
 
+#define LOG(x) cout<<x<<endl; 
+
+
+double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
+    double ris = 1.0;
+    for (int i = 0; i < esp; i++) {
+        ris *= base;
+    }
+    return ris;
+}
+double min(double a, double b){
+    if(a<=b){
+        return a;
+    }
+    else{
+        return b;
+    }
+}
 double Calcola_Delta(double L, rowvec rho, int caso){
     double Delta;
     if(caso>=8){
@@ -149,7 +164,7 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
     }
     dati.close();
 
-    for (int B = 1; B < N_t/5; B+=50){
+    for (int B = 1; B < N_t/5; B+=5){
 
         int N_B = floor(N_t / B);
         double P_mB=0;//pressione mediata sui blocchi
