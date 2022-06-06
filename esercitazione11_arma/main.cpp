@@ -12,8 +12,8 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 1; //1,2,4
-int N = M * pow(7, 3); //numero di particelle
+int M = 4; //1,2,4
+int N = M * pow(5, 3); //numero di particelle
 
 int numero_proposti=0;
 int numero_accettati=0;
@@ -71,7 +71,7 @@ int main() {
     rowvec passi_eq={400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700, 3600, 2200};//tempi di equilibrazione con delta preso per avere circa 50%
 
     int caso_min = 8;//mettere -1 per avere P(rho)
-    int q=5e4;//numero punti in piu rispetto al tempo di equilibrazione
+    int q=1e5;//numero punti in piu rispetto al tempo di equilibrazione
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -81,18 +81,18 @@ int main() {
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    int caso_max;
-    if (caso_min == -1) {
-        caso_max = rho.size();
-    } else {
-        caso_max = caso_min + 1;
-    }
+    // int caso_max;
+    // if (caso_min == -1) {
+    //     caso_max = rho.size();
+    // } else {
+    //     caso_max = caso_min + 1;
+    // }
     
-    //###################################################
-    int reticolo   = log2(M);
-    gnuplot.open("gnuplot.dat");
-    gnuplot << caso_min << endl;
-    gnuplot.close();
+    // //###################################################
+    // int reticolo   = log2(M);
+    // gnuplot.open("gnuplot.dat");
+    // gnuplot << caso_min << endl;
+    // gnuplot.close();
 
     // risultati.open("risultati.dat");
     // dati.open("dati.dat");
