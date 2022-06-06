@@ -87,7 +87,7 @@ int main() {
     gnuplot << caso_min << endl;
     gnuplot.close();
 
-    int q=1e5;//numero punti in piu rispetto al tempo di equilibrazione
+    int q=5e4;//numero punti in piu rispetto al tempo di equilibrazione
 
 
     // risultati.open("risultati.dat");
@@ -119,33 +119,38 @@ int main() {
     //         }
     //     }
 
-    //     double P = 0, sigma_P;
+    //     double P = 0;
+    //     double E_c = 3./2.*N*T_req;
+    //     double E = 0;
     //     double V = 0, W = 0;
-    //     double V_m = 0, W_m = 0, P_m = 0;
-    //     double var_P = 0;
+    //     double V_m = 0, W_m = 0, P_m = 0, E_m = 0;
+    //     double var_P = 0, var_E = 0;
 
     //     for (int i = 0; i < N_t; ++i) {//passi
     //         if(i>passi_eq(caso)){//calcola le medie
     //             V_m = V_m * (i - passi_eq(caso));
     //             W_m = W_m * (i - passi_eq(caso));
     //             var_P = var_P * (i - passi_eq(caso));
+    //             var_E = var_E * (i - passi_eq(caso));
     //         }
 
     //         MRT2(r, &V, &W, N, Delta, T_req, L, dr);//metropolis
-    //         // cout<<V<<endl;
 
+    //         E = E_c + V;
     //         P = rho(caso) * (1 + W / (3.0 * T_req));
+
     //         if(i>passi_eq(caso)){//tempo di equilibrazione e calcola le medie
     //             V_m = (V_m + V) / (i - passi_eq(caso) + 1.0);
     //             W_m = (W_m + W) / (i - passi_eq(caso) + 1.0);
-
+    //             E_m = E_c + V_m;
                 
     //             P_m = rho(caso) * (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
     //             var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
+    //             var_E = (var_E + (E - E_m) * (E - E_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
     //         }
 
     //         if (caso_min != -1) {
-    //             dati << i << "\t" << V_m << "\t" << P_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << endl;
+    //             dati << i << "\t" << V_m << "\t" << P_m << "\t" << E_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << "\t" << E << "\t" << sqrt(var_E) << endl;
     //         }
 
     //         if(i==(int)(N_t/2) && caso_min!=-1){
@@ -153,7 +158,7 @@ int main() {
     //         }
     //     }
 
-    //     cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P_m << endl;
+    //     cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P_m << "\t" <<"Energia = " << E_m << endl;
     //     if (caso_min == -1) {
     //         dati << rho(caso) << "\t" << P << "\t" << sqrt(var_P) << endl;
     //     }
@@ -163,13 +168,13 @@ int main() {
     //     }
     //     cout <<"Ho accettato il " <<(double)numero_accettati/(double)numero_proposti*100 << "%. I passi totali erano "<<N_t<<"\n\n";
     // }
-    // // plot_pressioni(caso_min);
     // dati.close();
     // risultati.close();
 
+    // plot_pressioni_energie(caso_min);
+
     blocking(passi_eq(caso_min)+q);
 
-    // blocking_plot();
     return 0;
 }
 
