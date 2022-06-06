@@ -133,50 +133,8 @@ void blocking_plot(){
     LOG(comando);
     system(comando.c_str());
 }
-// void blocking(int N_t){//crea e plotta il grafico del blocking
-//     ifstream dati;
-    
-//     rowvec P(N_t);
-//     double variabile_inutile;
-
-//     ofstream blocking;
-//     blocking.open("blocking.dat");
-
-//     dati.open("dati.dat");
-    
-//     for (int i = 0; i < N_t; ++i){
-//         dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >> variabile_inutile;//P(i) pressione istantanea
-//     }
-//     dati.close();
-
-//     for (int B = 1; B < N_t; B++){
-
-//         int N_B = floor(N_t / B);
-//         double P_mB=0;//pressione mediata sui blocchi
-//         double var_PB=0, P_media = 0;
-
-
-//         rowvec P_m(N_B, fill::zeros);//pressione media del blocco
-//         for (int i = 0; i < N_B; ++i){//ciclo sui blocchi per poi calcolare le medie
-//             for (int j = 0; j < B; ++j){
-//                 P_m(i) += P(i * B + j) / B;//calcolo le medie sui blocchi
-//             }
-//             P_media += P(i) / N_t;
-//             P_mB += P_m(i) / (N_B);//calcolo la media complessiva come media sui blocchi
-//         }
-//         for (int i = 0; i < N_B; ++i){
-//             var_PB += (P_m(i) - P_mB) * (P_m(i) - P_mB) / (N_B);
-//         }
-//         // cout<<"Pressione media blocking "<<P_mB<<endl;
-//         blocking << B << "\t" << sqrt(var_PB / (N_B)) << endl;
-//     }
-
-//     blocking.close();
-//     blocking_plot();//faccio fare il plot
-// }
-
-void blocking2(int N_t){//crea e plotta il grafico del blocking
-    ifstream dati; ifstream risultati;
+void blocking(int N_t){//crea e plotta il grafico del blocking
+    ifstream dati;
     
     rowvec P(N_t);
     double variabile_inutile;
@@ -185,82 +143,34 @@ void blocking2(int N_t){//crea e plotta il grafico del blocking
     blocking.open("blocking.dat");
 
     dati.open("dati.dat");
-    risultati.open("risultati.dat");
     
     for (int i = 0; i < N_t; ++i){
         dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >> variabile_inutile;//P(i) pressione istantanea
     }
     dati.close();
-    risultati.close();
+
+    for (int B = 1; B < N_t/10; B++){
+
+        int N_B = floor(N_t / B);
+        double P_mB=0;//pressione mediata sui blocchi
+        double var_PB=0, P_media = 0;
 
 
-    for (int N_B = 0; N_B < N_t; ++N_B){
-        int B = floor(N_t / N_B);
-    }
-
-
-
-    blocking.close();
-    blocking_plot();//faccio fare il plot
-}
-void blocking(int N_t){
-    ifstream dati;
-    
-    double P[N_t];
-    double variabile_inutile;
-
-    ofstream blocking;
-    blocking.open("blocking.dat");
-
-    dati.open("dati.dat");
-    
-    for (int i = 0; i < N_t; ++i){
-        dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P[i] >> variabile_inutile;//P(i) pressione istantanea
-    }
-    dati.close();
-
-    for(int B = 1; B<N_t/10; B++){ // vario B, B particelle per blocco
-
-        int NB = floor(N_t/B); // NB è il numero di blocchi, floor approssima a intero
-        // metto tutto a zero
-        double varpres=0;
-        // varenpot=0;
-        double pressionemedia=0;
-        // energiamedia=0;
-        double mean[NB]; // vettore delle medie su ciascun blocco
-        // double meanen[NB]; // stessa cosa per pressione
-        
-        for (int jj = 1; jj <= NB; jj++){ // inizializzo a zero i vettori delle medie
-            mean[jj]=0.;
-            // meanen[jj]=0.;
-        }
-        
-        for (int jj = 0; jj < NB; jj++){ // ciclo sul numero di blocchi
-            for (int kk=0; kk<B; kk++){ // ciclo sui B elementi del blocco
-                mean[jj] += P[jj*B+kk]; // sommo tutte le pressioni istantanee del blocco jj esimo
-                // meanen[jj] += E[jj*B+kk]; // stessa cosa per le energie
+        rowvec P_m(N_B, fill::value(0));//pressione media del blocco
+        for (int i = 0; i < N_B; ++i){//ciclo sui blocchi per poi calcolare le medie
+            for (int j = 0; j < B; ++j){
+                P_m(i) += P(i * B + j) / B;//calcolo le medie sui blocchi
             }
-            mean[jj]=mean[jj]/B; // divido per B perché ho la media su B elementi, e questa è la media sul blocco jj esimo
-            // meanen[jj]=meanen[jj]/B; 
-            pressionemedia += mean[jj]; // serve per la media totale
-            // energiamedia += meanen[jj];
+            P_media += P(i) / N_t;
+            P_mB += P_m(i) / (N_B);//calcolo la media complessiva come media sui blocchi
         }
-        pressionemedia = pressionemedia/NB; // questa è la media totale della pressione
-        // energiamedia=energiamedia/NB; //analogo per l'energia
-        for (int i= 0; i < NB; i++){ // ciclo sui blocchi
-            varpres += (mean[i]-pressionemedia)*(mean[i]-pressionemedia); 
-            // varenpot += (meanen[i]-energiamedia)*(meanen[i]-energiamedia);
+        for (int i = 0; i < N_B; ++i){
+            var_PB += (P_m(i) - P_mB) * (P_m(i) - P_mB) / (N_B);
         }
-        varpres = varpres/NB; // è la varianza
-        // varenpot=varenpot/NB;
-        
-        // faccio l'errore finale 
-        double deltaP = sqrt(varpres/NB); // dalla formula
-        blocking << B << "\t" << deltaP << endl;
-        // printf( "%d\t %4.6e\n", B, deltaP); // per fare il grafico deltaP(B)
-        // deltaE=sqrt(varenpot/NB);
-        //printf( "%d\t %4.6e\n", B, deltaE); // per fare il grafico deltaE(B)
+        // cout<<"Pressione media blocking "<<P_mB<<endl;
+        blocking << B << "\t" << sqrt(var_PB / (N_B)) << endl;
     }
+
     blocking.close();
     blocking_plot();//faccio fare il plot
 }
