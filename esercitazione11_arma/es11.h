@@ -124,7 +124,7 @@ void posiz_MRT2(cube &dr, cube &dr_n, rowvec &r_n, mat &r, int i, double L, int 
         }
     }
 }
-void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L, double r_c, cube &dr){//N=N_mol
+void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L, cube &dr){//N=N_mol
     cube dr_n(N, N, 3);
     rowvec r_n(3); 
 
@@ -135,21 +135,35 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
     r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     r_n(2) = r(n,2) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
     
-    double V_tot_r1=0;//potenziale in posizione nuova
+    double V_tot_r1= *V;//potenziale in posizione nuova
     double V_tot_r0= *V;//potenziale in posizione vecchia
     double dr_mod, dr_mod_n;
     
-    for (int i = 0; i < N; ++i) {
-        posiz_MRT2(dr, dr_n, r_n, r, i, L, n);//sistema le posizioni vecchie e nuove in dr e dr_n
-        for (int j = i + 1; j < N; ++j) {//trovo i potenziali nelle due posizioni
-            
-            dr_mod_n = mod(dr_n,i,j);
-            
-            if (dr_mod_n < r_c) {
-                V_tot_r1+=V_LJ(dr_mod_n, L);
-            }
+    dr_n=dr;
+
+    for (int i = 0; i < n; ++i){//ciclo sulla colonna
+        for (int k = 0; k < 3; ++k){//ciclo sulle coordinate
+            dr_n(i,n,k) = r(i,k) - r_n(k);
+            dr_n(i,n,k) -= L * rint(dr_n(i,n,k)/L);//sposto in [-L/2,+L/2]
         }
+
+        dr_mod_n = mod(dr_n,i,n);
+        dr_mod = mod(dr,i,n);
+
+        V_tot_r1+=V_LJ(dr_mod_n, L) - V_LJ(dr_mod, L);
     }
+    for (int j = n + 1; j < N; ++j){
+        for (int k = 0; k < 3; ++k){
+            dr_n(n,j,k) = r_n(k) - r(j,k);
+            dr_n(n,j,k) -= L * rint(dr_n(n,j,k)/L);//sposto in [-L/2,+L/2]
+        }
+
+        dr_mod_n = mod(dr_n,n,j);
+        dr_mod = mod(dr,n,j);
+
+        V_tot_r1+=V_LJ(dr_mod_n, L) - V_LJ(dr_mod, L);
+    }
+
     int accetto=accetto_spostamento(r, r_n, V_tot_r0, V_tot_r1, n, T);//verifico se accettare lo spostamento con MTR2
     
     if(accetto==1){
@@ -161,10 +175,9 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
                 dr(i,j,1)=dr_n(i,j,1);
                 dr(i,j,2)=dr_n(i,j,2);
                 
-                if (dr_mod < r_c) {    
+                if (dr_mod < L/2) {    
                     //dV_dr * r
-                    *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12));
-                    
+                    *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12)); 
                 }
             }
         }
@@ -233,47 +246,54 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
     ifstream dati; ifstream risultati;
     
     rowvec P(N_t);
-    double variabile_inutile, P_media;
+    double variabile_inutile;
 
     ofstream blocking;
     blocking.open("blocking.dat");
+
+    ofstream blocking2;
+    blocking2.open("blocking2.dat");
 
     dati.open("dati.dat");
     risultati.open("risultati.dat");
     
     for (int i = 0; i < N_t; ++i){
-        dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >> variabile_inutile;
+        dati >> variabile_inutile >> variabile_inutile >> variabile_inutile >> variabile_inutile >> P(i) >> variabile_inutile;//P(i) pressione istantanea
     }
-    // cout<<P<<endl;
-    risultati >> variabile_inutile >> P_media >> variabile_inutile;
     dati.close();
     risultati.close();
 
     int N_B_prec=0;
 
-    for (int p_per_B = 1; p_per_B < N_t/3; ++p_per_B){
-        int N_B = floor(N_t / p_per_B);
+    for (int B = 1; B < N_t; ++B){
+        int N_B = floor(N_t / B);
         
         if(N_B_prec!=N_B){
-            double P_mB=0;
-            double var_PB=0;
-            rowvec P_m(N_B, fill::zeros);
+            double P_mB=0;//pressione mediata sui blocchi
+            double var_PB=0, P_media = 0;
+            rowvec P_m(N_B, fill::zeros);//pressione media del blocco
 
-            for (int i = 0; i < N_B; ++i){//calcolo le medie sui blocchi
-                for (int j = 0; j < p_per_B; ++j){
-                    P_m(i) += P(i * p_per_B + j) / p_per_B;
+            for (int i = 0; i < N_B; ++i){//ciclo sui blocchi per poi calcolare le medie
+                for (int j = 0; j < B; ++j){
+                    P_m(i) += P(i * B + j) / B;//calcolo le medie sui blocchi
                 }
             }
+            for (int i = 0; i < N_t; ++i) {
+                P_media += P(i);
+            }
+            P_media /= N_t;
             for (int i = 0; i < N_B; ++i){//calcolo la media complessiva come media sui blocchi
                 P_mB += P_m(i) / N_B;
                 var_PB += (P_m(i) - P_media) * (P_m(i) - P_media) / N_B;
             }
-            blocking << p_per_B << "\t" << sqrt(var_PB / N_B) << endl;
+            blocking2 << B << "\t" << (P_mB - P_media) / P_media << endl;
+            blocking << B << "\t" << sqrt(var_PB / N_B) << endl;
             N_B_prec=N_B;
         }
     }
 
     blocking.close();
+    blocking2.close();
     blocking_plot();//faccio fare il plot
 }
 

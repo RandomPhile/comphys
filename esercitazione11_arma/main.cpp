@@ -55,10 +55,9 @@ int main() {
     // }
     // for (int caso = start; caso < caso_max; ++caso) {
 
-    //     N_t=passi_eq(caso)+1e4;//faccio fare 10000 passi dopo l'equilibrazione per avere dei risultati carini
+    //     N_t=passi_eq(caso)+5e4;//faccio fare 10000 passi dopo l'equilibrazione per avere dei risultati carini
 
     //     double L = cbrt(N / rho(caso));
-    //     double r_c = L / 2;
     //     double Delta;
 
     //     Delta=Calcola_Delta(L, rho, caso);
@@ -86,16 +85,16 @@ int main() {
     //             var_P = var_P * (i - passi_eq(caso));
     //         }
 
-    //         MRT2(r, &V, &W, N, Delta, T_req, L, r_c, dr);
+    //         MRT2(r, &V, &W, N, Delta, T_req, L, dr);
     //         // cout<<V<<endl;
 
-    //         P = (1 + W / (3.0 * T_req));
+    //         P = rho(caso) * (1 + W / (3.0 * T_req));
     //         if(i>passi_eq(caso)){//tempo di equilibrazione
     //             V_m = (V_m + V) / (i - passi_eq(caso) + 1.0);
     //             W_m = (W_m + W) / (i - passi_eq(caso) + 1.0);
 
                 
-    //             P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+    //             P_m = rho(caso) * (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
     //             var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
     //         }
 
@@ -122,7 +121,7 @@ int main() {
     // dati.close();
     // risultati.close();
 
-   blocking(passi_eq(caso_min)+1e4);
+   blocking(passi_eq(caso_min)+5e4);
 
     return 0;
 }
