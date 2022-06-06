@@ -12,6 +12,6 @@ set term qt 1 title "blocking2" font "Helvetica" position 50,0
 set ytics add ("1 " 1)
 set logscale y
 set logscale x
-plot "blocking2.dat" i 0 u 1:2 w p title ""
+#plot "blocking2.dat" i 0 u 1:2 w p title ""
 
 pause-1
