@@ -136,7 +136,7 @@ void blocking_plot(){
 void blocking(int N_t){//crea e plotta il grafico del blocking
     ifstream dati;
     
-    rowvec P(N_t), E(N_t);
+    rowvec P(N_t), E(N_t), V(N_t);
     double v_i;//variabile inutile
 
     ofstream blocking;
@@ -145,37 +145,44 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
     dati.open("dati.dat");
     
     for (int i = 0; i < N_t; ++i){
-        dati >> v_i >> v_i >> v_i >> v_i >> v_i >> P(i) >> v_i >> E(i) >> v_i;//P(i) pressione istantanea
+        dati >> v_i >> v_i >> v_i >> v_i >> V(i) >> P(i) >> v_i >> E(i) >> v_i;//P(i) pressione istantanea
     }
     dati.close();
 
-    for (int B = 1; B < N_t/10; B+=5){
+    for (int B = 1; B < N_t/5; B+=50){
 
         int N_B = floor(N_t / B);
         double P_mB=0;//pressione mediata sui blocchi
         double var_PB=0, P_media = 0;
         double E_mB=0;//energia mediata sui blocchi
         double var_EB=0, E_media = 0;
+        double V_mB=0;//energia mediata sui blocchi
+        double var_VB=0, V_media = 0;
 
         rowvec P_m(N_B, fill::value(0));//pressione media del blocco
         rowvec E_m(N_B, fill::value(0));//energia media del blocco
+        rowvec V_m(N_B, fill::value(0));//energia media del blocco
         
         for (int i = 0; i < N_B; ++i){//ciclo sui blocchi per poi calcolare le medie
             for (int j = 0; j < B; ++j){
                 P_m(i) += P(i * B + j) / B;//calcolo le medie sui blocchi
                 E_m(i) += E(i * B + j) / B;//calcolo le medie sui blocchi
+                V_m(i) += V(i * B + j) / B;//calcolo le medie sui blocchi
             }
             P_media += P(i) / N_t;
-            P_mB += P_m(i) / (N_B);//calcolo la media complessiva come media sui blocchi
+            P_mB  += P_m(i) / N_B;//calcolo la media complessiva come media sui blocchi
             E_media += E(i) / N_t;
-            E_mB += E_m(i) / (N_B);//calcolo la media complessiva come media sui blocchi
+            E_mB  += E_m(i) / N_B;//calcolo la media complessiva come media sui blocchi
+            V_media += V(i) / N_t;
+            V_mB  += V_m(i) / N_B;//calcolo la media complessiva come media sui blocchi
         }
         for (int i = 0; i < N_B; ++i){
-            var_PB += (P_m(i) - P_mB) * (P_m(i) - P_mB) / (N_B);
-            var_EB += (E_m(i) - E_mB) * (E_m(i) - E_mB) / (N_B);
+            var_PB += (P_m(i) - P_mB) * (P_m(i) - P_mB) / N_B;
+            var_EB += (E_m(i) - E_mB) * (E_m(i) - E_mB) / N_B;
+            var_VB += (V_m(i) - V_mB) * (V_m(i) - E_mB) / N_B;
         }
         // cout<<"Pressione media blocking "<<P_mB<<endl;
-        blocking << B << "\t" << sqrt(var_PB / N_B) << "\t" << sqrt(var_EB / N_B) << endl;
+        blocking << B << "\t" << sqrt(var_PB / N_B) << "\t" << sqrt(var_EB / N_B) << "\t" << sqrt(var_VB / N_B) << endl;
     }
 
     blocking.close();
