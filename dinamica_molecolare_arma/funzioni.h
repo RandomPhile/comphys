@@ -435,5 +435,76 @@ void plot_gdr() {
     LOG(comando);
     system(comando.c_str());
 }
+void blocking_plot(){
+    //ora faccio il plot
+    string comando;
+
+    comando = "gnuplot";
+    comando += " plot_blocking.plt";
+    LOG(comando);
+    system(comando.c_str());
+}
+void blocking(int N_t){
+    ifstream obs;
+    
+    double P[N_t], E[N_t];
+    double v_i;//variabile inutile
+
+    ofstream blocking;
+    blocking.open("blocking.dat");
+
+    obs.open("out/osservabili.dat");
+    
+    for (int i = 0; i < N_t; ++i){
+        obs >> v_i >> v_i >> v_i >> E[i] >> v_i >> P[i];//P(i) pressione istantanea
+    }
+    obs.close();
+
+    for(int B = 1; B<N_t/1; B++){ // vario B, B particelle per blocco
+
+        int NB = floor(N_t/B); // NB è il numero di blocchi, floor approssima a intero
+        // metto tutto a zero
+        double varpres=0;
+        double varenpot=0;
+        double pressionemedia=0;
+        double energiamedia=0;
+        double mean[NB]; // vettore delle medie su ciascun blocco
+        double meanen[NB]; // stessa cosa per pressione
+        
+        for (int jj = 1; jj <= NB; jj++){ // inizializzo a zero i vettori delle medie
+            mean[jj]=0.;
+            meanen[jj]=0.;
+        }
+        
+        for (int jj = 0; jj < NB; jj++){ // ciclo sul numero di blocchi
+            for (int kk=0; kk<B; kk++){ // ciclo sui B elementi del blocco
+                mean[jj] += P[jj*B+kk]; // sommo tutte le pressioni istantanee del blocco jj esimo
+                meanen[jj] += E[jj*B+kk]; // stessa cosa per le energie
+            }
+            mean[jj]=mean[jj]/B; // divido per B perché ho la media su B elementi, e questa è la media sul blocco jj esimo
+            meanen[jj]=meanen[jj]/B; 
+            pressionemedia += mean[jj]; // serve per la media totale
+            energiamedia += meanen[jj];
+        }
+        pressionemedia = pressionemedia/NB; // questa è la media totale della pressione
+        energiamedia=energiamedia/NB; //analogo per l'energia
+        for (int i= 0; i < NB; i++){ // ciclo sui blocchi
+            varpres += (mean[i]-pressionemedia)*(mean[i]-pressionemedia); 
+            varenpot += (meanen[i]-energiamedia)*(meanen[i]-energiamedia);
+        }
+        varpres = varpres/NB; // è la varianza
+        varenpot=varenpot/NB;
+        
+        // faccio l'errore finale 
+        double deltaP = sqrt(varpres/NB); // dalla formula
+        double deltaE=sqrt(varenpot/NB);
+    
+        blocking << B << "\t" << deltaP << "\t" << deltaE << endl;
+    }
+
+    blocking.close();
+    blocking_plot();//faccio fare il plot
+}
+
 
  #endif
