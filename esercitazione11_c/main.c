@@ -119,19 +119,13 @@ int main() {
 	double P_avg = P_sum / (N_t - t_eq);
 	double E_avg = E_sum / (N_t - t_eq);
 
-	var_E /= N_t - t_eq;
-	var_P /= N_t - t_eq;
-
-	var_E -= E_avg * E_avg;
-	var_P -= P_avg * P_avg;
-
-	var_E *= (N_t - t_eq) / (N_t - t_eq - 1);
-	var_P *= (N_t - t_eq) / (N_t - t_eq - 1);
+	var_E = ((var_E / (N_t - t_eq)) - E_avg * E_avg) * (N_t - t_eq) / (N_t - t_eq - 1);
+	var_P = ((var_P / (N_t - t_eq)) - P_avg * P_avg) * (N_t - t_eq) / (N_t - t_eq - 1);
 
 	fprintf(stderr, "P media finale = %f\t sqrt(varianza) = %f\n", P_avg, sqrt(var_P));
 	fprintf(stderr, "E media finale = %f\t sqrt(varianza) = %f\n", E_avg, sqrt(var_E));
 	fprintf(stderr, "Accettazione = %2.1f%%\tAccettati = %d\n", 100.0 * numero_accettati / (double)numero_proposti, numero_accettati);
 	fclose(dati); free(r);
-	// system("gnuplot plot.plt");
+	system("gnuplot plot.plt");
 	return 0;
 }
