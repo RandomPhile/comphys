@@ -43,7 +43,7 @@ int main() {
 	double A, dV;
 	int numero_proposti = 0, numero_accettati = 0;
 
-	double V, E, W, P, P_sum = 0;
+	double V, E[N_t], W, P[N_t], E_sum = 0, P_sum = 0;
 	const double K = 3 * N * T / 2;
 	FILE *dati = fopen("dati.dat", "w");
 
@@ -65,13 +65,13 @@ int main() {
 			}
 		}
 
-		E = K + V;
-		P = rho * (1 + W / (3.0 * T));
+		E[t] = K + V;
+		P[t] = rho * (1 + W / (3.0 * T));
 		if (t >= t_eq) {
-			P_sum += P;
+			E_sum += E[t];
+			P_sum += P[t];
 		}
-
-		fprintf(dati, "%d\t%f\t%f\t%f\t%f\t%f\t\n", t, K, V, E, P, P_sum / ((t+1) - t_eq));
+		fprintf(dati, "%d\t%f\t%f\t%f\t%f\t%f\t\n", t, K, V, E[t], P[t], P_sum / (t - t_eq + 1));
 
 		/* metropolis */
 		dV = 0;
@@ -109,9 +109,21 @@ int main() {
 		}
 	}
 
-	fprintf(stderr, "P media finale = %f\n", P_sum / N_t);
+	// varianza campionaria
+	double P_avg = P_sum / (N_t - t_eq + 1);
+	double E_avg = E_sum / (N_t - t_eq + 1);
+	double var_E = 0, var_P = 0;
+	for (int t = t_eq; t < N_t; ++t) {
+		var_E += (E[t] - E_avg) * (E[t] - E_avg);
+		var_P += (P[t] - P_avg) * (P[t] - P_avg);
+	}
+	var_E /= N_t - t_eq - 1;
+	var_P /= N_t - t_eq - 1;
+
+	fprintf(stderr, "P media finale = %f\t sqrt(varianza) = %f\n", P_avg, sqrt(var_P));
+	fprintf(stderr, "E media finale = %f\t sqrt(varianza) = %f\n", E_avg, sqrt(var_E));
 	fprintf(stderr, "Accettazione = %2.1f%%\tAccettati = %d\n", 100.0 * numero_accettati / (double)numero_proposti, numero_accettati);
 	fclose(dati); free(r);
-	system("gnuplot plot.plt");
+	// system("gnuplot plot.plt");
 	return 0;
 }
