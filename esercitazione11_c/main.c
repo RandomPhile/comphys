@@ -25,7 +25,9 @@ int main() {
 		{1.1, 3e4, 0.12},
 		{1.2, 2e4, 0.11}
 	}; double rho = sistema[caso].rho, t_eq = sistema[caso].t_eq, delta = sistema[caso].delta;
-
+	if (t_eq >= N_t) {
+		t_eq = N_t - 100;
+	}
 	double L = cbrt(N / rho);
 	double *r = (double*)malloc(3 * N * sizeof(double)); //x1,y1,z1,x2,y2,z2
 
@@ -43,9 +45,11 @@ int main() {
 	double A, dV;
 	int numero_proposti = 0, numero_accettati = 0;
 
-	double V, E[N_t], W, P[N_t], E_sum = 0, P_sum = 0;
+	double V, E, W, P, E_sum = 0, P_sum = 0;
 	const double K = 3 * N * T / 2;
 	FILE *dati = fopen("dati.dat", "w");
+
+	double var_E = 0, var_P = 0;
 
 	for (int t = 1; t <= N_t; ++t) {
 
@@ -65,13 +69,15 @@ int main() {
 			}
 		}
 
-		E[t] = K + V;
-		P[t] = rho * (1 + W / (3.0 * T));
+		E = K + V;
+		P = rho * (1 + W / (3.0 * T));
 		if (t >= t_eq) {
-			E_sum += E[t];
-			P_sum += P[t];
+			E_sum += E;
+			P_sum += P;
+			var_E += E * E;
+			var_P += P * P;
 		}
-		fprintf(dati, "%d\t%f\t%f\t%f\t%f\t%f\t\n", t, K, V, E[t], P[t], P_sum / (t - t_eq + 1));
+		fprintf(dati, "%d\t%f\t%f\t%f\t%f\t%f\t\n", t, K, V, E, P, P_sum / (t - t_eq));
 
 		/* metropolis */
 		dV = 0;
@@ -110,15 +116,17 @@ int main() {
 	}
 
 	// varianza campionaria
-	double P_avg = P_sum / (N_t - t_eq + 1);
-	double E_avg = E_sum / (N_t - t_eq + 1);
-	double var_E = 0, var_P = 0;
-	for (int t = t_eq; t < N_t; ++t) {
-		var_E += (E[t] - E_avg) * (E[t] - E_avg);
-		var_P += (P[t] - P_avg) * (P[t] - P_avg);
-	}
-	var_E /= N_t - t_eq - 1;
-	var_P /= N_t - t_eq - 1;
+	double P_avg = P_sum / (N_t - t_eq);
+	double E_avg = E_sum / (N_t - t_eq);
+
+	var_E /= N_t - t_eq;
+	var_P /= N_t - t_eq;
+
+	var_E -= E_avg * E_avg;
+	var_P -= P_avg * P_avg;
+
+	var_E *= (N_t - t_eq) / (N_t - t_eq - 1);
+	var_P *= (N_t - t_eq) / (N_t - t_eq - 1);
 
 	fprintf(stderr, "P media finale = %f\t sqrt(varianza) = %f\n", P_avg, sqrt(var_P));
 	fprintf(stderr, "E media finale = %f\t sqrt(varianza) = %f\n", E_avg, sqrt(var_E));
