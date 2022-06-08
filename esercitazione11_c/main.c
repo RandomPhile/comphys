@@ -3,26 +3,16 @@
 int main() {
 	/*** costanti ***/
 	const int M = 1; //1:CC, 2:BCC, 4:FCC
-	const int N = M * (const int)pow(3, 3);
+	const int N = M * pow(3, 3);
 	const double T = 1.1;
-	const int caso = 7; //tipo di sistema
+	const int caso = 5; //tipo di sistema
 	const int N_t  = 1e5; //t_eq + t_medie
 
 	/*** variabili ***/
 	srand(1); //default seed = 1
 	struct {double rho, t_eq, delta;} sistema[] = {
-		{0.01, 0, 10},
 		{0.1, 0, 1.91},
-		{0.2, 1e4, 0.81},
-		{0.3, 1e4, 0.55},
-		{0.4, 1e4, 0.45},
-		{0.5, 1e4, 0.38},
-		{0.6, 1e4, 0.31},
-		{0.7, 1e4, 0.27},
-		{0.8, 1e4, 0.21},
-		{0.9, 1e4, 0.18},
-		{1.0, 1e4, 0.15},
-		{1.1, 3e4, 0.12},
+		{0.8, 1e4, 0.23},
 		{1.2, 2e4, 0.11}
 	}; double rho = sistema[caso].rho, t_eq = sistema[caso].t_eq, delta = sistema[caso].delta;
 	if (t_eq >= N_t) {
@@ -31,12 +21,7 @@ int main() {
 	double L = cbrt(N / rho);
 	double *r = (double*)malloc(3 * N * sizeof(double)); //x1,y1,z1,x2,y2,z2
 
-	/* stampa informazioni sistema */
-	fprintf(stderr, "M = %d\tN = %d\trho = %.2f\tL = %f\tL/2 = %f\n", M, N, rho, L, L / 2);
-
 	crea_reticolo(r, L, N, M);
-
-	// for (int i = 0; i < 3 * N; i += 3) fprintf(stderr, "%f\t%f\t%f\n", r[i + 0], r[i + 1], r[i + 2]);
 
 	/* variabili per MRT2 */
 	int n; //molecola scelta in modo casuale ad ogni passo
@@ -48,8 +33,10 @@ int main() {
 	double V, E, W, P, E_sum = 0, P_sum = 0;
 	const double K = 3 * N * T / 2;
 	FILE *dati = fopen("dati.dat", "w");
-
 	double var_E = 0, var_P = 0;
+
+	/* stampa informazioni sistema */
+	fprintf(stderr, "M = %d\tN = %d\trho = %.2f\tL = %f\tL/2 = %f\n", M, N, rho, L, L / 2);
 
 	for (int t = 1; t <= N_t; ++t) {
 

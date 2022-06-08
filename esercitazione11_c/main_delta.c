@@ -1,62 +1,18 @@
 #include "funzioni.h"
 
-/*
-struct {double rho, t_eq, delta;} sistema[] = {//aggiornati con N=4*4^3, N_t=1e4
-	{0.01, 0, 10},
-	{0.1, 0, 2.44},
-	{0.2, 0, 0.98},
-	{0.3, 0, 0.65},
-	{0.4, 0, 0.52},
-	{0.5, 0, 0.41},
-	{0.6, 0, 0.34},
-	{0.7, 0, 0.28},
-	{0.8, 0, 0.24},
-	{0.9, 0, 0.19},
-	{1.0, 0, 0.16},
-	{1.1, 0, 0.13},
-	{1.2, 0, 0.10}
-}; double rho, t_eq, delta;
-
-struct {double rho, t_eq, delta;} sistema[] = {//aggiornati con N=4*4^3, N_t=1e4
-	{0.01, 0, 10},
-	{0.1, 0, 1.93},
-	{0.2, 0, 0.84},
-	{0.3, 0, 0.61},
-	{0.4, 0, 0.48},
-	{0.5, 0, 0.38},
-	{0.6, 0, 0.31},
-	{0.7, 0, 0.27},
-	{0.8, 0, 0.21},
-	{0.9, 0, 0.18},
-	{1.0, 0, 0.15},
-	{1.1, 0, 0.12},
-	{1.2, 0, 0.11}
-}; double rho, t_eq, delta;
-*/
 int main() {
 	/*** costanti ***/
 	const int M = 4; //1:CC, 2:BCC, 4:FCC
-	const int N = M * (const int)pow(5, 3);
+	const int N = M * pow(5, 3);
 	const double T = 1.1;
-	// const int caso = 7; //tipo di sistema
-	const int N_t  = 1e4; //t_eq + t_medie
+	const int N_t  = 1e5; //t_eq + t_medie
 
 	/*** variabili ***/
-	srand(12312321); //default seed = 1
-	struct {double rho, t_eq, delta;} sistema[] = {//aggiornati con N=4*5^3, N_t=1e6
-		{0.01, 0, 10},
+	srand(1); //default seed = 1
+	struct {double rho, t_eq, delta;} sistema[] = {//aggiornati con N=4*5^3, N_t=1e5
 		{0.1, 0, 1.91},
-		{0.2, 0, 0.81},
-		{0.3, 0, 0.55},
-		{0.4, 0, 0.45},
-		{0.5, 0, 0.38},
-		{0.6, 0, 0.31},
-		{0.7, 0, 0.27},
-		{0.8, 0, 0.21},
-		{0.9, 0, 0.18},
-		{1.0, 0, 0.15},
-		{1.1, 0, 0.12},
-		{1.2, 0, 0.11}
+		{0.8, 1e4, 0.23},
+		{1.2, 2e4, 0.11}
 	}; double rho, t_eq, delta;
 
 	double L;
@@ -71,7 +27,7 @@ int main() {
 
 	int count;
 	double incremento_delta = 0.01;
-	for (int caso = 1; caso < 13; ++caso) {
+	for (int caso = 0; caso < 3; ++caso) {
 		count = 0; rate = 1;
 		rho = sistema[caso].rho, t_eq = sistema[caso].t_eq, delta = sistema[caso].delta;
 		L = cbrt(N / rho);

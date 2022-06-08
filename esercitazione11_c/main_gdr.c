@@ -3,7 +3,7 @@
 int main() {
 	/*** costanti ***/
 	const int M = 4; //1:CC, 2:BCC, 4:FCC
-	const int N = M * (const int)pow(5, 3);
+	const int N = M * pow(5, 3);
 	const double T = 1.1;
 	const int caso = 7; //tipo di sistema
 	const int N_t  = 1e5; //t_eq + t_medie
@@ -11,18 +11,8 @@ int main() {
 	/*** variabili ***/
 	srand(1); //default seed = 1
 	struct {double rho, t_eq, delta;} sistema[] = {
-		{0.01, 0, 10},
 		{0.1, 0, 1.91},
-		{0.2, 1e4, 0.81},
-		{0.3, 1e4, 0.55},
-		{0.4, 1e4, 0.45},
-		{0.5, 1e4, 0.38},
-		{0.6, 1e4, 0.31},
-		{0.7, 1e4, 0.27},
-		{0.8, 1e4, 0.21},
-		{0.9, 1e4, 0.18},
-		{1.0, 1e4, 0.15},
-		{1.1, 3e4, 0.12},
+		{0.8, 1e4, 0.23},
 		{1.2, 2e4, 0.11}
 	}; double rho = sistema[caso].rho, t_eq = sistema[caso].t_eq, delta = sistema[caso].delta;
 	if (t_eq >= N_t) {
