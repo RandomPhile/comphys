@@ -266,13 +266,13 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq
         }
         W /= N;
         if(t>t_eq){
-            K_avg_r = K_avg_r + (K - K_avg_r) / ((i_t - (int)(t_eq / dt)));//forse è +2
+            K_avg_r = K_avg_r + (K - K_avg_r) / ((i_t - (int)(t_eq / dt) + 1.));
             T_r = 2.0 * K_avg_r / (3.0 * N);
         }
 
 
-        K_avg = K_avg + (K - K_avg) / i_t;//forse è +2
-        W_avg = W_avg + (W - W_avg) / i_t;//forse è +2
+        K_avg = K_avg + (K - K_avg) / (i_t + 1.);
+        W_avg = W_avg + (W - W_avg) / (i_t + 1.);
 
         T = 2.0 * K_avg / (3.0 * N);
         P = (1 + W_avg / (3.0 * T_req));
@@ -297,7 +297,7 @@ void plot_osservabili() {
 double pressione(double rho, double sigma, double dt, double t1, double t_eq) {
     double L = cbrt(N / rho);
     const int N_t = t1 / dt;
-    mat r(N,3), v(N,3), a(N,3);//, *dr[N]; vec_2D(dr, N);
+    mat r(N,3), v(N,3), a(N,3);//, 
     rowvec dr(3);
     double dr_mod;
 
@@ -330,7 +330,7 @@ double pressione(double rho, double sigma, double dt, double t1, double t_eq) {
         }
         W /= N;
         if(i_t >= (int)(t_eq / dt)){
-            W_avg = W_avg + (W - W_avg) / (i_t - (int)(t_eq / dt));//forse è +2
+            W_avg = W_avg + (W - W_avg) / (i_t - (int)(t_eq / dt) + 1.);//forse è +2
         }
     }
     return (1 + W_avg / (3.0 * T_req));
