@@ -35,7 +35,7 @@ ofstream dati, gnuplot, risultati, dati_blocking;
 double mod(cube &r, double riga, double colonna);
 double V_LJ(double r, double L);
 void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L, cube &dr, cube &dr_n);
-
+double dV_LJ(double r, double L);
 // -----------------------------------------FUNZIONI----------------------------FUNZIONI------------------------------FUNZIONI-----------------------------------------------
 // -----------------------------------------FUNZIONI----------------------------FUNZIONI------------------------------FUNZIONI-----------------------------------------------
 
@@ -138,10 +138,10 @@ int main() {
 
     //     for (int i = 0; i < N_t; ++i) {//passi
     //         if(i>passi_eq(caso)){//calcola le medie
-    //             V_m = V_m * (i - passi_eq(caso));
-    //             W_m = W_m * (i - passi_eq(caso));
-    //             var_P = var_P * (i - passi_eq(caso));
-    //             var_E = var_E * (i - passi_eq(caso));
+    //             V_m = V_m * (i - passi_eq(caso) -1.0);
+    //             W_m = W_m * (i - passi_eq(caso) -1.0);
+    //             var_P = var_P * (i - passi_eq(caso) -1.0);
+    //             var_E = var_E * (i - passi_eq(caso) -1.0);
     //         }
     //         dr_n=dr;
     //         MRT2(r, &V, &W, N, Delta, T_req, L, dr, dr_n);//metropolis
@@ -150,13 +150,13 @@ int main() {
     //         P = rho(caso) * (1 + W / (3.0 * T_req));
 
     //         if(i>passi_eq(caso)){//tempo di equilibrazione e calcola le medie
-    //             V_m = (V_m + V) / (i - passi_eq(caso) + 1.0);
-    //             W_m = (W_m + W) / (i - passi_eq(caso) + 1.0);
+    //             V_m = (V_m + V) / (i - passi_eq(caso));
+    //             W_m = (W_m + W) / (i - passi_eq(caso));
     //             E_m = E_c + V_m;
                 
     //             P_m = rho(caso) * (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
-    //             var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
-    //             var_E = (var_E + (E - E_m) * (E - E_m)) / (i - passi_eq(caso) + 1.0);//calcolo la varianza "ordinaria"
+    //             var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso));//calcolo la varianza "ordinaria"
+    //             var_E = (var_E + (E - E_m) * (E - E_m)) / (i - passi_eq(caso));//calcolo la varianza "ordinaria"
     //         }
 
     //         if (caso_min != -1) {

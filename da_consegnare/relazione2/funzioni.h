@@ -4,8 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+
 #define LOG(x) cout<<x<<endl;
+
 using namespace std;
+
 extern const int N;
 extern const bool relativ;
 
@@ -13,7 +16,7 @@ int eulero_exp(double t, double *x, double *y, double h,
                double (*f)(double, double, double, double*),
                double *fargs,
                double (*g)(double, double, double, double*),
-               double *gargs) {
+               double *gargs) {//algoritmo di eulero esplicito
 	double temp = *x;
 	*x += h * f(t, *x, *y, fargs);
 	*y += h * g(t, temp, *y, gargs);
@@ -23,7 +26,7 @@ int runge_kutta(double t, double *x, double *y, double h,
                 double (*f)(double, double, double, double*),
                 double *fargs,
                 double (*g)(double, double, double, double*),
-                double *gargs) {
+                double *gargs) {//algoritmo di runge kutta
 	double k1 = h * f(t, *x, *y, fargs);
 	double l1 = h * g(t, *x, *y, gargs);
 
@@ -40,7 +43,7 @@ int runge_kutta(double t, double *x, double *y, double h,
 	*y += (l1 + 2 * l2 + 2 * l3 + l4) / 6;
 	return 0;
 }
-double dP(double r, double P, double m, double *args) {
+double dP(double r, double P, double m, double *args) {//equazione per la pressione separata in relativistica e non
 	double gam = args[0], K = args[1];
 	double ro = pow(P / (K * (gam - 1)), 1.0 / gam);
 
@@ -51,30 +54,31 @@ double dP(double r, double P, double m, double *args) {
 		return -m * ro / (r * r);
 	}
 }
-double dm(double r, double P, double m, double *args) {
+double dm(double r, double P, double m, double *args) {//equazione per la massa separata in relativistica e non
 	double gam = args[0], K = args[1];
 	double ro = pow(P / (K * (gam - 1)), 1.0 / gam);
 
 	if (relativ) {
 		double eps = ro + K * pow(ro, gam);
 		return r * r * eps;
-	} else {
+	} 
+	else {
 		return r * r * ro;
 	}
 }
 
 void risolvi_stelle(double r0, double h, double *gam, double *K, double *Pc_max, double *Pc_min, double **M, double **Pc, double **R) {
 	double m, P, r;
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < 3; ++i) {//ciclo sulle stelle
 		double args[] = {gam[i], K[i]};
 
-		for (int j = 0; j < N; ++j) {
+		for (int j = 0; j < N; ++j) {//ciclo sui valori di pressione centrale
 			Pc[i][j] = Pc_min[i] * pow(Pc_max[i] / Pc_min[i], (double)j / (N - 1));
 
 			/*inizializzo variabili*/
 			P = Pc[i][j]; m = 0; r = r0;
 
-			while (P > 0) {
+			while (P > 0) {//condizione di accettabilità delle soluzioni
 				R[i][j] = r;
 				M[i][j] = m;
 				runge_kutta(r, &P, &m, h, dP, args, dm, args);
@@ -85,12 +89,16 @@ void risolvi_stelle(double r0, double h, double *gam, double *K, double *Pc_max,
 }
 void stampa_valori(double **M, double **Pc, double **R, double R0, double M0, double *gam) {
 	ofstream dati; dati.open("out/dati.dat");
+
 	const char *colori[3] = {"red", "blue", "black"};
 	const char *stelle[3] = {"{/Symbol G} = 5/3", "{/Symbol G} = 4/3", "{/Symbol G} = 2.54"};
+
 	double cost;
-	for (int i = 0; i < 3; ++i) {
+
+	for (int i = 0; i < 3; ++i) {//ciclo sulle stelle
 		dati << "\n\n" << stelle[i] << endl;
-		for (int j = 0; j < N; ++j) {
+
+		for (int j = 0; j < N; ++j) {//ciclo sui valori di pressione centrale
 			cost = pow(M[i][j], 2 - gam[i]) * pow(R[i][j], 3 * gam[i] - 4);
 			dati << Pc[i][j] << "\t" << R[i][j] << "\t" << M[i][j] << "\t" << cost << "\t" << R[i][j]*R0 << "\t" << M[i][j]*M0 << endl;
 		}
@@ -100,25 +108,27 @@ void stampa_valori(double **M, double **Pc, double **R, double R0, double M0, do
 void stampa_valori_rel(double **M, double **Pc, double **R, double R0, double M0, double *gam) {
 	ofstream rect; rect.open("out/rect.dat");
 	ofstream dati; dati.open("out/dati.dat");
+
 	double deriv, cost;
 	bool up = true;
+
 	const char *colori[3] = {"red", "blue", "black"};
 	const char *stelle[3] = {"{/Symbol G} = 5/3", "{/Symbol G} = 4/3", "{/Symbol G} = 2.54"};
 	const char *comando = "\" fs transparent solid 0.15 border dashtype 2 lc rgb \"";
-	for (int i = 0; i < 3; ++i) {
-		// cout << "\n\nStella " << i + 1 << endl;
+
+	for (int i = 0; i < 3; ++i) {//ciclo sulle stelle
 		dati << "\n\n" << stelle[i] << endl;
-		for (int j = 0; j < N; ++j) {
+
+		for (int j = 0; j < N; ++j) {//ciclo sui valori di pressione centrale
 			if (j < N - 1) {
 				deriv = (M[i][j + 1] - M[i][j]) / (Pc[i][j + 1] - Pc[i][j]);
 				deriv = deriv / abs(deriv);
+
 				if (deriv > 0 and up == true) {
-					// cout << "inizio = " << Pc[i][j] << endl;
 					rect << "set object rect from " << Pc[i][j] << ",0 to ";
 					up = false;
 				}
 				if (deriv < 0 and up == false) {
-					// cout << "fine = " << Pc[i][j] << endl;
 					rect << Pc[i][j] << ",0.2 fc rgb \"" << colori[i] << comando << colori[i] << "\"" << endl;
 					up = true;
 				}

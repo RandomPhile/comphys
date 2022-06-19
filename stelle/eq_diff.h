@@ -1,13 +1,17 @@
 #ifndef eq_diff_h
 #define eq_diff_h
+
 using namespace std;
-extern int N; extern bool relativ;
+extern int N; 
+extern bool relativ;
+
 extern ofstream dati, rect;
+
 int eulero_exp(double t, double *x, double *y, double h,
                double (*f)(double, double, double, double*),
                double *fargs,
                double (*g)(double, double, double, double*),
-               double *gargs) {
+               double *gargs) {//algoritmo di eulero esplicito
     double temp = *x;
     *x += h * f(t, *x, *y, fargs);
     *y += h * g(t, temp, *y, gargs);
@@ -18,7 +22,7 @@ int runge_kutta(double t, double *x, double *y, double h,
                 double (*f)(double, double, double, double*),
                 double *fargs,
                 double (*g)(double, double, double, double*),
-                double *gargs) {
+                double *gargs) {//algoritmo di runge kutta
     double k1 = h * f(t, *x, *y, fargs);
     double l1 = h * g(t, *x, *y, gargs);
 
@@ -36,7 +40,7 @@ int runge_kutta(double t, double *x, double *y, double h,
     return 0;
 }
 
-double dP(double r, double P, double m, double *args) {
+double dP(double r, double P, double m, double *args) {//equazione per la pressione separo in relativistica e non
     double gam = args[0], K = args[1];
     double ro = pow(P / (K * (gam - 1)), 1.0 / gam);
 
@@ -48,7 +52,7 @@ double dP(double r, double P, double m, double *args) {
     }
 }
 
-double dm(double r, double P, double m, double *args) {
+double dm(double r, double P, double m, double *args) {//equazione per la massa separo in relativistica e non
     double gam = args[0], K = args[1];
     double ro = pow(P / (K * (gam - 1)), 1.0 / gam);
 
