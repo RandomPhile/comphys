@@ -7,7 +7,7 @@
 double f (double, double, double, double*); //identifico P con x, m con y e r con t
 double g (double, double, double, double*);
 
-bool RK = 0; //mettere 1 se voglio la convergenza dell'errore con RK, viceversa mettere 0 se voglio la convergenza con Eulero
+bool RK = 0; //mettere 1 se voglio la convergenza dell'errore con RK, viceversa mettere 0 se voglio la convergenza con Eulero attenzione da modificare anche su plot.plt
 
 int main() {
 
