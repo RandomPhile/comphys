@@ -3,7 +3,7 @@
 #include <math.h>
 #include "eq_diff.h"
 
-//per confrontare la convergenza dell'errore, partiamo da un passo grande, come 1e-2, 1e-3, e man mano divido per 2
+//per confrontare la convergenza dell'errore, partiamo da un passo 1e-3 e man mano dividiamo per 2
 double f (double, double, double, double*); //identifico P con x, m con y e r con t
 double g (double, double, double, double*);
 
@@ -11,21 +11,21 @@ bool RK = 0; //mettere 1 se voglio la convergenza dell'errore con RK, viceversa 
 
 int main() {
 
-   int N_E = 12; //numero di iterazioni, con RK bastano pochi punti (tre, quattro), con EULERO mettere almeno una decina
+   int N_E = 12; //numero di iterazioni, con RK bastano poche iterazioni (tre, quattro), con EULERO mettere almeno una decina
    double r, h_0, h; 
    int counter = 0; //contatore per le iterazioni
-   int check, indice; //fattori che mi serve come condizione in un if
+   int check, indice; //fattori che mi servono come condizione in un if
    double fargs[2]; //parametri di f e g
-   double P_c = 47.367;
+   double P_c = 47.367; //valore di pressione centrale iniziale; è un valore preso a caso fra quelli utilizzati precedentemente
  
    
-   r = 1e-10;
+   r = 1e-10; //raggio iniziale
    h_0 = 1e-3; //step di partenza
-   h = h_0;
+   h = h_0; //h_0 è il passo iniziale, h è quello che divido per 2 volta per volta
    
    int dim0;                //so già quale sarà la dimensione dell'array di dati all'iterazione zero, chiaramente questo vale per h0 = 1e-3
    
-   if (RK) {
+   if (RK) {    //la dimensione della soluzione per h = h_0 dipende da quale algoritmo utilizzo per risolvere le equazioni
       dim0 = 510;
    }
    else {
@@ -34,7 +34,7 @@ int main() {
    
    double vec_P_E[dim0][N_E + 1]; //matrice in cui salvo tutti i dati
      
-   double P_var_E, m_var_E;
+   double P_var_E, m_var_E;  //variabili che aggiorno con RK o EU_EXP
    double *P_E, *m_E;
    
    m_E = &m_var_E;
@@ -44,13 +44,13 @@ int main() {
    fargs[0] = 0.05; //inizializzo parametri e condizioni iniziali
    fargs[1] = 5.0/3.0;
                            
-   FILE *st;
+   FILE *st;  //puntatore a file per stampare i risultati in un file .txt
    
    char filename[20]; //stringhe a cui assegnerò nomi diversi ad ogni iterazione
  
    for (int n = 0; n <= N_E; n++) {
    
-      P_var_E = P_c;
+      P_var_E = P_c;   //inizializzazione
       m_var_E = 0;   
       r = 1e-10;
       
@@ -61,15 +61,15 @@ int main() {
       counter = 0;
       
       
-         if (n == 0) {
+         if (n == 0) { //alla prima iterazione, eseguo normalmente
          
             while (P_var_E > 0) {
    
-               fprintf(st, "%.5f\t%.5f\n", r, P_var_E);
-               vec_P_E[counter][n] = P_var_E;
+               fprintf(st, "%.5f\t%.5f\n", r, P_var_E); //stampo le variabili ad ogni passo
+               vec_P_E[counter][n] = P_var_E; //memorizzo la soluzione ad ogni passo
                counter++;  
                
-               if (RK) {
+               if (RK) { //aggiorno le variabili
                   runge_kutta(r, h, P_E, m_E, f, fargs, g, fargs);
                }
                else{     
@@ -81,25 +81,24 @@ int main() {
                
          }
       
-         else {  
+         else {  //alle iterazioni 2,3,... non devo salvare tutti i punti. Dimezzando il passo, escludo i "punti in più" con la variabile check. Devo farlo per
+                                         //poter confrontare array di lunghezza diversa
          
             check = pow(2,n);
             
             while (P_var_E > 0) {
             
-               if ( (counter % check ) == 0 && (counter/ (double) check ) < dim0 ) { //la prima volta non entra, poi dimezza l'indice
-                                                                                     //per avere array della stessa dimensione nonstante dimezzo 
-                                                                                     //il passo
+               if ( (counter % check ) == 0 && (counter/ (double) check ) < dim0 ) { 
       
-                  fprintf(st, "%.5f\t%.5f\n", r, P_var_E);
+                  fprintf(st, "%.5f\t%.5f\n", r, P_var_E); //salvo solo i punti che mi interessano
                   indice = counter / (double) check;
-                  vec_P_E[indice][n] = P_var_E;
+                  vec_P_E[indice][n] = P_var_E; //li salvo anche in un array
      
                }
    
       
                counter++;       
-               if (RK) {
+               if (RK) { //aggiorno
                   runge_kutta(r, h, P_E, m_E, f, fargs, g, fargs);
                }
                else{     
