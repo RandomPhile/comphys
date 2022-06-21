@@ -36,7 +36,7 @@ double mod(rowvec r){//calcolo il modulo della posizione relativa delle particel
     double mod= sqrt(pow1(r(0),2)+pow1(r(1),2)+pow1(r(2),2));
     return mod;
 }
-void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento 
+void crea_reticolo(mat &r, double L) {// crea il reticolo CC, BCC, FCC
     int n = cbrt(N / M);
     double L_cella = L / cbrt(N / M);
     int cont = 0;//contatore particella
@@ -56,7 +56,7 @@ void crea_reticolo(mat &r, double L) {// passo la matrice per riferimento
         }
     }
 }
-void distr_gauss(mat &x, double sigma, int num_righe, int num_col) {
+void distr_gauss(mat &x, double sigma, int num_righe, int num_col) { //crea una distribuzione gaussiana per le velocità
     //Formule di Box-Muller
     for (int i = 0; i < num_righe; ++i) {
         for (int j = 0; j < num_col; ++j){
@@ -81,7 +81,7 @@ int input() {
     cout << "step: "; cin >> input;
     return input;
 }
-void aggiorna_a(mat &r, mat &a, double L) {
+void aggiorna_a(mat &r, mat &a, double L) {//aggiorna le forze che agiscono sulle particelle
     rowvec dr(3);
     for (int i = 0; i < N; ++i) {
         for (int k = 0; k < 3; ++k){
@@ -122,7 +122,7 @@ void stampa_coord(mat &r, mat &v, ofstream &file) {
         file << "P" << i << "\t" << r(i,0) << "\t" << r(i,1) << "\t" << r(i,2) << "\t" <<v(i,0) << "\t" << v(i,1) << "\t" << v(i,2) << "\n";
     }
 }
-void v_cm_0(mat &v) {
+void v_cm_0(mat &v) {//mette la velocità media a zero
     rowvec v_cm = {0, 0, 0};
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < 3; ++j){
@@ -136,7 +136,7 @@ void v_cm_0(mat &v) {
         }
     }
 }
-void vel_verlet(mat &r, mat &v, mat &a, double dt, double L) {
+void vel_verlet(mat &r, mat &v, mat &a, double dt, double L) {//algoritmo di velocity verlet
     mat a_prev(N,3);
     for (int i = 0; i < N; ++i) {
         //POSIZIONI
@@ -161,10 +161,10 @@ void vel_verlet(mat &r, mat &v, mat &a, double dt, double L) {
         }
     }
 }
-void calcolo_coordinate(string coord_path, double rho, double sigma, double dt, double t1) {
+void calcolo_coordinate(string coord_path, double rho, double sigma, double dt, double t1) {//calcola le coordinate delle particelle
     double L = cbrt(N / rho);
     const int N_t = t1 / dt;
-    mat r(N,3), v(N,3), a(N,3);//, *dr[N]; vec_2D(dr, N);
+    mat r(N,3), v(N,3), a(N,3);
     ofstream coord;
 
     /*** inizializzo variabili ***/
@@ -184,7 +184,7 @@ void calcolo_coordinate(string coord_path, double rho, double sigma, double dt, 
 
     coord.close();
 }
-void plot_coordinate(string coord_path, int N_step, double pausa) {
+void plot_coordinate(string coord_path, int N_step, double pausa) {//esegue l'animazione delle particelle 
     ifstream coord_in; string comando;
     int N_t; double rho, sigma, dt;
 
@@ -212,7 +212,7 @@ void plot_coordinate(string coord_path, int N_step, double pausa) {
     LOG(comando);
     system(comando.c_str());
 }
-void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq) {
+void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq) {//calcola le osservabili
     ifstream coord_in; ofstream obs;
     string line;
     int N_t; double rho, sigma, dt;
@@ -239,7 +239,7 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq
         for (int i = 0; i < N; ++i) {
             coord_in >> line; //scarta la prima colonna
 
-            coord_in >> r(i,0) >> r(i,1) >> r(i,2);
+            coord_in >> r(i,0) >> r(i,1) >> r(i,2);//importo le posinioni e le velocitá per calcolare le osservabili
             coord_in >> v(0) >> v(1) >> v(2);
 
             v_mod = mod(v);
@@ -265,11 +265,6 @@ void calcolo_osservabili_da_file(string coord_path, string obs_path, double t_eq
             }
         }
         W /= N;
-        if(t>t_eq){
-            K_avg_r = K_avg_r + (K - K_avg_r) / ((i_t - (int)(t_eq / dt) + 1.));
-            T_r = 2.0 * K_avg_r / (3.0 * N);
-        }
-
 
         K_avg = K_avg + (K - K_avg) / (i_t + 1.);
         W_avg = W_avg + (W - W_avg) / (i_t + 1.);
@@ -297,7 +292,7 @@ void plot_osservabili() {
 double pressione(double rho, double sigma, double dt, double t1, double t_eq) {
     double L = cbrt(N / rho);
     const int N_t = t1 / dt;
-    mat r(N,3), v(N,3), a(N,3);//, 
+    mat r(N,3), v(N,3), a(N,3);
     rowvec dr(3);
     double dr_mod;
 
@@ -351,7 +346,7 @@ void plot_pressioni() {
     LOG(comando);
     system(comando.c_str());
 }
-void calcolo_coordinate_per_gdr(string coord_g_path, double rho, double sigma, double dt, double t1) {
+void calcolo_coordinate_per_gdr(string coord_g_path, double rho, double sigma, double dt, double t1) {//calcola le coordinate per la g(r)
     ofstream coord_gdr;
     coord_gdr.open(coord_g_path);
 
@@ -383,7 +378,7 @@ void calcolo_coordinate_per_gdr(string coord_g_path, double rho, double sigma, d
     }
     coord_gdr.close();
 }
-void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_bins) {
+void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_bins) {//calcola la g(r)
     ifstream coord_gdr;
     string line;
     coord_gdr.open(coord_g_path);
@@ -402,10 +397,10 @@ void calcolo_gdr_da_file(string coord_g_path, string g_path, double rho, int N_b
     double g, rp_mod, r_k;
     for (int p = 0; p < N; ++p){
         coord_gdr >> line;
-        // cout<<line<<endl;
+        
         for (int i = 0; i < N; ++i) {
             coord_gdr >> rp_mod;
-            // cout<<rp_mod<<endl;
+            
             for (int k = 0; k < N_bins; ++k) {
                 r_k = (2 * k + 1) * delta_r / 2;
                 if (rp_mod > r_k - delta_r / 2 && rp_mod <= r_k + delta_r / 2) {
