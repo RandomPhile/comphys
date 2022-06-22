@@ -205,5 +205,79 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
     blocking_plot();//faccio fare il plot
 }
 
+void bootstrap(int N_t){//crea e plotta il grafico del blocking
+    ifstream dati_blocking;
+    
+    rowvec P(N_t), E(N_t);
+
+    ofstream bootstrap;
+    bootstrap.open("bootstrap.dat");
+
+    dati_blocking.open("dati_blocking.dat");
+    
+    for (int i = 0; i < N_t; ++i){
+        dati_blocking >> P(i) >> E(i);//P(i) pressione istantanea, E(i) energia istantanea
+    }
+    dati_blocking.close();
+
+    int N_B_prev=0;
+    int N_boot = 5e3;
+
+    for (int B = 1; B < N_t/3; B++){
+
+        int N_B = floor(N_t / B);
+        
+        if(N_B!=N_B_prev){
+
+            cube PB(N_B, B, N_boot);
+            cube EB(N_B, B, N_boot);
+
+            mat PB_m(N_B, N_boot, fill::zeros);
+            mat EB_m(N_B, N_boot, fill::zeros);
+
+            rowvec PB_m_tot(N_boot, fill::zeros);
+            rowvec EB_m_tot(N_boot, fill::zeros);
+            rowvec var_PB(N_boot, fill::zeros);
+            rowvec var_EB(N_boot, fill::zeros);
+
+            for (int i = 0; i < N_boot; ++i){//numero di bootstrap
+                for (int j = 0; j < N_B; ++j){//ciclo sui blocchi
+                    for (int k = 0; k < B; ++k){//resampling dei punti per ogni blocco
+                        int n = rint((rand() / (RAND_MAX + 1.)) * B);
+
+                        PB(j, k, i) = P(n + j * N_B);//creo i blocchi resampled
+                        EB(j, k, i) = E(n + j * N_B);
+
+                        PB_m (j, i) +=  PB(j, k, i) / B;//calcolo le medie nei singoli blocchi 
+                        EB_m (j, i) +=  EB(j, k, i) / B;
+                    }
+
+                    PB_m_tot(i) += PB_m (j, i) / N_B;
+                    EB_m_tot(i) += EB_m (j, i) / N_B;
+                }
+            }
+
+            double var_PB_tot = 0;
+            double var_EB_tot = 0;
+
+            for (int i = 0; i < N_boot; ++i){
+                for (int j = 0; j < N_B; ++j){
+                    var_PB(i) += (PB_m(j, i) - PB_m_tot(i)) * (PB_m(j, i) - PB_m_tot(i)) / N_B;
+                    var_EB(i) += (EB_m(j, i) - EB_m_tot(i)) * (EB_m(j, i) - EB_m_tot(i)) / N_B;
+                }
+                var_PB_tot += var_PB(i) / N_boot;
+                var_EB_tot += var_EB(i) / N_boot;
+            }
+
+            bootstrap << B << "\t" << sqrt(var_PB_tot / N_B) << "\t" << sqrt(var_EB_tot / N_B) << endl;
+
+            N_B_prev=N_B;
+        }
+    }
+
+    bootstrap.close();
+    blocking_plot();//faccio fare il plot
+}
+
 
 #endif 
