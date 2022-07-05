@@ -74,7 +74,7 @@ int main() {
 
     // bootstrap(passi_eq(caso_min)+q);//plot con bootstrap blocking
 
-    bsp_blocking(passi_eq(caso_min)+q);
+    jackknife(passi_eq(caso_min)+q);
 
     return 0;
 }

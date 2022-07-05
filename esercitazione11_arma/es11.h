@@ -221,7 +221,7 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
     dati_blocking.close();
 
     int N_B_prev=0;
-    int N_boot = 5e2;
+    int N_jack = 5e2;
 
     for (int B = 300; B < N_t/3; B+=5){
 
@@ -229,18 +229,18 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
         
         if(N_B!=N_B_prev){
 
-            cube PB(N_B, B, N_boot);
-            cube EB(N_B, B, N_boot);
+            cube PB(N_B, B, N_jack);
+            cube EB(N_B, B, N_jack);
 
-            mat PB_m(N_B, N_boot, fill::zeros);
-            mat EB_m(N_B, N_boot, fill::zeros);
+            mat PB_m(N_B, N_jack, fill::zeros);
+            mat EB_m(N_B, N_jack, fill::zeros);
 
-            rowvec PB_m_tot(N_boot, fill::zeros);
-            rowvec EB_m_tot(N_boot, fill::zeros);
-            rowvec var_PB(N_boot, fill::zeros);
-            rowvec var_EB(N_boot, fill::zeros);
+            rowvec PB_m_tot(N_jack, fill::zeros);
+            rowvec EB_m_tot(N_jack, fill::zeros);
+            rowvec var_PB(N_jack, fill::zeros);
+            rowvec var_EB(N_jack, fill::zeros);
 
-            for (int i = 0; i < N_boot; ++i){//numero di bootstrap
+            for (int i = 0; i < N_jack; ++i){//numero di bootstrap
                 for (int j = 0; j < N_B; ++j){//ciclo sui blocchi
                     for (int k = 0; k < B; ++k){//resampling dei punti per ogni blocco
                         int n = rint((rand() / (RAND_MAX + 1.)) * B);
@@ -260,13 +260,13 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
             double var_PB_tot = 0;
             double var_EB_tot = 0;
 
-            for (int i = 0; i < N_boot; ++i){
+            for (int i = 0; i < N_jack; ++i){
                 for (int j = 0; j < N_B; ++j){
                     var_PB(i) += (PB_m(j, i) - PB_m_tot(i)) * (PB_m(j, i) - PB_m_tot(i)) / N_B;
                     var_EB(i) += (EB_m(j, i) - EB_m_tot(i)) * (EB_m(j, i) - EB_m_tot(i)) / N_B;
                 }
-                var_PB_tot += var_PB(i) / N_boot;
-                var_EB_tot += var_EB(i) / N_boot;
+                var_PB_tot += var_PB(i) / N_jack;
+                var_EB_tot += var_EB(i) / N_jack;
             }
 
             bootstrap << B << "\t" << sqrt(var_PB_tot / N_B) << "\t" << sqrt(var_EB_tot / N_B) << endl;
@@ -279,9 +279,7 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
     blocking_plot();//faccio fare il plot
 }
 
-void bsp_blocking(int N_t){
-    int N_boot = 1e3;
-
+void jackknife(int N_t){
     rowvec P(N_t), E(N_t);
 
     ifstream dati_blocking;
@@ -297,22 +295,19 @@ void bsp_blocking(int N_t){
 
     int N_B_prev=1;//scarto il blocco singolo
 
-    for (int B = 1; B < N_t/2; B+=5){
+    for (int B = 1; B < N_t/3; B+=5){
         double sigma_EB = 0, sigma_PB = 0;
         int N_B = floor(N_t / B);
         
         if(N_B!=N_B_prev){
-            int N_B_boot= N_B - 1;
-            
-            rowvec n(N_B_boot);
             rowvec P_m(N_B, fill::value(0));//pressione media del blocco
             rowvec E_m(N_B, fill::value(0));//energia media del blocco
 
-            rowvec P_m_boot(N_boot, fill::value(0));//pressione media del blocco
-            rowvec E_m_boot(N_boot, fill::value(0));//energia media del blocco
+            rowvec P_m_jack(N_B, fill::value(0));//pressione media del blocco
+            rowvec E_m_jack(N_B, fill::value(0));//energia media del blocco
 
-            rowvec var_PB(N_boot, fill::zeros);
-            rowvec var_EB(N_boot, fill::zeros);
+            rowvec var_PB(N_B, fill::zeros);
+            rowvec var_EB(N_B, fill::zeros);
 
             //trovo le medie sui singoli blocchi per usarle dopo
             for (int i = 0; i < N_B; ++i){//ciclo sui blocchi per poi calcolare le medie
@@ -322,23 +317,24 @@ void bsp_blocking(int N_t){
                 }
             }
 
-            for (int i = 0; i < N_boot; ++i){
-                n.fill(0);//azzero il tutto
-                for (int j = 0; j < N_B_boot; ++j){
-                    n(j) = rand() % N_B;//trovo il blocco da aggiungere a random
-
-                    P_m_boot(i) += P_m((int)n(j)) / N_B_boot;
-                    E_m_boot(i) += E_m((int)n(j)) / N_B_boot;
+            for (int i = 0; i < N_B; ++i){
+                for (int j = 0; j < N_B; ++j){
+                    if(j!=i){//scarto un blocco alla volta e faccio tutte le configurazioni
+                        P_m_jack(i) += P_m(j) / (N_B - 1.0);
+                        E_m_jack(i) += E_m(j) / (N_B - 1.0);
+                    }
                 }
-                for (int j = 0; j < N_B_boot; ++j){
-                    var_PB(i) += pow1((P_m( (int)n(j) ) - P_m_boot(i)), 2) / N_B_boot;
-                    var_EB(i) += pow1((E_m( (int)n(j) ) - E_m_boot(i)), 2) / N_B_boot;
+                for (int j = 0; j < N_B; ++j){
+                    if(j!=i){
+                        var_PB(i) += pow1((P_m(j) - P_m_jack(i)), 2) / (N_B - 1.0);
+                        var_EB(i) += pow1((E_m(j) - E_m_jack(i)), 2) / (N_B - 1.0);
+                    }
                 }
             }
 
-            for (int i = 0; i < N_boot; ++i){
-                sigma_PB += sqrt(var_PB(i)) / N_boot;
-                sigma_EB += sqrt(var_EB(i)) / N_boot;
+            for (int i = 0; i < N_B; ++i){
+                sigma_PB += sqrt(var_PB(i)) / N_B;
+                sigma_EB += sqrt(var_EB(i)) / N_B;
             }
 
             bootstrap << B << "\t" << sigma_PB << "\t" << sigma_EB << endl;
