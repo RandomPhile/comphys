@@ -280,7 +280,7 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
 }
 
 void bsp_blocking(int N_t){
-    int N_boot = 5e2;
+    int N_boot = 1e3;
 
     rowvec P(N_t), E(N_t);
 
@@ -297,7 +297,7 @@ void bsp_blocking(int N_t){
 
     int N_B_prev=1;//scarto il blocco singolo
 
-    for (int B = 1; B < N_t/3; B+=5){
+    for (int B = 1; B < N_t/2; B+=5){
         double sigma_EB = 0, sigma_PB = 0;
         int N_B = floor(N_t / B);
         
