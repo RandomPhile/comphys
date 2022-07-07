@@ -230,13 +230,13 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
     
     //###################################################
     int reticolo   = log2(M);
-    gnuplot.open("gnuplot.dat");
+    gnuplot.open("out/gnuplot.dat");
     gnuplot << caso_min << endl;
     gnuplot.close();
 
-    risultati.open("risultati.dat");
-    dati.open("dati.dat");
-    dati_blocking.open("dati_blocking.dat");
+    risultati.open("out/risultati.dat");
+    dati.open("out/dati.dat");
+    dati_blocking.open("out/dati_blocking.dat");
     int start;
     if(caso_min == -1){
         start = caso_min + 1;

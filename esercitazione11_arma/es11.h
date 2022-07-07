@@ -154,9 +154,9 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
     rowvec P(N_t), E(N_t);
 
     ofstream blocking;
-    blocking.open("blocking.dat");
+    blocking.open("out/blocking.dat");
 
-    dati_blocking.open("dati_blocking.dat");
+    dati_blocking.open("out/dati_blocking.dat");
     
     for (int i = 0; i < N_t; ++i){
         dati_blocking >> P(i) >> E(i);//P(i) pressione istantanea, E(i) energia istantanea
@@ -211,9 +211,9 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
     rowvec P(N_t), E(N_t);
 
     ofstream bootstrap;
-    bootstrap.open("bootstrap.dat");
+    bootstrap.open("out/bootstrap.dat");
 
-    dati_blocking.open("dati_blocking.dat");
+    dati_blocking.open("out/dati_blocking.dat");
     
     for (int i = 0; i < N_t; ++i){
         dati_blocking >> P(i) >> E(i);//P(i) pressione istantanea, E(i) energia istantanea
@@ -285,8 +285,8 @@ void jackknife(int N_t){
     ifstream dati_blocking;
     ofstream bootstrap;
     
-    bootstrap.open("bootstrap.dat");
-    dati_blocking.open("dati_blocking.dat");
+    bootstrap.open("out/bootstrap.dat");
+    dati_blocking.open("out/dati_blocking.dat");
     
     for (int i = 0; i < N_t; ++i){
         dati_blocking >> P(i) >> E(i);//P(i) pressione istantanea, E(i) energia istantanea
