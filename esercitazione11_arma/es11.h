@@ -221,7 +221,7 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
     dati_blocking.close();
 
     int N_B_prev=0;
-    int N_jack = 5e2;
+    int N_boot = 5e2;
 
     for (int B = 300; B < N_t/3; B+=5){
 
@@ -229,18 +229,18 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
         
         if(N_B!=N_B_prev){
 
-            cube PB(N_B, B, N_jack);
-            cube EB(N_B, B, N_jack);
+            cube PB(N_B, B, N_boot);
+            cube EB(N_B, B, N_boot);
 
-            mat PB_m(N_B, N_jack, fill::zeros);
-            mat EB_m(N_B, N_jack, fill::zeros);
+            mat PB_m(N_B, N_boot, fill::zeros);
+            mat EB_m(N_B, N_boot, fill::zeros);
 
-            rowvec PB_m_tot(N_jack, fill::zeros);
-            rowvec EB_m_tot(N_jack, fill::zeros);
-            rowvec var_PB(N_jack, fill::zeros);
-            rowvec var_EB(N_jack, fill::zeros);
+            rowvec PB_m_tot(N_boot, fill::zeros);
+            rowvec EB_m_tot(N_boot, fill::zeros);
+            rowvec var_PB(N_boot, fill::zeros);
+            rowvec var_EB(N_boot, fill::zeros);
 
-            for (int i = 0; i < N_jack; ++i){//numero di bootstrap
+            for (int i = 0; i < N__boot; ++i){//numero di bootstrap
                 for (int j = 0; j < N_B; ++j){//ciclo sui blocchi
                     for (int k = 0; k < B; ++k){//resampling dei punti per ogni blocco
                         int n = rint((rand() / (RAND_MAX + 1.)) * B);
@@ -260,13 +260,13 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
             double var_PB_tot = 0;
             double var_EB_tot = 0;
 
-            for (int i = 0; i < N_jack; ++i){
+            for (int i = 0; i < N_boot; ++i){
                 for (int j = 0; j < N_B; ++j){
                     var_PB(i) += (PB_m(j, i) - PB_m_tot(i)) * (PB_m(j, i) - PB_m_tot(i)) / N_B;
                     var_EB(i) += (EB_m(j, i) - EB_m_tot(i)) * (EB_m(j, i) - EB_m_tot(i)) / N_B;
                 }
-                var_PB_tot += var_PB(i) / N_jack;
-                var_EB_tot += var_EB(i) / N_jack;
+                var_PB_tot += var_PB(i) / N_boot;
+                var_EB_tot += var_EB(i) / N_boot;
             }
 
             bootstrap << B << "\t" << sqrt(var_PB_tot / N_B) << "\t" << sqrt(var_EB_tot / N_B) << endl;
@@ -283,9 +283,9 @@ void jackknife(int N_t){
     rowvec P(N_t), E(N_t);
 
     ifstream dati_blocking;
-    ofstream bootstrap;
+    ofstream jackknife;
     
-    bootstrap.open("out/bootstrap.dat");
+    jackknife.open("out/jackknife.dat");
     dati_blocking.open("out/dati_blocking.dat");
     
     for (int i = 0; i < N_t; ++i){
@@ -337,12 +337,12 @@ void jackknife(int N_t){
                 sigma_EB += sqrt(var_EB(i)) / N_B;
             }
 
-            bootstrap << B << "\t" << sigma_PB << "\t" << sigma_EB << endl;
+            jackknife << B << "\t" << sigma_PB << "\t" << sigma_EB << endl;
             N_B_prev=N_B;
         }
     }
 
-    bootstrap.close();
+    jackknife.close();
     blocking_plot();//faccio fare il plot
 }
 #endif 
