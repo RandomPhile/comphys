@@ -13,7 +13,7 @@
 /*** variabili globali ***/
 //CC, BCC, FCC
 int M = 4; //1,2,4
-int N = M * pow(4, 3); //numero di particelle
+int N = M * pow(6, 3); //numero di particelle
 
 int numero_proposti = 0;
 int numero_accettati = 0;
@@ -61,10 +61,9 @@ int main() {
     rowvec passi_eq = {400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700};//tempi di equilibrazione con delta preso per avere circa 50% , 3600, 2200
     // passi_eq *= 10;
     // passi_eq.fill(2e4);
-    int caso_min = 4;//mettere -1 per avere P(rho)
-    int q = 1e5;//numero punti in piu rispetto al tempo di equilibrazione 1.8e6+1.8e5
+    int caso_min = 5;//mettere -1 per avere P(rho)
+    int q = 5e4;//numero punti in piu rispetto al tempo di equilibrazione 1.8e6+1.8e5
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
     // calcola_osservabili(rho, passi_eq, caso_min, N_t, q, T_req);
 
@@ -129,22 +128,17 @@ double dV_LJ(double r, double L) {
 }
 void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L, cube &dr, cube &dr_n){//N=N_mol
     rowvec r_n(3);
-    // r_n.randn(3); //riempie con numeri casuali distributiti con gaussiana
-
-    // r_n.randu(3); //distribuzione uniforme
-
-    double s= rand() / (RAND_MAX + 1.0);//eseguo prima il rand perche da problemi senno
-    int n = (int)rint((N-1) *s);//trovo la molecola che viene modificata da MTR2
-
-    // r_n += r.row(n);
-    r_n(0) = r(n,0) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);//modifico le posizioni della particella n
-    r_n(1) = r(n,1) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
-    r_n(2) = r(n,2) + Delta * (rand() / (RAND_MAX + 1.0) - 0.5);
-
-    // r_n = (r_n - 0.5) * Delta + r.row(n);//distribuzione uniforme
     
-    double V_tot_r1= *V;//potenziale in posizione nuova
-    double V_tot_r0= *V;//potenziale in posizione vecchia
+    double s = rand() / (RAND_MAX + 1.0);//eseguo prima il rand perche da problemi senno
+    int n = rint((N-1) * s);//trovo la molecola che viene modificata da MTR2
+
+    r_n(0) = r(n,0) + Delta * ((rand() / (RAND_MAX + 1.0)) - 0.5);//modifico le posizioni della particella n
+    r_n(1) = r(n,1) + Delta * ((rand() / (RAND_MAX + 1.0)) - 0.5);
+    r_n(2) = r(n,2) + Delta * ((rand() / (RAND_MAX + 1.0)) - 0.5);
+
+    
+    double V_tot_r1 = *V;//potenziale in posizione nuova
+    
     double dr_mod, dr_mod_n;
 
     for (int i = 0; i < n; ++i){//ciclo sulla colonna
@@ -156,7 +150,7 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         dr_mod_n = mod(dr_n,i,n);
         dr_mod = mod(dr,i,n);
 
-        V_tot_r1+=V_LJ(dr_mod_n, L) - V_LJ(dr_mod, L);
+        V_tot_r1 += V_LJ(dr_mod_n, L) - V_LJ(dr_mod, L);
     }
     for (int j = n + 1; j < N; ++j){
         for (int k = 0; k < 3; ++k){
@@ -170,54 +164,36 @@ void MRT2(mat &r, double *V, double *W, int N, double Delta, double T, double L,
         V_tot_r1 += V_LJ(dr_mod_n, L) - V_LJ(dr_mod, L);
     }
 
-    double A=min(1,exp(-(V_tot_r1-V_tot_r0)/T));//trovo A
+    double A = min(1, exp( - (V_tot_r1 - *V) / T));//trovo A
     numero_proposti++;
     
-    if(A>(rand()/((double)RAND_MAX+1.0))){
-        r.row(n)=r_n;
+    if(A > (rand() / ( (double)RAND_MAX + 1.0))){
+        r.row(n) = r_n;
         numero_accettati++;
         *V = V_tot_r1; 
 
-        // *W *= N;
-        // for (int i = 0; i < n; ++i){//ciclo sulla colonna n
-        //     dr_mod_n = mod(dr_n,i,n);
-        //     dr_mod = mod(dr,i,n);
+        *W *= N;
+        for (int i = 0; i < n; ++i){//ciclo sulla colonna n
+            dr_mod_n = mod(dr_n,i,n);
+            dr_mod = mod(dr,i,n);
 
-        //     dr(i,n,0)=dr_n(i,n,0);//distanze "vecchie per il prossimo ciclo"
-        //     dr(i,n,1)=dr_n(i,n,1);
-        //     dr(i,n,2)=dr_n(i,n,2);
+            dr(i,n,0)=dr_n(i,n,0);//distanze "vecchie per il prossimo ciclo"
+            dr(i,n,1)=dr_n(i,n,1);
+            dr(i,n,2)=dr_n(i,n,2);
 
-        //     *W = *W - dV_LJ(dr_mod_n, L) + dV_LJ(dr_mod, L);
-        // }
-        // for (int j = n + 1; j < N; ++j){//ciclo sulla riga n
-        //     dr_mod_n = mod(dr_n,n,j);
-        //     dr_mod = mod(dr,n,j);
-
-        //     dr(n,j,0)=dr_n(n,j,0);//distanze "vecchie per il prossimo ciclo"
-        //     dr(n,j,1)=dr_n(n,j,1);
-        //     dr(n,j,2)=dr_n(n,j,2);
-    
-        //     *W = *W - dV_LJ(dr_mod_n, L) + dV_LJ(dr_mod, L);
-        // }
-        // *W /= N;
-
-
-
-        *W=0;//codice pressione funzionante
-        for (int i = 0; i < N; ++i){
-            for (int j = i + 1; j < N; ++j) {
-                dr_mod=mod(dr_n,i,j);
-                dr(i,j,0)=dr_n(i,j,0);
-                dr(i,j,1)=dr_n(i,j,1);
-                dr(i,j,2)=dr_n(i,j,2);
-                
-                if (dr_mod < L/2) {    
-                    //dV_dr * r
-                    *W -= 24 * (pow1(1 / dr_mod, 6) - 2 * pow1(1 / dr_mod, 12)); 
-                }
-            }
+            *W += - dV_LJ(dr_mod_n, L) + dV_LJ(dr_mod, L);
         }
-        *W/=N;
+        for (int j = n + 1; j < N; ++j){//ciclo sulla riga n
+            dr_mod_n = mod(dr_n,n,j);
+            dr_mod = mod(dr,n,j);
+
+            dr(n,j,0)=dr_n(n,j,0);//distanze "vecchie per il prossimo ciclo"
+            dr(n,j,1)=dr_n(n,j,1);
+            dr(n,j,2)=dr_n(n,j,2);
+    
+            *W += - dV_LJ(dr_mod_n, L) + dV_LJ(dr_mod, L);
+        }
+        *W /= N;
     }
 }
 void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int q, double T_req){
@@ -275,10 +251,23 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
         double V_m = 0, W_m = 0, P_m = 0, E_m = 0;
         double var_P = 0, var_E = 0;
 
+        // calcolo il primo valore della "pressione" e del potenziale
+        for (int i = 0; i < N; ++i){
+            for (int j = i + 1; j < N; ++j) {
+                double dr_mod = mod(dr,i,j);
+                
+                V += V_LJ(dr_mod, L);
+                W += -dV_LJ(dr_mod, L);
+            }
+        }
+        W /= N;
+
         for (int i = 0; i < N_t; ++i) {//passi
             if(i > passi_eq(caso) + 1){//calcola le medie
                 V_m = V_m * (i - passi_eq(caso) - 1.0);
                 W_m = W_m * (i - passi_eq(caso) - 1.0);
+                E_m = E_m * (i - passi_eq(caso) - 1.0);
+
                 var_P = var_P * (i - passi_eq(caso) - 1.0);
                 var_E = var_E * (i - passi_eq(caso) - 1.0);
             }
@@ -291,15 +280,17 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
             if(i > passi_eq(caso)){//tempo di equilibrazione e calcola le medie
                 V_m = (V_m + V) / (i - passi_eq(caso));
                 W_m = (W_m + W) / (i - passi_eq(caso));
-                E_m = E_c + V_m;
+                E_m = (E_m + E) / (i - passi_eq(caso));
+                // E_m = E_c + V_m;
                 
                 P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+
                 var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso));//calcolo la varianza "ordinaria"
                 var_E = (var_E + (E - E_m) * (E - E_m)) / (i - passi_eq(caso));//calcolo la varianza "ordinaria"
             }
 
             if (caso_min != -1) {
-                dati << i << "\t" << V_m << "\t" << P_m << "\t" << E_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P) << "\t" << E << "\t" << sqrt(var_E) << endl;
+                dati << i << "\t" << V_m << "\t" << P_m << "\t" << E_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P/i) << "\t" << E << "\t" << sqrt(var_E/i) << endl;
                 if(i > passi_eq(caso)){
                     dati_blocking << P << "\t" << E << endl;
                 }

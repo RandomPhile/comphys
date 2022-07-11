@@ -240,7 +240,7 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
             rowvec var_PB(N_boot, fill::zeros);
             rowvec var_EB(N_boot, fill::zeros);
 
-            for (int i = 0; i < N__boot; ++i){//numero di bootstrap
+            for (int i = 0; i < N_boot; ++i){//numero di bootstrap
                 for (int j = 0; j < N_B; ++j){//ciclo sui blocchi
                     for (int k = 0; k < B; ++k){//resampling dei punti per ogni blocco
                         int n = rint((rand() / (RAND_MAX + 1.)) * B);
