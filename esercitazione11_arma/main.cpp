@@ -54,26 +54,27 @@ int main() {
 // -----------------------------------------VARIABILI----------------------------VARIABILI------------------------------VARIABILI-----------------------------------------------
     srand(1);//default seed = 1
     int N_t;//numero passi simulazione, vedi rigo 61 per il valore in base al tempo di equilibrazione stimato
-    int N_b = 20;//numero bin
+    int N_b = 26;//numero bin
     double T_req = 1.1;//temperatura adimensionale
 
     rowvec rho = {0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2};//, 1.3, 1.4
     rowvec passi_eq = {400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700};//tempi di equilibrazione con delta preso per avere circa 50% , 3600, 2200
-    // passi_eq *= 10;
-    // passi_eq.fill(2e4);
-    int caso_min = 5;//mettere -1 per avere P(rho)
-    int q = 5e4;//numero punti in piu rispetto al tempo di equilibrazione 1.8e6+1.8e5
+    
+    int caso_min = -1;//mettere -1 per avere P(rho)
+    int q = 1e5;//numero punti in piu rispetto al tempo di equilibrazione 1.8e6+1.8e5
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // calcola_osservabili(rho, passi_eq, caso_min, N_t, q, T_req);
 
-    // plot_pressioni_energie(caso_min);//plot pressioni ed energie
+    plot_pressioni_energie(caso_min);//plot pressioni ed energie
 
     // blocking(passi_eq(caso_min)+q);//plot blocking
 
     // bootstrap(passi_eq(caso_min)+q);//plot con bootstrap blocking
 
-    jackknife(passi_eq(caso_min)+q);
+    // jackknife(passi_eq(caso_min)+q);
+
+    // gdr_funz(rho(caso_min), N_b);
 
     return 0;
 }
@@ -281,8 +282,6 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
                 V_m = (V_m + V) / (i - passi_eq(caso));
                 W_m = (W_m + W) / (i - passi_eq(caso));
                 E_m = (E_m + E) / (i - passi_eq(caso));
-                // E_m = E_c + V_m;
-                
                 P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
 
                 var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso));//calcolo la varianza "ordinaria"
@@ -314,6 +313,10 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
     dati_blocking.close();
     dati.close();
     risultati.close();
+
+    if(caso_min != -1){
+        stampa_reticolo(r);//stampa il reticolo finale per la gdr
+    }
 }
 // -----------------------------------------FUNZIONI----------------------------FUNZIONI------------------------------FUNZIONI-----------------------------------------------
 // -----------------------------------------FUNZIONI----------------------------FUNZIONI------------------------------FUNZIONI-----------------------------------------------

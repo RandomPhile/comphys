@@ -14,6 +14,24 @@ extern ofstream dati;
 #define LOG(x) cout<<x<<endl; 
 
 
+void plot_reticolo() {
+    string comando;
+    comando = "gnuplot";
+    comando += " plot_reticolo.plt";
+    cout << comando << endl;
+    system(comando.c_str());
+    return;
+}
+void stampa_reticolo(mat &r){
+    ofstream reticolo;
+    reticolo.open("out/reticolo.dat");
+    for (int i = 0; i < N; ++i){
+        reticolo << r(i, 0) << "\t" << r(i,1) << "\t" << r(i,2) << endl;//0 posizione x, 1 posizione y, 2 posizione z
+    }
+    reticolo.close();
+    // plot_reticolo();
+    return;
+}
 double pow1(double base, int esp) {//funzione esponenziale creata per non usare pow
     double ris = 1.0;
     for (int i = 0; i < esp; i++) {
@@ -99,8 +117,17 @@ void gdr_plot(){
     LOG(comando);
     system(comando.c_str());
 }
-void gdr_funz(mat &r, double L, double rho, int N_b){//penso funzionante
-    cout<<"Ora calcolo la g(r), abbi ancora un po' di pazienza"<<endl;
+void gdr_funz(double rho, int N_b){//penso funzionante
+    mat r(N,3);
+
+    ifstream reticolo;
+    reticolo.open("out/reticolo.dat");
+    for (int i = 0; i < N; ++i){//importa i dati dal reticolo
+        reticolo >> r(i,0) >> r(i,1) >> r(i,2);
+    }
+    reticolo.close();
+
+    double L = cbrt(N / rho);
     
     ofstream gdr_file;
     gdr_file.open("out/gdr_file.dat");
