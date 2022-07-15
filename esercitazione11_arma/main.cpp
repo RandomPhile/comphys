@@ -60,13 +60,13 @@ int main() {
     rowvec rho = {0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2};//, 1.3, 1.4
     rowvec passi_eq = {400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700};//tempi di equilibrazione con delta preso per avere circa 50% , 3600, 2200
     
-    int caso_min = -1;//mettere -1 per avere P(rho)
+    int caso_min = 13;//mettere -1 per avere P(rho)
     int q = 1e5;//numero punti in piu rispetto al tempo di equilibrazione 1.8e6+1.8e5
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // calcola_osservabili(rho, passi_eq, caso_min, N_t, q, T_req);
 
-    plot_pressioni_energie(caso_min);//plot pressioni ed energie
+    // plot_pressioni_energie(caso_min);//plot pressioni ed energie
 
     // blocking(passi_eq(caso_min)+q);//plot blocking
 
@@ -74,7 +74,7 @@ int main() {
 
     // jackknife(passi_eq(caso_min)+q);
 
-    // gdr_funz(rho(caso_min), N_b);
+    gdr_funz(rho(caso_min), N_b);
 
     return 0;
 }
