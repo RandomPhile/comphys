@@ -360,8 +360,8 @@ void jackknife(int N_t){
             }
 
             for (int i = 0; i < N_B; ++i){
-                sigma_PB += sqrt(var_PB(i) / N_B) / N_B;
-                sigma_EB += sqrt(var_EB(i) / N_B) / N_B;
+                sigma_PB += sqrt(var_PB(i) / (N_B - 1)) / N_B;
+                sigma_EB += sqrt(var_EB(i) / (N_B - 1)) / N_B;
             }
 
             jackknife << B << "\t" << sigma_PB << "\t" << sigma_EB << endl;
