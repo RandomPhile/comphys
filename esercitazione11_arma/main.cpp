@@ -70,7 +70,7 @@ int main() {
 
     // blocking(passi_eq(caso_min)+q);//plot blocking
 
-    // bootstrap(passi_eq(caso_min)+q);//plot con bootstrap blocking
+    bootstrap(passi_eq(caso_min)+q);//plot con bootstrap blocking
 
     // jackknife(passi_eq(caso_min)+q);
 

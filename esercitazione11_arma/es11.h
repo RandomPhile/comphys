@@ -247,13 +247,14 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
     dati_blocking.close();
 
     int N_B_prev=0;
-    int N_boot = 5e2;
+    int N_boot = 200;
 
     for (int B = 300; B < N_t/3; B+=5){
 
         int N_B = floor(N_t / B);
         
         if(N_B!=N_B_prev){
+            double P_media = 0, E_media = 0;
 
             cube PB(N_B, B, N_boot);
             cube EB(N_B, B, N_boot);
@@ -261,38 +262,35 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
             mat PB_m(N_B, N_boot, fill::zeros);
             mat EB_m(N_B, N_boot, fill::zeros);
 
-            rowvec PB_m_tot(N_boot, fill::zeros);
-            rowvec EB_m_tot(N_boot, fill::zeros);
-            rowvec var_PB(N_boot, fill::zeros);
-            rowvec var_EB(N_boot, fill::zeros);
+            rowvec PB_m_tot(N_B, fill::zeros);
+            rowvec EB_m_tot(N_B, fill::zeros);
+            rowvec var_PB(N_B, fill::zeros);
+            rowvec var_EB(N_B, fill::zeros);
 
-            for (int i = 0; i < N_boot; ++i){//numero di bootstrap
-                for (int j = 0; j < N_B; ++j){//ciclo sui blocchi
+            for (int j = 0; j < N_B; ++j){//ciclo sui blocchi
+                for (int i = 0; i < N_boot; ++i){//numero di bootstrap
                     for (int k = 0; k < B; ++k){//resampling dei punti per ogni blocco
                         int n = rint((rand() / (RAND_MAX + 1.)) * B);
 
-                        PB(j, k, i) = P(n + j * N_B);//creo i blocchi resampled
-                        EB(j, k, i) = E(n + j * N_B);
+                        PB(j, k, i) = P(n + j * B);//creo i blocchi resampled
+                        EB(j, k, i) = E(n + j * B);
 
                         PB_m (j, i) +=  PB(j, k, i) / B;//calcolo le medie nei singoli blocchi 
                         EB_m (j, i) +=  EB(j, k, i) / B;
                     }
 
-                    PB_m_tot(i) += PB_m (j, i) / N_B;
-                    EB_m_tot(i) += EB_m (j, i) / N_B;
+                    PB_m_tot(j) += PB_m (j, i) / N_boot;
+                    EB_m_tot(j) += EB_m (j, i) / N_boot;
                 }
+                P_media += PB_m_tot(j) / N_B;
+                E_media += EB_m_tot(j) / N_B;
             }
 
             double var_PB_tot = 0;
             double var_EB_tot = 0;
 
-            for (int i = 0; i < N_boot; ++i){
-                for (int j = 0; j < N_B; ++j){
-                    var_PB(i) += (PB_m(j, i) - PB_m_tot(i)) * (PB_m(j, i) - PB_m_tot(i)) / N_B;
-                    var_EB(i) += (EB_m(j, i) - EB_m_tot(i)) * (EB_m(j, i) - EB_m_tot(i)) / N_B;
-                }
-                var_PB_tot += var_PB(i) / N_boot;
-                var_EB_tot += var_EB(i) / N_boot;
+            for (int i = 0; i < N_B; ++i){
+                var_PB_tot += pow1(PB_m_tot(i) - )
             }
 
             bootstrap << B << "\t" << sqrt(var_PB_tot / N_B) << "\t" << sqrt(var_EB_tot / N_B) << endl;
@@ -354,7 +352,7 @@ void jackknife(int N_t){
                 E_media += E_m_jack(i) / N_B;
             }
 
-            for (int i = 0; i < count; ++i){
+            for (int i = 0; i < N_B; ++i){
                 var_PB += pow1(P_m_jack(i) - P_media, 2);
                 var_EB += pow1(E_m_jack(i) - E_media, 2);
             }
