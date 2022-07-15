@@ -321,18 +321,19 @@ void jackknife(int N_t){
     int N_B_prev=1;//scarto il blocco singolo
 
     for (int B = (int)(N_t / 5e3) + 1; B < N_t/3; B+=5){//tolgo i blocchi troppo piccoli perche irrilevanti
-        double sigma_EB = 0, sigma_PB = 0;
         int N_B = floor(N_t / B);
         
         if(N_B!=N_B_prev){
+            double P_media = 0, E_media = 0;
+
             rowvec P_m(N_B, fill::value(0));//pressione media del blocco
             rowvec E_m(N_B, fill::value(0));//energia media del blocco
 
             rowvec P_m_jack(N_B, fill::value(0));//pressione media del blocco
             rowvec E_m_jack(N_B, fill::value(0));//energia media del blocco
 
-            rowvec var_PB(N_B, fill::zeros);
-            rowvec var_EB(N_B, fill::zeros);
+            double var_PB = 0;
+            double var_EB = 0;
 
             //trovo le medie sui singoli blocchi per usarle dopo
             for (int i = 0; i < N_B; ++i){//ciclo sui blocchi per poi calcolare le medie
@@ -349,20 +350,16 @@ void jackknife(int N_t){
                         E_m_jack(i) += E_m(j) / (N_B - 1.0);
                     }
                 }
-                for (int j = 0; j < N_B; ++j){
-                    if(j!=i){
-                        var_PB(i) += pow1((P_m(j) - P_m_jack(i)), 2) / (N_B - 1.0);
-                        var_EB(i) += pow1((E_m(j) - E_m_jack(i)), 2) / (N_B - 1.0);
-                    }
-                }
+                P_media += P_m_jack(i) / N_B;
+                E_media += E_m_jack(i) / N_B;
             }
 
-            for (int i = 0; i < N_B; ++i){
-                sigma_PB += sqrt(var_PB(i) / (N_B - 1)) / N_B;
-                sigma_EB += sqrt(var_EB(i) / (N_B - 1)) / N_B;
+            for (int i = 0; i < count; ++i){
+                var_PB += pow1(P_m_jack(i) - P_media, 2);
+                var_EB += pow1(E_m_jack(i) - E_media, 2);
             }
 
-            jackknife << B << "\t" << sigma_PB << "\t" << sigma_EB << endl;
+            jackknife << B << "\t" << sqrt((N_B - 1) * var_PB / N_B) << "\t" << sqrt((N_B - 1) * var_EB / N_B) << endl;
             N_B_prev=N_B;
         }
     }
