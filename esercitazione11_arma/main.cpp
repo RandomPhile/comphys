@@ -12,7 +12,7 @@
 
 /*** variabili globali ***/
 //CC, BCC, FCC
-int M = 4; //1,2,4
+int M = 4; //1,2,4 scegliere per la configurazione
 int N = M * pow(6, 3); //numero di particelle
 
 int numero_proposti = 0;
@@ -60,19 +60,17 @@ int main() {
     rowvec rho = {0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2};//, 1.3, 1.4
     rowvec passi_eq = {1000, 2000, 3000, 4000, 6000, 9000, 9000, 9000, 9000, 1e4, 1e4, 1e4, 1e4, 1e4};//tempi di equilibrazione con delta preso per avere circa 50% , 3600, 2200
     
-    int caso_min = 9;//mettere -1 per avere P(rho)
-    int q = 1e5;//numero punti in piu rispetto al tempo di equilibrazione 1.8e6+1.8e5
+    int caso_min = 1;//mettere -1 per avere P(rho)
+    int q = 1e5;//numero punti in piu rispetto al tempo di equilibrazione 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    // calcola_osservabili(rho, passi_eq, caso_min, N_t, q, T_req);
+    calcola_osservabili(rho, passi_eq, caso_min, N_t, q, T_req);
 
     // plot_pressioni_energie(caso_min);//plot pressioni ed energie
 
-    // blocking(passi_eq(caso_min)+q);//plot blocking
-
-    bootstrap(passi_eq(caso_min)+q);//plot con bootstrap blocking
-
-    // jackknife(passi_eq(caso_min)+q);
+    blocking(passi_eq(caso_min)+q);//plot blocking
+ 
+    jackknife(passi_eq(caso_min)+q);
 
     // gdr_funz(rho(caso_min), N_b);
 
@@ -115,14 +113,12 @@ double V_LJ(double r, double L) {
     //potenziale va a zero in modo continuo sul bordo della scatola
     if (r < L / 2 && r != 0) {
         double VL_2 = 4 * (pow1(2 / L, 12) - pow1(2 / L, 6));
-        //double VpL_2 = 24 * (pow1(1 / r, 8) - 2 * pow1(1 / r, 14));
         return 4 * (pow1(1 / r, 12) - pow1(1 / r, 6)) - VL_2;
     } else {
         return 0;
     }
 }
-double dV_LJ(double r, double L) {
-    //potenziale va a zero in modo continuo sul bordo della scatola
+double dV_LJ(double r, double L) {//calcola la derivata del potenziale e la moltiplica per r
     if (r < L / 2 && r != 0) {
         return 24 * (pow1(1 / r, 6) - 2 * pow1(1 / r, 12));
     } else {
@@ -225,7 +221,7 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
     }
 
     mat r(N,3);
-    cube dr(N,N,3), dr_n(N,N,3);
+    cube dr(N,N,3), dr_n(N,N,3);//li creo all'inizio cosi salvo memoria e tempo
 
     for (int caso = start; caso < caso_max; ++caso) {
 
@@ -274,6 +270,7 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
                 var_P = var_P * (i - passi_eq(caso) - 1.0);
                 var_E = var_E * (i - passi_eq(caso) - 1.0);
             }
+
             dr_n = dr;
             MRT2(r, &V, &W, N, Delta, T_req, L, dr, dr_n);//metropolis
 
@@ -284,7 +281,7 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
                 V_m = (V_m + V) / (i - passi_eq(caso));
                 W_m = (W_m + W) / (i - passi_eq(caso));
                 E_m = (E_m + E) / (i - passi_eq(caso));
-                P_m = (1 + W_m / (3.0 * T_req)); //P su rho*k_B*T_req
+                P_m = (1 + W_m / (3.0 * T_req)); 
 
                 var_P = (var_P + (P - P_m) * (P - P_m)) / (i - passi_eq(caso));//calcolo la varianza "ordinaria"
                 var_E = (var_E + (E - E_m) * (E - E_m)) / (i - passi_eq(caso));//calcolo la varianza "ordinaria"
@@ -300,9 +297,9 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
                 }
             }
 
-            if(i == (int)(N_t / 2) && caso_min != -1){
-                cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
-            }
+            // if(i == (int)(N_t / 2) && caso_min != -1){
+            //     cout<<"Sono a metà dei cicli montecarlo, dai che ce la faccio"<<endl;
+            // }
         }
 
         cout << "Densità = "<< rho(caso) << "\t" <<"Pressione = " << P_m << "\t" <<"Energia = " << E_m << endl;
