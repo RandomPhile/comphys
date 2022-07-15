@@ -58,9 +58,9 @@ int main() {
     double T_req = 1.1;//temperatura adimensionale
 
     rowvec rho = {0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2};//, 1.3, 1.4
-    rowvec passi_eq = {400, 550, 1200, 1000, 2200, 2500, 2500, 2800, 3700, 3700, 3700, 3700, 3700, 3700};//tempi di equilibrazione con delta preso per avere circa 50% , 3600, 2200
+    rowvec passi_eq = {1000, 2000, 3000, 4000, 6000, 9000, 9000, 9000, 9000, 1e4, 1e4, 1e4, 1e4, 1e4};//tempi di equilibrazione con delta preso per avere circa 50% , 3600, 2200
     
-    int caso_min = 13;//mettere -1 per avere P(rho)
+    int caso_min = 9;//mettere -1 per avere P(rho)
     int q = 1e5;//numero punti in piu rispetto al tempo di equilibrazione 1.8e6+1.8e5
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -70,11 +70,13 @@ int main() {
 
     // blocking(passi_eq(caso_min)+q);//plot blocking
 
-    // bootstrap(passi_eq(caso_min)+q);//plot con bootstrap blocking
+    bootstrap(passi_eq(caso_min)+q);//plot con bootstrap blocking
 
     // jackknife(passi_eq(caso_min)+q);
 
-    gdr_funz(rho(caso_min), N_b);
+    // gdr_funz(rho(caso_min), N_b);
+
+    blocking_plot();
 
     return 0;
 }
@@ -289,9 +291,12 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
             }
 
             if (caso_min != -1) {
-                dati << i << "\t" << V_m << "\t" << P_m << "\t" << E_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P/i) << "\t" << E << "\t" << sqrt(var_E/i) << endl;
                 if(i > passi_eq(caso)){
+                    dati << i << "\t" << V_m << "\t" << P_m << "\t" << E_m  << "\t" << V << "\t" << P << "\t" << sqrt(var_P/i) << "\t" << E << "\t" << sqrt(var_E/i) << endl;
                     dati_blocking << P << "\t" << E << endl;
+                }
+                else{
+                    dati << i << "\t" << NAN << "\t" << NAN << "\t" << NAN  << "\t" << V << "\t" << P << "\t" << sqrt(var_P/i) << "\t" << E << "\t" << sqrt(var_E/i) << endl;
                 }
             }
 
@@ -304,9 +309,8 @@ void calcola_osservabili(rowvec rho, rowvec passi_eq, int caso_min, int N_t, int
         if (caso_min == -1) {
             dati << rho(caso) << "\t" << P << "\t" << sqrt(var_P) << endl;
         }
-        else{//calcolo della gdr
+        else{
             risultati << rho(caso) << "\t" << P_m << "\t" << sqrt(var_P) << endl;
-           // gdr_funz(r, L, rho(caso), N_b);
         }
         cout << "Ho accettato il " << (double)numero_accettati / (double)numero_proposti * 100 << "%. I passi totali erano " << N_t << "\n\n";
     }

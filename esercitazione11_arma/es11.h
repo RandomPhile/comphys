@@ -229,7 +229,6 @@ void blocking(int N_t){//crea e plotta il grafico del blocking
     }
 
     blocking.close();
-    blocking_plot();//faccio fare il plot
 }
 
 void bootstrap(int N_t){//crea e plotta il grafico del blocking
@@ -303,7 +302,6 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
     }
 
     bootstrap.close();
-    blocking_plot();//faccio fare il plot
 }
 
 void jackknife(int N_t){
@@ -370,6 +368,5 @@ void jackknife(int N_t){
     }
 
     jackknife.close();
-    blocking_plot();//faccio fare il plot
 }
 #endif 
