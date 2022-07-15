@@ -264,8 +264,6 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
 
             rowvec PB_m_tot(N_B, fill::zeros);
             rowvec EB_m_tot(N_B, fill::zeros);
-            rowvec var_PB(N_B, fill::zeros);
-            rowvec var_EB(N_B, fill::zeros);
 
             for (int j = 0; j < N_B; ++j){//ciclo sui blocchi
                 for (int i = 0; i < N_boot; ++i){//numero di bootstrap
@@ -286,14 +284,15 @@ void bootstrap(int N_t){//crea e plotta il grafico del blocking
                 E_media += EB_m_tot(j) / N_B;
             }
 
-            double var_PB_tot = 0;
-            double var_EB_tot = 0;
+            double var_PB = 0;
+            double var_EB = 0;
 
             for (int i = 0; i < N_B; ++i){
-                var_PB_tot += pow1(PB_m_tot(i) - )
+                var_PB += pow1(PB_m_tot(i) - P_media, 2) / N_B;
+                var_EB += pow1(EB_m_tot(i) - E_media, 2) / N_B;
             }
 
-            bootstrap << B << "\t" << sqrt(var_PB_tot / N_B) << "\t" << sqrt(var_EB_tot / N_B) << endl;
+            bootstrap << B << "\t" << sqrt(var_PB / N_B) << "\t" << sqrt(var_EB / N_B) << endl;
 
             N_B_prev=N_B;
         }
